@@ -19,6 +19,10 @@ repositories { // Where to search for dependencies
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/io.vertx/vertx-core
+    implementation("io.vertx:vertx-core:4.5.11")
+    // https://mvnrepository.com/artifact/io.vertx/vertx-mqtt
+    implementation("io.vertx:vertx-mqtt:4.5.11")
 }
 
 application {
