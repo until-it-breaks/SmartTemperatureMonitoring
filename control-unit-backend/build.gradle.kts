@@ -23,6 +23,10 @@ dependencies {
     implementation("io.vertx:vertx-core:4.5.11")
     // https://mvnrepository.com/artifact/io.vertx/vertx-mqtt
     implementation("io.vertx:vertx-mqtt:4.5.11")
+    // https://mvnrepository.com/artifact/io.vertx/vertx-web
+    implementation("io.vertx:vertx-web:4.5.11")
+    // https://mvnrepository.com/artifact/io.vertx/vertx-web-client
+    implementation("io.vertx:vertx-web-client:4.5.11")
 }
 
 application {
