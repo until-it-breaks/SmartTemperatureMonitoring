@@ -1,4 +1,4 @@
-package it.unibo.backend;
+package it.unibo.backend.temperature;
 
 import java.util.Deque;
 import java.util.List;
@@ -7,13 +7,12 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 public class TemperatureSampler {
     private static final int MAX_READINGS = 500;                // We will store the 500 most recent temp readings.
     private static final int MAX_HISTORY_LENGTH = 30;           // We will store the 30 most recent averages.
-    private static final long DEFAULT_HISTORY_INTERVAL = 10000; // Average temperature are calculated at a period of 10s.
+    private static final long DEFAULT_HISTORY_INTERVAL = 5000; // Average temperature are calculated at a period of 5s.
     
     private final NavigableMap<Long, Double> temperatureReadings;   // Thread safe variant of a TreeMap. A TreeMap stores key-values and sorts them according to their key in their natural order.
     private final Deque<Double> averageHistory;                     // Thread safe version of a LinkedList
@@ -72,7 +71,7 @@ public class TemperatureSampler {
         }
 
         if (averageHistory.size() > MAX_HISTORY_LENGTH) {
-            averageHistory.removeLast();
+            averageHistory.removeFirst();
         }
     }
 
