@@ -11,7 +11,7 @@ plugins {
      * In order to create it, launch the "shadowJar" task.
      * The runnable jar will be found in build/libs/projectname-all.jar
      */
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.5"
 }
 
 repositories { // Where to search for dependencies
@@ -27,6 +27,8 @@ dependencies {
     implementation("io.vertx:vertx-web:4.5.11")
     // https://mvnrepository.com/artifact/io.vertx/vertx-web-client
     implementation("io.vertx:vertx-web-client:4.5.11")
+    // https://mvnrepository.com/artifact/io.github.java-native/jssc
+    implementation("io.github.java-native:jssc:2.9.6")
 }
 
 application {
