@@ -8,6 +8,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mqtt.MqttClient;
 import io.vertx.mqtt.MqttClientOptions;
 
+/**
+ * Right now this is not worthy of the name "Agent".
+ * Will be improved down the line.
+ */
 public class MQTTAgent extends AbstractVerticle {
     private static final String BROKER_ADDRESS = "34.154.239.184";
     private static final int BROKER_PORT = 1883;
