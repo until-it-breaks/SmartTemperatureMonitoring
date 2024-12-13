@@ -29,6 +29,10 @@ dependencies {
     implementation("io.vertx:vertx-web-client:4.5.11")
     // https://mvnrepository.com/artifact/io.github.java-native/jssc
     implementation("io.github.java-native:jssc:2.9.6")
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    implementation("org.slf4j:slf4j-api:2.0.16")
+    // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
+    testImplementation("ch.qos.logback:logback-classic:1.5.12")
 }
 
 application {
