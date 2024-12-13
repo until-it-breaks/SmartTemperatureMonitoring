@@ -10,30 +10,26 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class TemperatureSampler {
-    private static final int MAX_READINGS = 500;
-    private static final int MAX_HISTORY_LENGTH = 30;
-    private static final long DEFAULT_HISTORY_INTERVAL = 10000; // Average temp is at intervals of 10s.
+    private static final int MAX_READINGS = 500;                // We will store the 500 most recent temp readings.
+    private static final int MAX_HISTORY_LENGTH = 30;           // We will store the 30 most recent averages.
+    private static final long DEFAULT_HISTORY_INTERVAL = 10000; // Average temperature are calculated at a period of 10s.
     
-    // A thread safe variant of a TreeMap. A TreeMap stores values sorting them in the natural order of their key.
-    private final NavigableMap<Long, Double> temperatureReadings;
-    private final Deque<Double> averageHistory;
+    private final NavigableMap<Long, Double> temperatureReadings;   // Thread safe variant of a TreeMap. A TreeMap stores key-values and sorts them according to their key in their natural order.
+    private final Deque<Double> averageHistory;                     // Thread safe version of a LinkedList
 
     private final ScheduledExecutorService scheduler;
-    private final Runnable averageTask;
 
-    private volatile double currentIntervalSum;
-    private volatile int currentIntervalCount;
+    private volatile double temperatureSum;
+    private volatile int summedTempReadingCount;
 
     public TemperatureSampler() {
         this.temperatureReadings = new ConcurrentSkipListMap<>();
         this.averageHistory = new ConcurrentLinkedDeque<>();
-        this.currentIntervalSum = 0;
-        this.currentIntervalCount = 0;
+        this.temperatureSum = 0;
+        this.summedTempReadingCount = 0;
 
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
-        this.averageTask = this::calculateAverage;
-
-        scheduler.scheduleAtFixedRate(averageTask, DEFAULT_HISTORY_INTERVAL, DEFAULT_HISTORY_INTERVAL, TimeUnit.MILLISECONDS);
+        this.scheduler.scheduleAtFixedRate(this::calculateAverage, DEFAULT_HISTORY_INTERVAL, DEFAULT_HISTORY_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     public void addReading(long timeStamp, double temperature) {
@@ -46,10 +42,11 @@ public class TemperatureSampler {
         if (temperatureReadings.size() > MAX_READINGS) {
             temperatureReadings.pollFirstEntry(); // Removes the least recent timestamp and temp reading.
         }
-        
+
+        // Critical section. Both the caller of this method and the scheduler worker can access these.
         synchronized (this) {
-            currentIntervalSum += temperature;
-            currentIntervalCount++;
+            temperatureSum += temperature;
+            summedTempReadingCount++;
         }
     }
 
@@ -57,13 +54,14 @@ public class TemperatureSampler {
 
         double sum;
         int count;
-
+    
+        // Critical section. Both the caller of this method and the scheduler worker can access these. Therefore we save those values and operate on those.
         synchronized (this) {
-            sum = currentIntervalSum;
-            count = currentIntervalCount;
+            sum = temperatureSum;
+            count = summedTempReadingCount;
 
-            currentIntervalSum = 0;
-            currentIntervalCount = 0;
+            temperatureSum = 0;
+            summedTempReadingCount = 0;
         }
 
         if (count == 0) {
@@ -85,6 +83,7 @@ public class TemperatureSampler {
         return List.copyOf(averageHistory);
     }
 
+    // Stops the scheduler
     public void shutdown() {
         scheduler.shutdown();
         try {
