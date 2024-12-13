@@ -1,0 +1,30 @@
+<configuration>
+  <!-- Console Appender with Custom Colors -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>
+        %highlight(%d{HH:mm:ss.SSS} %5level [%thread] %logger{36} - %msg) %n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <!-- Set root logging level for your app -->
+  <root level="debug">
+    <appender-ref ref="STDOUT" />
+  </root>
+
+  <!-- Suppress Vert.x logs -->
+  <logger name="io.vertx" level="WARN"/>
+  <logger name="io.vertx.core" level="WARN"/>
+  <logger name="io.vertx.ext" level="WARN"/>
+  <logger name="io.vertx.core.eventbus" level="WARN"/>
+  <logger name="io.vertx.core.http" level="WARN"/>
+
+  <!-- Suppress Netty logs -->
+  <logger name="io.netty" level="WARN"/>
+  <logger name="io.netty.handler" level="WARN"/>
+  <logger name="io.netty.channel" level="WARN"/>
+  <logger name="io.netty.util" level="WARN"/>
+  <logger name="io.netty.buffer" level="WARN"/>
+  <logger name="io.netty.transport" level="WARN"/>
+</configuration>

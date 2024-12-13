@@ -4,6 +4,8 @@ import io.netty.handler.codec.mqtt.MqttQoS;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.impl.logging.Logger;
+import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mqtt.MqttClient;
 import io.vertx.mqtt.MqttClientOptions;
@@ -18,6 +20,8 @@ public class MQTTAgent extends AbstractVerticle {
     private static final String TOPIC_NAME = "esiot-2024";
     private MqttClient client;
 
+    private static final Logger logger = LoggerFactory.getLogger(MQTTAgent.class);
+
     @Override
     public void start() {
         MqttClientOptions options = new MqttClientOptions();
@@ -27,11 +31,11 @@ public class MQTTAgent extends AbstractVerticle {
         client = MqttClient.create(vertx, options);
         client.connect(BROKER_PORT, BROKER_ADDRESS,  result -> {
             if (result.succeeded()) {
-                log("Connected to MQTT broker at: " + BROKER_ADDRESS);
-                log("subscribing...");
+                logger.info("Connected to MQTT broker at: " + BROKER_ADDRESS);
+                logger.info("Subscribing...");
                 this.subscribeToTopic();
             } else {
-                log("Failed to connect to MQTT broker");
+                logger.error("Failed to connect to MQTT broker");
             }
         });
     }
@@ -39,27 +43,23 @@ public class MQTTAgent extends AbstractVerticle {
     public void subscribeToTopic() {
         client.subscribe(TOPIC_NAME, MqttQoS.AT_LEAST_ONCE.value(), result -> {
             if (result.succeeded()) {
-                log("Subscribed to topic: " + TOPIC_NAME);
+                logger.info("Subscribed to topic: " + TOPIC_NAME);
             } else {
-                log("Failed to subscribe to topic: " + result.cause());
+                logger.error("Failed to subscribe to topic: " + result.cause());
             }
         });
 
         client.publishHandler(message -> {
-            log("Received message: " + message.payload().toString());
+            logger.info("Received message: " + message.payload().toString());
         });
     }
 
     public void publishMessage(String messageContent) {
         JsonObject jsonMessage = new JsonObject();
         jsonMessage.put("message", messageContent);
-        log("Publishing a message");
+        logger.info("Publishing a message");
         client.publish(TOPIC_NAME, Buffer.buffer(jsonMessage.encode()), MqttQoS.AT_LEAST_ONCE, false, false);
     }
-
-    private void log(String msg) {
-		System.out.println("[MQTT AGENT] " + msg);
-	}
 
     public static void main(String[] args) throws InterruptedException {
         Vertx vertx = Vertx.vertx();
@@ -74,5 +74,7 @@ public class MQTTAgent extends AbstractVerticle {
         // Wait for agent to fully deploy.
         Thread.sleep(2000);
         agent.publishMessage("ciaone");
+        agent.publishMessage("ciaone2");
+        logger.error("This is an error message!");
     }
 }
