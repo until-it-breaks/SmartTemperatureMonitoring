@@ -44,7 +44,7 @@ public class TemperatureSampler {
         }
 
         if (System.currentTimeMillis() - lastTime > historyInterval ) {
-            calculateAverage(timeStamp);
+            calculateAverage();
         }
     }
 
@@ -52,42 +52,25 @@ public class TemperatureSampler {
         return this.temperatureReadings.lastEntry().getValue();
     }
 
-    private void calculateAverage(long timeInterval) {
+    private void calculateAverage() {
         double sum = 0;
         int count = 0;
 
-        for (double temperature : temperatureReadings.tailMap(System.currentTimeMillis() - timeInterval).values()) {
+        for (double temperature : temperatureReadings.tailMap(System.currentTimeMillis() - historyInterval).values()) {
             sum += temperature;
             count++;
         }
 
         if (count > 0) {
             averageHistory.add(sum / count);
-
-            if (averageHistory.size() > maxAverageHistoryLength) {
-                averageHistory.removeLast();
-            }
+        } else {
+            // There were no readings during this interval
+            averageHistory.add(null);
         }
-    }
 
-    /*
-    public static void main(String[] args) throws InterruptedException {
-        TemperatureSampler sampler = new TemperatureSampler(5); // Keep the most recent 5 readings
-        sampler.addReading(System.currentTimeMillis(), 22.5);
-        Thread.sleep(1000);
-        sampler.addReading(System.currentTimeMillis(), 23.0);
-        Thread.sleep(1000);
-        sampler.addReading(System.currentTimeMillis(), 23.5);
-        Thread.sleep(1000);
-        sampler.addReading(System.currentTimeMillis(), 24.0);
-        Thread.sleep(1000);
-        sampler.addReading(System.currentTimeMillis(), 24.5);
-        Thread.sleep(1000);
-        sampler.addReading(System.currentTimeMillis(), 25.0); // This will cause the oldest reading (22.5) to be removed
-
-        // Calculate the average temperature over the last 5 minutes (300,000 ms)
-        double avgTemperature = sampler.getAverage(1000000000);
-        System.out.println("Average Temperature: " + avgTemperature);
+        if (averageHistory.size() > maxAverageHistoryLength) {
+            averageHistory.removeLast();
+        }
+        lastTime = System.currentTimeMillis();
     }
-    */
 }
