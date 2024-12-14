@@ -1,6 +1,10 @@
 package it.unibo.backend.temperature;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -15,21 +19,30 @@ public class TemperatureSampler {
     private static final long DEFAULT_HISTORY_INTERVAL = 5000; // Average temperature are calculated at a period of 5s.
     
     private final NavigableMap<Long, Double> temperatureReadings;   // Thread safe variant of a TreeMap. A TreeMap stores key-values and sorts them according to their key in their natural order.
-    private final Deque<Double> averageHistory;                     // Thread safe version of a LinkedList
+    private final Deque<TemperatureReport> history;                            // Thread safe version of a LinkedList
 
     private final ScheduledExecutorService scheduler;
 
-    private volatile double temperatureSum;
-    private volatile int summedTempReadingCount;
+    private volatile double maxTempRead;
+    private volatile double minTempRead;
+
+    private volatile double tempSum;
+    private volatile int tempSampleCount;
+
+    private volatile long lastTime;
 
     public TemperatureSampler() {
         this.temperatureReadings = new ConcurrentSkipListMap<>();
-        this.averageHistory = new ConcurrentLinkedDeque<>();
-        this.temperatureSum = 0;
-        this.summedTempReadingCount = 0;
+        this.history = new ConcurrentLinkedDeque<>();
+
+        this.maxTempRead = Double.MIN_VALUE;
+        this.minTempRead = Double.MAX_VALUE;
+        this.tempSum = 0;
+        this.tempSampleCount = 0;
 
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         this.scheduler.scheduleAtFixedRate(this::calculateAverage, DEFAULT_HISTORY_INTERVAL, DEFAULT_HISTORY_INTERVAL, TimeUnit.MILLISECONDS);
+        this.lastTime = System.currentTimeMillis();
     }
 
     public void addReading(long timeStamp, double temperature) {
@@ -45,42 +58,60 @@ public class TemperatureSampler {
 
         // Critical section. Both the caller of this method and the scheduler worker can access these.
         synchronized (this) {
-            temperatureSum += temperature;
-            summedTempReadingCount++;
+            if (temperature < minTempRead) {
+                minTempRead = temperature;
+            }
+    
+            if (temperature > maxTempRead) {
+                maxTempRead = temperature;
+            }
+            tempSum += temperature;
+            tempSampleCount++;
         }
     }
 
     private void calculateAverage() {
 
+        double min;
+        double max;
         double sum;
         int count;
     
         // Critical section. Both the caller of this method and the scheduler worker can access these. Therefore we save those values and operate on those.
         synchronized (this) {
-            sum = temperatureSum;
-            count = summedTempReadingCount;
-
-            temperatureSum = 0;
-            summedTempReadingCount = 0;
+            sum = tempSum;
+            count = tempSampleCount;
+            max = maxTempRead;
+            min = minTempRead;
+            minTempRead = Double.MAX_VALUE;
+            maxTempRead = Double.MIN_VALUE;
+            tempSum = 0;
+            tempSampleCount = 0;
         }
 
+        long now = System.currentTimeMillis();
         if (count == 0) {
-            averageHistory.add(Double.NaN);
+            history.add(new TemperatureReport(lastTime, now, Double.NaN, Double.NaN, Double.NaN));
         } else {
-            averageHistory.add(sum / count);
+            history.add(new TemperatureReport(lastTime, now, sum / count, min, max));
         }
 
-        if (averageHistory.size() > MAX_HISTORY_LENGTH) {
-            averageHistory.removeFirst();
+        if (history.size() > MAX_HISTORY_LENGTH) {
+            history.removeFirst();
         }
+
+        lastTime = System.currentTimeMillis();
     }
 
     public double getTemperature() {
+        if (temperatureReadings.isEmpty()) {
+            return Double.NaN;
+        }
         return this.temperatureReadings.lastEntry().getValue();
     }
 
-    public List<Double> getAverageHistory() {
-        return List.copyOf(averageHistory);
+    public List<TemperatureReport> getHistory() {
+        return new ArrayList<>(history);
     }
 
     // Stops the scheduler

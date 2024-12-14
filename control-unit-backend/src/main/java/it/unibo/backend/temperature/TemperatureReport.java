@@ -1,5 +1,6 @@
 package it.unibo.backend.temperature;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TemperatureReport {
@@ -40,7 +41,14 @@ public class TemperatureReport {
 
     @Override
     public String toString() {
-        return "TemperatureReport [from " + new Date(startTime) + " to" + new Date(endTime) + ", average=" + average + ", min="
-                + min + ", max=" + max + "]";
+        return "TemperatureReport [from " + startTime + " to " 
+            + endTime + ", average=" + average + ", min=" 
+            + min + ", max=" + max + "]";
     }
+
+    public String toStringSimple() {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+            return "TemperatureReport [from " + timeFormat.format(new Date(startTime)) + " to " 
+                + timeFormat.format(new Date(endTime)) + String.format(" Average= %.2f, Min= %.2f, Max= %.2f]", average, min, max);
+        }
 }

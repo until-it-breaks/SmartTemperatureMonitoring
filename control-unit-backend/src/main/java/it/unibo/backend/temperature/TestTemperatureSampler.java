@@ -1,5 +1,6 @@
 package it.unibo.backend.temperature;
 
+import java.text.SimpleDateFormat;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.vertx.core.impl.logging.Logger;
@@ -10,6 +11,7 @@ public class TestTemperatureSampler {
     private static final Logger logger = LoggerFactory.getLogger(TestTemperatureSampler.class);
 
     public static void main(String[] args) {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
         TemperatureSampler sampler = new TemperatureSampler();
 
         Thread producerThread = new Thread(() -> {
@@ -20,7 +22,7 @@ public class TestTemperatureSampler {
 
                     sampler.addReading(currentTimestamp, randomTemperature);
 
-                    logger.info(String.format("Added temperature: %.2f at %d", randomTemperature, currentTimestamp));
+                    logger.info(String.format("Added temperature: %.2f at " + timeFormat.format(currentTimestamp), randomTemperature));
 
                     Thread.sleep(ThreadLocalRandom.current().nextInt(500, 1501));
                 }
@@ -35,7 +37,12 @@ public class TestTemperatureSampler {
             try {
                 while (true) {
                     Thread.sleep(5000);
-                    logger.info("Current average history: " + sampler.getAverageHistory());
+                    var history = sampler.getHistory();
+                    if (!history.isEmpty()) {
+                        logger.info(history.getLast().toStringSimple());
+                    } else {
+                        logger.info("No info available right now.");
+                    }
                 }
             } catch (InterruptedException e) {
                 logger.warn("Consumer thread interrupted.");
