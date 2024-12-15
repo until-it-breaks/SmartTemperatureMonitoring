@@ -1,4 +1,4 @@
-package it.unibo.backend;
+package it.unibo.backend.http;
 
 public class DataPoint {
     private double value;

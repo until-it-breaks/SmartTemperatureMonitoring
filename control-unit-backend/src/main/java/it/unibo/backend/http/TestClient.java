@@ -1,4 +1,4 @@
-package it.unibo.backend;
+package it.unibo.backend.http;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;

@@ -1,4 +1,4 @@
-package it.unibo.backend;
+package it.unibo.backend.http;
 
 import java.util.Date;
 import java.util.LinkedList;

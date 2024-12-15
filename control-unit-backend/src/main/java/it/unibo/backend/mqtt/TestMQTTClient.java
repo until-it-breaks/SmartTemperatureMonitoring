@@ -1,4 +1,4 @@
-package it.unibo.backend;
+package it.unibo.backend.mqtt;
 
 import io.vertx.core.Vertx;
 
