@@ -1,10 +1,10 @@
-package it.unibo.backend.http;
+package it.unibo.backend.temperature;
 
-public class DataPoint {
+public class TemperatureSample {
     private double value;
     private long time;
 
-    public DataPoint(double value, long time) {
+    public TemperatureSample(double value, long time) {
         this.value = value;
         this.time = time;
     }

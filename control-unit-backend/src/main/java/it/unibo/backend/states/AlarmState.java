@@ -1,7 +1,7 @@
 package it.unibo.backend.states;
 
 import it.unibo.backend.controlUnit.ControlUnit;
-import it.unibo.backend.util.ControlUnitConfig;
+import it.unibo.backend.util.ControlUnitUtil;
 
 public class AlarmState implements SystemState {
 
@@ -22,9 +22,9 @@ public class AlarmState implements SystemState {
             return this;
         } else {
             double temperature = controlUnit.getTemperatureSampler().getTemperature();
-            if (temperature < ControlUnitConfig.TemperatureThresholds.NORMAL) {
+            if (temperature < ControlUnitUtil.TemperatureThresholds.NORMAL) {
                 return new NormalState(this.controlUnit);
-            } else if (temperature < ControlUnitConfig.TemperatureThresholds.HOT) {
+            } else if (temperature < ControlUnitUtil.TemperatureThresholds.HOT) {
                 return new HotState(this.controlUnit);
             } else {
                 return new TooHotState(controlUnit);

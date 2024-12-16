@@ -1,7 +1,7 @@
 package it.unibo.backend.states;
 
 import it.unibo.backend.controlUnit.ControlUnit;
-import it.unibo.backend.util.ControlUnitConfig;
+import it.unibo.backend.util.ControlUnitUtil;
 
 public class TooHotState implements SystemState {
 
@@ -16,20 +16,20 @@ public class TooHotState implements SystemState {
     @Override
     public void handle() {
         if (controlUnit.getOperationMode().equals(OperationMode.AUTO)) {
-            controlUnit.setFrequency(ControlUnitConfig.Frequency.INCREASED);
-            controlUnit.setWindowLevel(ControlUnitConfig.ActuatorState.FULLY_OPEN);
+            controlUnit.setFrequency(ControlUnitUtil.Frequency.INCREASED);
+            controlUnit.setWindowLevel(ControlUnitUtil.ActuatorState.FULLY_OPEN);
         }
     }
 
     @Override
     public SystemState next() {
         double temperature = controlUnit.getTemperatureSampler().getTemperature();
-        if (temperature < ControlUnitConfig.TemperatureThresholds.NORMAL) {
+        if (temperature < ControlUnitUtil.TemperatureThresholds.NORMAL) {
             return new NormalState(this.controlUnit);
-        } else if (temperature < ControlUnitConfig.TemperatureThresholds.HOT) {
+        } else if (temperature < ControlUnitUtil.TemperatureThresholds.HOT) {
             return new HotState(this.controlUnit);
-        } else if (temperature >= ControlUnitConfig.TemperatureThresholds.TOO_HOT) {
-            if (System.currentTimeMillis() - timeSinceCreation > ControlUnitConfig.TemperatureThresholds.TOO_HOT_WINDOW) {
+        } else if (temperature >= ControlUnitUtil.TemperatureThresholds.TOO_HOT) {
+            if (System.currentTimeMillis() - timeSinceCreation > ControlUnitUtil.TemperatureThresholds.TOO_HOT_WINDOW) {
                 return new AlarmState(controlUnit);
             } else {
                 return this;

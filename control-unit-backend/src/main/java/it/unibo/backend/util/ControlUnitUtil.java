@@ -1,6 +1,6 @@
 package it.unibo.backend.util;
 
-public class ControlUnitConfig {
+public class ControlUnitUtil {
     public static class Frequency {
         public static final double NORMAL = 1;
         public static final double INCREASED = 1.5;
@@ -18,7 +18,7 @@ public class ControlUnitConfig {
         public static final int FULLY_OPEN = 90;
     }
 
-    private ControlUnitConfig() {
+    private ControlUnitUtil() {
         throw new UnsupportedOperationException("Utility class");
     }
 }
