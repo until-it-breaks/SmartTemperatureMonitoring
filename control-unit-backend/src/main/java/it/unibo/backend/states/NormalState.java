@@ -30,4 +30,9 @@ public class NormalState implements SystemState {
             return new TooHotState(this.controlUnit);
         }
     }
+
+    @Override
+    public String getName() {
+        return "NORMAL";
+    }
 }

@@ -31,4 +31,9 @@ public class AlarmState implements SystemState {
             }
         }
     }
+
+    @Override
+    public String getName() {
+        return "ALARM";
+    }
 }

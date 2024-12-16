@@ -35,5 +35,10 @@ public class HotState implements SystemState {
             return new TooHotState(this.controlUnit);
         }
     }
+
+    @Override
+    public String getName() {
+        return "HOT";
+    }
     
 }

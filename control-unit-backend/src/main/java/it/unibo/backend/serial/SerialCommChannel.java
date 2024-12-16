@@ -1,21 +1,26 @@
 package it.unibo.backend.serial;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import io.vertx.core.json.JsonObject;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
-public class SerialCommChannel implements CommChannel, SerialPortEventListener {
+public class SerialCommChannel implements SerialPortEventListener {
 
     private final SerialPort serialPort;
-    private final BlockingQueue<String> queue;
-    private StringBuffer currentMsg = new StringBuffer("");
+    private final StringBuffer currentMsg = new StringBuffer("");
+
+    private final List<SerialMessageObserver> observers = new ArrayList<>();
+
+    private static final Pattern MESSAGE_PATTERN = Pattern.compile("Level: (\\d+\\.\\d+)|Mode: (\\w+)");
 
     public SerialCommChannel(final String port, final int rate) throws SerialPortException {
-        this.queue = new ArrayBlockingQueue<>(100);
         this.serialPort = new SerialPort(port);
         this.serialPort.openPort();
         this.serialPort.setParams(rate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
@@ -23,9 +28,8 @@ public class SerialCommChannel implements CommChannel, SerialPortEventListener {
         this.serialPort.addEventListener(this);
     }
 
-    @Override
-    public void sendMsg(final String msg) {   
-        final char[] array = (msg+"\n").toCharArray();
+    public void sendMsg(final String msg) {
+        final char[] array = (msg + "\n").toCharArray();
         final byte[] bytes = new byte[array.length];
         for (int i = 0; i < array.length; i++) {
             bytes[i] = (byte) array[i];
@@ -40,44 +44,55 @@ public class SerialCommChannel implements CommChannel, SerialPortEventListener {
     }
 
     @Override
-    public String receiveMsg() throws InterruptedException {
-        return this.queue.take();
-    }
-
-    @Override
-    public boolean isMsgAvailable() {
-        return !this.queue.isEmpty();
-    }
-
-    @Override
     public void serialEvent(final SerialPortEvent serialPortEvent) {
         if (serialPortEvent.isRXCHAR()) {
             try {
                 String msg = serialPort.readString(serialPortEvent.getEventValue());
+                
                 currentMsg.append(msg);
-
-                boolean goAhead = true;
-
-                while (goAhead) {
-                    final String msg2 = currentMsg.toString();
-                    final int index = msg2.indexOf("\n");
-                    if (index >= 0) {
-                        queue.put(msg2.substring(0, index));
-                        currentMsg = new StringBuffer("");
-                        if (index + 1 < msg2.length()) {
-                            currentMsg.append(msg2.substring(index + 1));
-                        }
-                    } else {
-                        goAhead = false;
-                    }
+    
+                int index;
+                while ((index = currentMsg.indexOf("\n")) >= 0) {
+                    String completeMessage = currentMsg.substring(0, index);
+    
+                    processMessage(completeMessage);
+    
+                    currentMsg.delete(0, index + 1);
                 }
-            } catch (final SerialPortException | InterruptedException e) {
+            } catch (final SerialPortException e) {
                 e.printStackTrace();
             }
         }
     }
+    
 
-    @Override
+    private void processMessage(String message) {
+        Matcher matcher = MESSAGE_PATTERN.matcher(message);
+        boolean containsWindowLevel = false;
+        boolean containsOperationMode = false;
+        String windowLevel = null;
+        String operationMode = null;
+
+        while (matcher.find()) {
+            if (matcher.group(1) != null) {
+                containsWindowLevel = true;
+                windowLevel = matcher.group(1);
+            }
+            if (matcher.group(2) != null) {
+                containsOperationMode = true;
+                operationMode = matcher.group(2);
+            }
+        }
+
+        if (containsWindowLevel && containsOperationMode) {
+            JsonObject jsonMessage = new JsonObject()
+                .put("windowLevel", windowLevel)
+                .put("operationMode", operationMode);
+            
+            notifyObservers(jsonMessage);
+        }
+    }
+
     public void close() {
         try {
             if (serialPort != null) {
@@ -86,6 +101,20 @@ public class SerialCommChannel implements CommChannel, SerialPortEventListener {
             }
         } catch (final SerialPortException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void addObserver(SerialMessageObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(SerialMessageObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers(JsonObject message) {
+        for (SerialMessageObserver observer : observers) {
+            observer.onMessageReceived(message);
         }
     }
 }

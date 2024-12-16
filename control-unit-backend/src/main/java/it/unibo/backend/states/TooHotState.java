@@ -37,4 +37,9 @@ public class TooHotState implements SystemState {
         }
         throw new IllegalStateException();
     }
+
+    @Override
+    public String getName() {
+        return "TOO_HOT";
+    }
 }
