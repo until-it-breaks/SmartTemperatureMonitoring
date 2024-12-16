@@ -5,6 +5,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 
+/**
+ * Just an example. Do not use. Will be removed
+ */
 public class TestClient {
     public static void main(String[] args) throws InterruptedException {
         String host = "localhost";

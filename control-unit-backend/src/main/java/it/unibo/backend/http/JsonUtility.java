@@ -1,5 +1,8 @@
 package it.unibo.backend.http;
 
+/**
+ * A utiliy class containing json keywords related to the system.
+ */
 public class JsonUtility {
 
     private JsonUtility() {
