@@ -11,6 +11,9 @@ public class TemperatureReport {
     private double min;
     private double max;
 
+    public TemperatureReport() {
+    }
+
     public TemperatureReport(long startTime, long endTime, double average, double min, double max) {
         this.startTime = startTime;
         this.endTime = endTime;
@@ -37,6 +40,26 @@ public class TemperatureReport {
 
     public double getMax() {
         return max;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setAverage(double average) {
+        this.average = average;
+    }
+
+    public void setMin(double min) {
+        this.min = min;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
     }
 
     @Override
