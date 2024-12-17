@@ -3,8 +3,8 @@ package it.unibo.backend.temperature;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.ThreadLocalRandom;
 
-import io.vertx.core.impl.logging.Logger;
-import io.vertx.core.impl.logging.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestTemperatureSampler {
 
