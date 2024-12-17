@@ -10,4 +10,8 @@
 #define WINDOW_CLOSED_WIDTH 1500
 #define WINDOW_OPEN_WIDTH 2250
 
+#define SCHEDULER_PERIOD 100
+
+#define IDLE_TIME 500
+
 #endif

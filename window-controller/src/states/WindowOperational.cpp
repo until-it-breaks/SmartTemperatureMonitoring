@@ -2,19 +2,25 @@
 #include "ActiveManual.h"
 #include "WindowOperational.h"
 #include "WindowAlarm.h"
+#include "Context.h"
+
+extern Context* context;
 
 WindowOperational::WindowOperational(State* state) {
     this->currentState = state;
 }
 
 void WindowOperational::handle() {
-    // does nothing
+    this->currentState->handle();
 }
 
 State* WindowOperational::next() {
-    // if system state != alarm
-    this->currentState = currentState->next();
-    return nullptr;
-    // else
-    return new WindowAlarm(this->currentState);
+    if (context->getSystemState() != SystemState::ALARM) {
+        State* next = currentState->next();
+        if (next != nullptr) {
+            this->currentState = next;
+        }
+    } else {
+        return new WindowAlarm(this->currentState);
+    }
 }

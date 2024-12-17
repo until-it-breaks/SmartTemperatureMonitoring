@@ -13,6 +13,7 @@ class LcdController {
         void turnOn();
         void printInfo(float level, String mode);
         void printInfo(float level, String mode, float temperature);
+        void printAlarmInfo();
 };
 
 #endif

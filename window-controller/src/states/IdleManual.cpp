@@ -1,14 +1,27 @@
 #include "IdleAuto.h"
 #include "ActiveManual.h"
 #include "IdleManual.h"
+#include "Config.h"
+#include "Context.h"
+
+extern Context* context;
+
+IdleManual::IdleManual(State* state) {
+    if (state != nullptr) {
+        delete state;
+    }
+    this->startTime = millis();
+}
 
 void IdleManual::handle() {
-    // does nothing
 }
 
 State* IdleManual::next() {
-    // after T1
-    return new ActiveManual(this);
-    // if button is pressed or operationMode == auto
-    return new IdleManual(this);
+    if ((millis() - this->startTime) > IDLE_TIME) {
+        return new ActiveManual(this);
+    } else if (context->getOperatingMode() == OperatingMode::AUTO) {
+        return new IdleAuto(this);
+    } else {
+        return nullptr;
+    }
 }

@@ -9,7 +9,7 @@ class WindowAlarm : public State {
         void handle() override;
         State* next() override;
     private:
-        State* currentState;
+        State* prevState;
 };
 
 #endif

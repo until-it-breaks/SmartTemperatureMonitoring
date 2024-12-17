@@ -26,6 +26,14 @@ void LcdController::printInfo(float level, String mode, float temperature) {
     this->lcd->print("Mode:" + mode + " " + String(temperature) + "C");
 }
 
+void LcdController::printAlarmInfo() {
+    this->lcd->clear();
+    this->lcd->setCursor(0,0);
+    this->lcd->print("Alert! Contact");
+    this->lcd->setCursor(0,1);
+    this->lcd->print("An Operator");
+}
+
 void LcdController::turnOff() {
     this->lcd->noBacklight();
     this->lcd->noDisplay();
