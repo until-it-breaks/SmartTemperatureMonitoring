@@ -16,17 +16,16 @@ import io.vertx.ext.web.handler.BodyHandler;
 import it.unibo.backend.temperature.TemperatureReport;
 import it.unibo.backend.temperature.TemperatureSample;
 
-public class DataService extends AbstractVerticle {
-    private static final Logger logger = LoggerFactory.getLogger(DataService.class);
-
+public class HttpService extends AbstractVerticle {
+    private static final Logger logger = LoggerFactory.getLogger(HttpService.class);
     private static final int MAX_SAMPLES = 100;     // Max number of temperature samples
     private static final int MAX_REPORTS = 20;      // Max number of periodic reports (contains avg, min, max)
 
-    private final List<TemperatureSample> samples;  // Stores individual temperature samples
-    private final List<TemperatureReport> reports;  // Stores periodical average, min, max
-
     private final String host;
     private final int port;
+
+    private final List<TemperatureSample> samples;  // Stores individual temperature samples
+    private final List<TemperatureReport> reports;  // Stores periodical average, min, max
 
     // Autoboxed variables
     private Double frequency;                       // The sampling frequency multiplier
@@ -36,7 +35,7 @@ public class DataService extends AbstractVerticle {
     private String state;                           // The system state (NORMAL, HOT, TOO_HOT, ALARM)
     private boolean interventionRequired;           // Flag indicating whether an operator's intervention is needed.
 
-    public DataService(final String host, final int port) {
+    public HttpService(final String host, final int port) {
         this.host = host;
         this.port = port;
         this.samples = new LinkedList<>();
@@ -53,11 +52,11 @@ public class DataService extends AbstractVerticle {
         logger.info("Starting DataService on {}:{}", host, port);
         final Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
-        
+
         // Creating endpoints RESTful endpoints
         router.post("/api/temperature").handler(this::handleAddTemperatureSample);
         router.get("/api/temperature").handler(this::handleGetTemperatureSamples);
-    
+
         router.post("/api/report").handler(this::handleAddTemperatureReport);
         router.get("/api/report").handler(this::handleGetTemperatureReports);
 
@@ -77,8 +76,6 @@ public class DataService extends AbstractVerticle {
                 logger.error("Failed to start DataService", res.cause());
             }
         });
-
-
     }
 
     private void handleAddTemperatureSample(final RoutingContext routingContext) {

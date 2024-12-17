@@ -1,10 +1,13 @@
 package it.unibo.backend.temperature;
 
-public class TemperatureSample {
-    private double value;
-    private long time;
+import io.vertx.core.json.JsonObject;
+import it.unibo.backend.http.JsonUtility;
 
-    public TemperatureSample(double value, long time) {
+public class TemperatureSample {
+    private final double value;
+    private final long time;
+
+    public TemperatureSample(final double value, final long time) {
         this.value = value;
         this.time = time;
     }
@@ -15,5 +18,12 @@ public class TemperatureSample {
 
     public long getTime() {
         return time;
+    }
+
+    public JsonObject asJson() {
+        JsonObject data = new JsonObject();
+        data.put(JsonUtility.TEMPERATURE, this.value);
+        data.put(JsonUtility.SAMPLE_TIME, this.time);
+        return data;
     }
 }

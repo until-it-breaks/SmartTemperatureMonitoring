@@ -3,12 +3,14 @@ package it.unibo.backend.mqtt;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
+import io.vertx.core.json.JsonObject;
 
 public class TestMQTTClient {
     private static final Logger logger = LoggerFactory.getLogger(TestMQTTClient.class);
+
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();
-        BackendMQTTClient client = new BackendMQTTClient("34.154.239.184", 1883);
+        MQTTClient client = new MQTTClient("34.154.239.184", 1883);
         vertx.deployVerticle(client, result -> {
             if (result.succeeded()) {
                 logger.info("MQTTClient deployed successfully");
@@ -18,8 +20,9 @@ public class TestMQTTClient {
                     e.printStackTrace();
                 }
                 client.subscribe("esiot");
-                client.publishMessage("esiot", "key", "ciaone");
-                client.publishMessage("ciao", "key", "ciaone2");
+                JsonObject data = new JsonObject();
+                data.put("welcomeMessage", "ciao");
+                client.publish("esiot", data);
             } else {
                 logger.error("MQTTClient deployment failed: " + result.cause());
             }

@@ -1,13 +1,12 @@
 package it.unibo.backend.states;
 
 import it.unibo.backend.controlUnit.ControlUnit;
-import it.unibo.backend.util.ControlUnitUtil;
+import it.unibo.backend.controlUnit.ControlUnitUtil;
 
 public class AlarmState implements SystemState {
+    private final ControlUnit controlUnit;
 
-    private ControlUnit controlUnit;
-
-    public AlarmState(ControlUnit controlUnit) {
+    public AlarmState(final ControlUnit controlUnit) {
         this.controlUnit = controlUnit;
     }
 
@@ -21,10 +20,10 @@ public class AlarmState implements SystemState {
         if (controlUnit.needsIntervention()) {
             return this;
         } else {
-            double temperature = controlUnit.getTemperatureSampler().getTemperature();
-            if (temperature < ControlUnitUtil.TemperatureThresholds.NORMAL) {
+            final double temperature = controlUnit.getTemperatureSampler().getTemperature().getValue();
+            if (temperature < ControlUnitUtil.TempThresholds.NORMAL) {
                 return new NormalState(this.controlUnit);
-            } else if (temperature < ControlUnitUtil.TemperatureThresholds.HOT) {
+            } else if (temperature < ControlUnitUtil.TempThresholds.HOT) {
                 return new HotState(this.controlUnit);
             } else {
                 return new TooHotState(controlUnit);
@@ -34,6 +33,6 @@ public class AlarmState implements SystemState {
 
     @Override
     public String getName() {
-        return "ALARM";
+        return SystemStateEnum.ALARM.getName();
     }
 }

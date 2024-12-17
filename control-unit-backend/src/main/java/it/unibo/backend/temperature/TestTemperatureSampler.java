@@ -10,15 +10,15 @@ public class TestTemperatureSampler {
 
     private static final Logger logger = LoggerFactory.getLogger(TestTemperatureSampler.class);
 
-    public static void main(String[] args) {
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-        TemperatureSampler sampler = new TemperatureSampler();
+    public static void main(final String[] args) {
+        final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        final TemperatureSampler sampler = new TemperatureSampler();
 
-        Thread producerThread = new Thread(() -> {
+        final Thread producerThread = new Thread(() -> {
             try {
                 while (true) {
-                    long currentTimestamp = System.currentTimeMillis();
-                    double randomTemperature = ThreadLocalRandom.current().nextDouble(-30.0, 50.0); // Random temp between -30 and 50 degrees
+                    final long currentTimestamp = System.currentTimeMillis();
+                    final double randomTemperature = ThreadLocalRandom.current().nextDouble(-30.0, 50.0); // Random temp between -30 and 50 degrees
 
                     sampler.addReading(currentTimestamp, randomTemperature);
 
@@ -26,25 +26,25 @@ public class TestTemperatureSampler {
 
                     Thread.sleep(ThreadLocalRandom.current().nextInt(500, 1501));
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 logger.warn("Producer thread interrupted.");
             }
         });
 
         producerThread.start();
 
-        Thread consumerThread = new Thread(() -> {
+        final Thread consumerThread = new Thread(() -> {
             try {
                 while (true) {
                     Thread.sleep(5000);
-                    var history = sampler.getHistory();
+                    final var history = sampler.getHistory();
                     if (!history.isEmpty()) {
                         logger.info(history.getLast().toStringSimple());
                     } else {
                         logger.info("No info available right now.");
                     }
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 logger.warn("Consumer thread interrupted.");
             }
         });

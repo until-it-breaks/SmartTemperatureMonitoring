@@ -1,30 +1,30 @@
 package it.unibo.backend.states;
 
 import it.unibo.backend.controlUnit.ControlUnit;
-import it.unibo.backend.util.ControlUnitUtil;
+import it.unibo.backend.controlUnit.ControlUnitUtil;
+import it.unibo.backend.controlUnit.OperationMode;
 
 public class NormalState implements SystemState {
+    private final ControlUnit controlUnit;
 
-    private ControlUnit controlUnit;
-
-    public NormalState(ControlUnit controlUnit) {
+    public NormalState(final ControlUnit controlUnit) {
         this.controlUnit = controlUnit;
     }
 
     @Override
     public void handle() {
-        if (controlUnit.getOperationMode().equals(OperationMode.AUTO)) {
-            controlUnit.setFrequency(ControlUnitUtil.Frequency.NORMAL);
-            controlUnit.setWindowLevel(ControlUnitUtil.ActuatorState.FULLY_CLOSED);
+        if (controlUnit.getOperatingMode().equals(OperationMode.AUTO)) {
+            controlUnit.setFrequency(ControlUnitUtil.FreqMultiplier.NORMAL);
+            controlUnit.setWindowLevel(ControlUnitUtil.DoorState.FULLY_CLOSED);
         }
     }
 
     @Override
     public SystemState next() {
-        double temperature = controlUnit.getTemperatureSampler().getTemperature();
-        if (temperature < ControlUnitUtil.TemperatureThresholds.NORMAL) {
+        final double temperature = controlUnit.getTemperatureSampler().getTemperature().getValue();
+        if (temperature < ControlUnitUtil.TempThresholds.NORMAL) {
             return this;
-        } else if (temperature < ControlUnitUtil.TemperatureThresholds.HOT) {
+        } else if (temperature < ControlUnitUtil.TempThresholds.HOT) {
             return new HotState(this.controlUnit);
         } else {
             return new TooHotState(this.controlUnit);
@@ -33,6 +33,6 @@ public class NormalState implements SystemState {
 
     @Override
     public String getName() {
-        return "NORMAL";
+        return SystemStateEnum.NORMAL.getName();
     }
 }

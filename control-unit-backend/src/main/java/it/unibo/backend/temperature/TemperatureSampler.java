@@ -11,12 +11,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class TemperatureSampler {
-    private static final int MAX_READINGS = 500;                // We will store the 500 most recent temp readings.
-    private static final int MAX_HISTORY_LENGTH = 30;           // We will store the 30 most recent averages.
-    private static final long DEFAULT_HISTORY_INTERVAL = 5000; // Average temperature are calculated at a period of 5s.
+    private static final int MAX_READINGS = 500;                    // We will store the 500 most recent temp readings.
+    private static final int MAX_HISTORY_LENGTH = 30;               // We will store the 30 most recent averages.
+    private static final long DEFAULT_HISTORY_INTERVAL = 5000;      // Average temperature are calculated at a period of 5s.
     
     private final NavigableMap<Long, Double> temperatureReadings;   // Thread safe variant of a TreeMap. A TreeMap stores key-values and sorts them according to their key in their natural order.
-    private final Deque<TemperatureReport> history;                            // Thread safe version of a LinkedList
+    private final Deque<TemperatureReport> history;                 // Thread safe version of a LinkedList
 
     private final ScheduledExecutorService scheduler;
 
@@ -42,7 +42,7 @@ public class TemperatureSampler {
         this.lastTime = System.currentTimeMillis();
     }
 
-    public void addReading(long timeStamp, double temperature) {
+    public void addReading(final long timeStamp, final double temperature) {
         if (timeStamp > System.currentTimeMillis()) {
             throw new IllegalArgumentException("Timestamp cannot be in the future");
         }
@@ -68,7 +68,6 @@ public class TemperatureSampler {
     }
 
     private void calculateAverage() {
-
         double min;
         double max;
         double sum;
@@ -86,7 +85,7 @@ public class TemperatureSampler {
             tempSampleCount = 0;
         }
 
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         if (count == 0) {
             history.add(new TemperatureReport(lastTime, now, Double.NaN, Double.NaN, Double.NaN));
         } else {
@@ -100,11 +99,12 @@ public class TemperatureSampler {
         lastTime = System.currentTimeMillis();
     }
 
-    public double getTemperature() {
+    public TemperatureSample getTemperature() {
         if (temperatureReadings.isEmpty()) {
-            return Double.NaN;
+            return null;
         }
-        return this.temperatureReadings.lastEntry().getValue();
+        var lastEntry = this.temperatureReadings.lastEntry();
+        return new TemperatureSample(lastEntry.getValue(), lastEntry.getKey());
     }
 
     public List<TemperatureReport> getHistory() {
@@ -118,7 +118,7 @@ public class TemperatureSampler {
             if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
                 scheduler.shutdownNow();
             }
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             scheduler.shutdownNow();
         }
     }

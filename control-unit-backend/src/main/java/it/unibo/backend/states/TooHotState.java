@@ -1,35 +1,35 @@
 package it.unibo.backend.states;
 
 import it.unibo.backend.controlUnit.ControlUnit;
-import it.unibo.backend.util.ControlUnitUtil;
+import it.unibo.backend.controlUnit.ControlUnitUtil;
+import it.unibo.backend.controlUnit.OperationMode;
 
 public class TooHotState implements SystemState {
+    private final ControlUnit controlUnit;
+    private final long timeSinceCreation;
 
-    private ControlUnit controlUnit;
-    private long timeSinceCreation;
-
-    public TooHotState(ControlUnit controlUnit) {
+    public TooHotState(final ControlUnit controlUnit) {
         this.controlUnit = controlUnit;
         this.timeSinceCreation = System.currentTimeMillis();
     }
 
     @Override
     public void handle() {
-        if (controlUnit.getOperationMode().equals(OperationMode.AUTO)) {
-            controlUnit.setFrequency(ControlUnitUtil.Frequency.INCREASED);
-            controlUnit.setWindowLevel(ControlUnitUtil.ActuatorState.FULLY_OPEN);
+        if (controlUnit.getOperatingMode().equals(OperationMode.AUTO)) {
+            controlUnit.setFrequency(ControlUnitUtil.FreqMultiplier.INCREASED);
+            controlUnit.setWindowLevel(ControlUnitUtil.DoorState.FULLY_OPEN);
         }
     }
 
     @Override
     public SystemState next() {
-        double temperature = controlUnit.getTemperatureSampler().getTemperature();
-        if (temperature < ControlUnitUtil.TemperatureThresholds.NORMAL) {
+        final double temperature = controlUnit.getTemperatureSampler().getTemperature().getValue();
+        if (temperature < ControlUnitUtil.TempThresholds.NORMAL) {
             return new NormalState(this.controlUnit);
-        } else if (temperature < ControlUnitUtil.TemperatureThresholds.HOT) {
+        } else if (temperature < ControlUnitUtil.TempThresholds.HOT) {
             return new HotState(this.controlUnit);
-        } else if (temperature >= ControlUnitUtil.TemperatureThresholds.TOO_HOT) {
-            if (System.currentTimeMillis() - timeSinceCreation > ControlUnitUtil.TemperatureThresholds.TOO_HOT_WINDOW) {
+        } else if (temperature >= ControlUnitUtil.TempThresholds.TOO_HOT) {
+            if (System.currentTimeMillis() - timeSinceCreation > ControlUnitUtil.TempThresholds.TOO_HOT_WINDOW) {
                 return new AlarmState(controlUnit);
             } else {
                 return this;
@@ -40,6 +40,6 @@ public class TooHotState implements SystemState {
 
     @Override
     public String getName() {
-        return "TOO_HOT";
+        return SystemStateEnum.TOO_HOT.getName();
     }
 }

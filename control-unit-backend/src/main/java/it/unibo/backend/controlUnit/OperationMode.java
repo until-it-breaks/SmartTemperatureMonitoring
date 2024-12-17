@@ -1,12 +1,12 @@
-package it.unibo.backend.states;
+package it.unibo.backend.controlUnit;
 
 public enum OperationMode {
     AUTO("auto"),
     MANUAL("manual");
 
-    private String name;
+    private final String name;
 
-    OperationMode(String name) {
+    OperationMode(final String name) {
         this.name = name;
     }
 
@@ -14,4 +14,3 @@ public enum OperationMode {
         return name;
     }
 }
-
