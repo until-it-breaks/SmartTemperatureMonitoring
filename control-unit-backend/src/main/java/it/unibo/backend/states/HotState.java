@@ -1,8 +1,8 @@
 package it.unibo.backend.states;
 
 import it.unibo.backend.controlunit.ControlUnit;
-import it.unibo.backend.controlunit.ControlUnitUtil;
-import it.unibo.backend.controlunit.OperationMode;
+import it.unibo.backend.controlunit.ControlUnitConfig;
+import it.unibo.backend.enums.OperationMode;
 
 public class HotState implements SystemState {
     private final ControlUnit controlUnit;
@@ -14,12 +14,12 @@ public class HotState implements SystemState {
     @Override
     public void handle() {
         if (controlUnit.getOperatingMode().equals(OperationMode.AUTO)) {
-            controlUnit.setFrequency(ControlUnitUtil.FreqMultiplier.INCREASED);
+            controlUnit.setFrequency(ControlUnitConfig.FreqMultiplier.INCREASED);
             final double temperature = controlUnit.getTemperatureSampler().getTemperature().getValue();
-            final int mappedValue = (int) (((temperature - ControlUnitUtil.TempThresholds.NORMAL)
-                / (ControlUnitUtil.TempThresholds.HOT - ControlUnitUtil.TempThresholds.NORMAL))
-                * (ControlUnitUtil.DoorState.FULLY_OPEN - ControlUnitUtil.DoorState.FULLY_CLOSED)
-                + ControlUnitUtil.DoorState.FULLY_CLOSED);
+            final int mappedValue = (int) (((temperature - ControlUnitConfig.TempThresholds.NORMAL)
+                / (ControlUnitConfig.TempThresholds.HOT - ControlUnitConfig.TempThresholds.NORMAL))
+                * (ControlUnitConfig.DoorState.FULLY_OPEN - ControlUnitConfig.DoorState.FULLY_CLOSED)
+                + ControlUnitConfig.DoorState.FULLY_CLOSED);
             controlUnit.setWindowLevel(mappedValue);
         }
     }
@@ -27,9 +27,9 @@ public class HotState implements SystemState {
     @Override
     public SystemState next() {
         final double temperature = controlUnit.getTemperatureSampler().getTemperature().getValue();
-        if (temperature < ControlUnitUtil.TempThresholds.NORMAL) {
+        if (temperature < ControlUnitConfig.TempThresholds.NORMAL) {
             return new NormalState(controlUnit);
-        } else if (temperature < ControlUnitUtil.TempThresholds.HOT) {
+        } else if (temperature < ControlUnitConfig.TempThresholds.HOT) {
             return this;
         } else {
             return new TooHotState(this.controlUnit);

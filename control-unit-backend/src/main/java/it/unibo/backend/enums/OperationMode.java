@@ -1,4 +1,4 @@
-package it.unibo.backend.controlunit;
+package it.unibo.backend.enums;
 
 public enum OperationMode {
     AUTO("auto"),

@@ -17,13 +17,17 @@ public class HttpEndpointWatcher {
     private static final Logger logger = LoggerFactory.getLogger(HttpEndpointWatcher.class);
 
     private final List<HttpEndpointObserver> observers = new ArrayList<>();
-    private final String endpointUrl;
+    private final String host;
+    private final int port;
+    private final String path;
     private JsonObject lastData;
     private final Vertx vertx;
     private final WebClient client;
 
-    public HttpEndpointWatcher(final String endpointUrl) {
-        this.endpointUrl = endpointUrl;
+    public HttpEndpointWatcher(final String host, final int port, final String path) {
+        this.host = host;
+        this.port = port;
+        this.path = path;
         this.lastData = null;
         this.vertx = Vertx.vertx();
         this.client = WebClient.create(vertx);
@@ -34,7 +38,7 @@ public class HttpEndpointWatcher {
      */
     public void start(final long interval) {
         vertx.setPeriodic(interval, timerId -> {
-            client.getAbs(endpointUrl).send(ar -> {
+            client.get(port, host, path).send(ar -> {
                 if (ar.succeeded()) {
                     final JsonObject currentData = ar.result().bodyAsJsonObject();
                     if (!currentData.equals(lastData)) {

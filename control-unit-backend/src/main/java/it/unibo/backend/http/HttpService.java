@@ -14,6 +14,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import it.unibo.backend.Config;
 import it.unibo.backend.temperature.TemperatureReport;
 import it.unibo.backend.temperature.TemperatureSample;
 
@@ -55,20 +56,20 @@ public class HttpService extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         // Creating endpoints RESTful endpoints
-        router.post("/api/temperature").handler(this::handleAddTemperatureSample);
-        router.get("/api/temperature").handler(this::handleGetTemperatureSamples);
+        router.post(Config.TEMPERATURE_PATH).handler(this::handleAddTemperatureSample);
+        router.get(Config.TEMPERATURE_PATH).handler(this::handleGetTemperatureSamples);
 
-        router.post("/api/report").handler(this::handleAddTemperatureReport);
-        router.get("/api/report").handler(this::handleGetTemperatureReports);
+        router.post(Config.REPORTS_PATH).handler(this::handleAddTemperatureReport);
+        router.get(Config.REPORTS_PATH).handler(this::handleGetTemperatureReports);
 
-        router.post("/api/operation").handler(this::handleUpdateOperatingMode);
-        router.get("/api/operation").handler(this::handleGetOperatingMode);
+        router.post(Config.OPERATING_MODE_PATH).handler(this::handleUpdateOperatingMode);
+        router.get(Config.OPERATING_MODE_PATH).handler(this::handleGetOperatingMode);
 
-        router.post("/api/alarm").handler(this::handleUpdateInterventionNeed);
-        router.get("/api/alarm").handler(this::handleGetInterventionNeed);
+        router.post(Config.INTERVENTION_PATH).handler(this::handleUpdateInterventionNeed);
+        router.get(Config.INTERVENTION_PATH).handler(this::handleGetInterventionNeed);
 
-        router.post("/api/data").handler(this::handleUpdateConfigData);
-        router.get("/api/data").handler(this::handleGetConfigData);
+        router.post(Config.CONFIG_PATH).handler(this::handleUpdateConfigData);
+        router.get(Config.CONFIG_PATH).handler(this::handleGetConfigData);
 
         vertx.createHttpServer().requestHandler(router).listen(port, host, res -> {
             if (res.succeeded()) {

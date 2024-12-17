@@ -1,13 +1,14 @@
 package it.unibo.backend.controlunit;
 
 import io.vertx.core.json.JsonObject;
+import it.unibo.backend.enums.MQTTTopic;
+import it.unibo.backend.enums.OperationMode;
 import it.unibo.backend.http.HttpClient;
 import it.unibo.backend.http.HttpEndpointObserver;
 import it.unibo.backend.http.HttpEndpointWatcher;
 import it.unibo.backend.http.JsonUtility;
 import it.unibo.backend.mqtt.MQTTClient;
 import it.unibo.backend.mqtt.MQTTMessageObserver;
-import it.unibo.backend.mqtt.MQTTTopic;
 import it.unibo.backend.serial.SerialCommChannel;
 import it.unibo.backend.serial.SerialMessageObserver;
 import it.unibo.backend.states.NormalState;

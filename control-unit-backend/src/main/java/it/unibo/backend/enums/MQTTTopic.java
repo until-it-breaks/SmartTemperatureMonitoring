@@ -1,4 +1,4 @@
-package it.unibo.backend.mqtt;
+package it.unibo.backend.enums;
 
 public enum MQTTTopic {
     TEMPERATURE("temperature"),
