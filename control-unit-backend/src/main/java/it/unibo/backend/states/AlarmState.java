@@ -1,7 +1,7 @@
 package it.unibo.backend.states;
 
-import it.unibo.backend.controlUnit.ControlUnit;
-import it.unibo.backend.controlUnit.ControlUnitUtil;
+import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.controlunit.ControlUnitUtil;
 
 public class AlarmState implements SystemState {
     private final ControlUnit controlUnit;

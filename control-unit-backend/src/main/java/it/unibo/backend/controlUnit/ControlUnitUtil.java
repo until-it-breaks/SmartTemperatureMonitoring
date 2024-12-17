@@ -1,4 +1,4 @@
-package it.unibo.backend.controlUnit;
+package it.unibo.backend.controlunit;
 
 public class ControlUnitUtil {
     private ControlUnitUtil() {
@@ -20,5 +20,10 @@ public class ControlUnitUtil {
     public static class DoorState {
         public static final int FULLY_CLOSED = 0;
         public static final int FULLY_OPEN = 90;
+    }
+
+    public static class Http {
+        public static final String LOCAL_HTTP_HOST = "localhost";
+        public static final String HTTP_HOST = "https://hamster-holy-mutt.ngrok-free.app";
     }
 }

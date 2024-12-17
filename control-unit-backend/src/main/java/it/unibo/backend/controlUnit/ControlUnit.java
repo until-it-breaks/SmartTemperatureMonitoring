@@ -1,4 +1,4 @@
-package it.unibo.backend.controlUnit;
+package it.unibo.backend.controlunit;
 
 import io.vertx.core.json.JsonObject;
 import it.unibo.backend.http.HttpClient;

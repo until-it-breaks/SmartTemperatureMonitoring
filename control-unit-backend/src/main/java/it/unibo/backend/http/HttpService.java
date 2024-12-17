@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -49,7 +50,7 @@ public class HttpService extends AbstractVerticle {
 
     @Override
     public void start() {
-        logger.info("Starting DataService on {}:{}", host, port);
+        logger.info("Starting HttpService on {}:{}", host, port);
         final Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
 
@@ -63,7 +64,7 @@ public class HttpService extends AbstractVerticle {
         router.post("/api/operation").handler(this::handleUpdateOperatingMode);
         router.get("/api/operation").handler(this::handleGetOperatingMode);
 
-        router.post("/api/alarm").handler(this::handleUpdateInterventioNeed);
+        router.post("/api/alarm").handler(this::handleUpdateInterventionNeed);
         router.get("/api/alarm").handler(this::handleGetInterventionNeed);
 
         router.post("/api/data").handler(this::handleUpdateConfigData);
@@ -71,15 +72,15 @@ public class HttpService extends AbstractVerticle {
 
         vertx.createHttpServer().requestHandler(router).listen(port, host, res -> {
             if (res.succeeded()) {
-                logger.info("DataService started successfully");
+                logger.info("HttpService started successfully");
             } else {
-                logger.error("Failed to start DataService", res.cause());
+                logger.error("Failed to start HttpService", res.cause());
             }
         });
     }
 
     private void handleAddTemperatureSample(final RoutingContext routingContext) {
-        logger.info("Received request to add a temperature sample from {}", routingContext.request().remoteAddress().host());
+        logger.info("Received request to add a temperature sample from {}", getHost(routingContext.request()));
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject res = routingContext.body().asJsonObject();
@@ -98,7 +99,7 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleGetTemperatureSamples(final RoutingContext routingContext) {
-        logger.info("Received request for temperature samples from {}", routingContext.request().remoteAddress().host());
+        logger.info("Received request for temperature samples from {}", getHost(routingContext.request()));
 
         final JsonArray array = new JsonArray();
         for (final TemperatureSample value: samples) {
@@ -111,7 +112,7 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleAddTemperatureReport(final RoutingContext routingContext) {
-        logger.info("Received request add temperature report from {}", routingContext.request().remoteAddress().host());
+        logger.info("Received request add temperature report from {}", getHost(routingContext.request()));
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject res = routingContext.body().asJsonObject();
@@ -135,7 +136,7 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleGetTemperatureReports(final RoutingContext routingContext) {
-        logger.info("Received request for temperature reports from {}", routingContext.request().remoteAddress().host());
+        logger.info("Received request for temperature reports from {}", getHost(routingContext.request()));
 
         final JsonArray array = new JsonArray();
         for (final TemperatureReport report: reports) {
@@ -151,7 +152,7 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleUpdateOperatingMode(final RoutingContext routingContext) {
-        logger.info("Received request to update operating mode from {}", routingContext.request().remoteAddress().host());
+        logger.info("Received request to update operating mode from {}", getHost(routingContext.request()));
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject res = routingContext.body().asJsonObject();
@@ -166,15 +167,15 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleGetOperatingMode(final RoutingContext routingContext) {
-        logger.info("Received request for operating mode from {}", routingContext.request().remoteAddress().host());
+        logger.info("Received request for operating mode from {}", getHost(routingContext.request()));
 
         final JsonObject data = new JsonObject();
         data.put(JsonUtility.OPERATING_MODE, this.operationMode);
         routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
     }
 
-    private void handleUpdateInterventioNeed(final RoutingContext routingContext) {
-        logger.info("Received request to update [intervention need] from {}", routingContext.request().remoteAddress().host());
+    private void handleUpdateInterventionNeed(final RoutingContext routingContext) {
+        logger.info("Received request to update [intervention need] from {}", getHost(routingContext.request()));
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject res = routingContext.body().asJsonObject();
@@ -189,7 +190,7 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleGetInterventionNeed(final RoutingContext routingContext) {
-        logger.info("Received request for [intervention need] status from {}", routingContext.request().remoteAddress().host());
+        logger.info("Received request for [intervention need] status from {}", getHost(routingContext.request()));
 
         final JsonObject data = new JsonObject();
         data.put(JsonUtility.INTERVENTION_NEED, this.interventionRequired);
@@ -197,7 +198,7 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleUpdateConfigData(final RoutingContext routingContext) {
-        logger.info("Received request to update configuration data from {}", routingContext.request().remoteAddress().host());
+        logger.info("Received request to update configuration data from {}", getHost(routingContext.request()));
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject res = routingContext.body().asJsonObject();
@@ -215,12 +216,21 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleGetConfigData(final RoutingContext routingContext) {
-        logger.info("Received request for config data from {}", routingContext.request().remoteAddress().host());
 
+        logger.info("Received request for configuration data from {}", getHost(routingContext.request()));
         final JsonObject data = new JsonObject();
         data.put(JsonUtility.WINDOW_LEVEL, this.windowLevel);
         data.put(JsonUtility.SYSTEM_STATE, this.state);
         data.put(JsonUtility.SAMPLING_FREQ, this.frequency);
         routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
+    }
+
+    private String getHost(HttpServerRequest request) {
+        String host = request.getHeader("X-Forwarded-For");
+        if (host == null) {
+            return request.remoteAddress().host();
+        } else {
+            return host;
+        }
     }
 }

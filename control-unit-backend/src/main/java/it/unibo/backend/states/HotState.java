@@ -1,8 +1,8 @@
 package it.unibo.backend.states;
 
-import it.unibo.backend.controlUnit.ControlUnit;
-import it.unibo.backend.controlUnit.ControlUnitUtil;
-import it.unibo.backend.controlUnit.OperationMode;
+import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.controlunit.ControlUnitUtil;
+import it.unibo.backend.controlunit.OperationMode;
 
 public class HotState implements SystemState {
     private final ControlUnit controlUnit;
