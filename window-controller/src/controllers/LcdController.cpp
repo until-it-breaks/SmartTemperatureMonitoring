@@ -6,10 +6,6 @@ LcdController::LcdController(LiquidCrystal_I2C* lcd) {
 	this->lcd->backlight();
 }
 
-LcdController::~LcdController() {
-    delete this->lcd;
-}
-
 void LcdController::printInfo(float level, String mode) {
     this->lcd->clear();
     this->lcd->setCursor(0,0);

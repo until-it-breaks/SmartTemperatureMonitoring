@@ -5,8 +5,8 @@
 #include "controllers/LcdController.h"
 
 extern Context* context;
-extern WindowController* window;
-extern LcdController* lcd;
+extern WindowController* windowController;
+extern LcdController* lcdController;
 
 ActiveManual::ActiveManual(State* state) {
     if (state != nullptr) {
@@ -15,8 +15,8 @@ ActiveManual::ActiveManual(State* state) {
 }
 
 void ActiveManual::handle() {
-    window->setLevel(context->getManualLevel());
-    lcd->printInfo(context->getManualLevel(), "MANUAL"); // TODO proper better
+    windowController->setLevel(context->getManualLevel());
+    lcdController->printInfo(context->getManualLevel(), "MANUAL"); // TODO proper better
 }
 
 State* ActiveManual::next() {

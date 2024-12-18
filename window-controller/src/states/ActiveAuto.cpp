@@ -5,8 +5,8 @@
 #include "controllers/LcdController.h"
 
 extern Context* context;
-extern WindowController* window;
-extern LcdController* lcd;
+extern WindowController* windowController;
+extern LcdController* lcdController;
 
 ActiveAuto::ActiveAuto(State* state) {
     if (state != nullptr) {
@@ -15,8 +15,8 @@ ActiveAuto::ActiveAuto(State* state) {
 }
 
 void ActiveAuto::handle() {
-    window->setLevel(context->getAutoLevel());
-    lcd->printInfo(context->getAutoLevel(), "AUTO", context->getTemperature()); // TODO proper format
+    windowController->setLevel(context->getAutoLevel());
+    lcdController->printInfo(context->getAutoLevel(), "AUTO", context->getTemperature()); // TODO proper format
 }
 
 State* ActiveAuto::next() {

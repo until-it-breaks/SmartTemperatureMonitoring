@@ -6,14 +6,14 @@
 #include "controllers/LcdController.h"
 
 extern Context* context;
-extern LcdController* lcd;
+extern LcdController* lcdController;
 
 WindowAlarm::WindowAlarm(State* state) {
     this->prevState = state;
 }
 
 void WindowAlarm::handle() {
-    lcd->printAlarmInfo();
+    lcdController->printAlarmInfo();
 }
 
 State* WindowAlarm::next() {

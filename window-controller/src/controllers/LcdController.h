@@ -8,7 +8,6 @@ class LcdController {
         LiquidCrystal_I2C* lcd;
     public:
         LcdController(LiquidCrystal_I2C* lcd);
-        ~LcdController();
         void turnOff();
         void turnOn();
         void printInfo(float level, String mode);
