@@ -8,8 +8,8 @@ extern Context* context;
 void ReadPotentiometerTask::tick() {
     if (context->getOperatingMode() == OperatingMode::MANUAL) {
         int sensorValue = analogRead(POTENTIOMETER_PIN);
-        int outputValue = map(sensorValue, 0, 1023, 0.0, 1.0);
-        if (outputValue != context->getAutoLevel()) {
+        float outputValue = sensorValue / 1023.0;
+        if (outputValue != context->getManualLevel()) {
             context->setManualLevel(outputValue);
         }
     }

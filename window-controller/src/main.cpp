@@ -8,13 +8,16 @@
 #include "tasks/ReadPotentiometerTask.h"
 #include "tasks/MainTask.h"
 
-Context* context = new Context();
-WindowController* windowController = new WindowController(SERVO_PIN);
-LcdController* lcdController = new LcdController(new LiquidCrystal_I2C(0x27, 16, 2));
+Context* context;
+WindowController* windowController;
+LcdController* lcdController;
 Scheduler scheduler;
 
 void setup() {
     Serial.begin(9600); // To be removed
+    context = new Context();
+    windowController = new WindowController(SERVO_PIN);
+    lcdController = new LcdController(new LiquidCrystal_I2C(0x27, 16, 2));
     scheduler.init(SCHEDULER_PERIOD);
     Task* readPotentiometer = new ReadPotentiometerTask();
     readPotentiometer->init(1000);
@@ -23,6 +26,7 @@ void setup() {
     scheduler.addTask(readPotentiometer);
     scheduler.addTask(mainTask);
     Serial.println("Setup done");
+    delay(1000);
 }
 
 void loop() {

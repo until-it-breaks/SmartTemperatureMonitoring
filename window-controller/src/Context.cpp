@@ -4,7 +4,7 @@ Context::Context() {
     this->temperature = 0;
     this->autoLevel = 0;
     this->manualLevel = 0;
-    this->mode = OperatingMode::AUTO;
+    this->mode = OperatingMode::MANUAL;
     this->state = SystemState::NORMAL;
 }
 

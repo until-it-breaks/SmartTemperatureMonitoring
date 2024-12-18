@@ -25,7 +25,9 @@ void WindowController::close() {
 void WindowController::setLevel(float level) {
     level = constrain(level, WINDOW_MIN_LEVEL, WINDOW_MAX_LEVEL);
     this->level = level;
-    int mappedValue = map(level, WINDOW_MIN_LEVEL, WINDOW_MAX_LEVEL, WINDOW_CLOSED_WIDTH, WINDOW_OPEN_WIDTH);
+    int mappedValue = WINDOW_CLOSED_WIDTH + (level - WINDOW_MIN_LEVEL) * 
+                      (WINDOW_OPEN_WIDTH - WINDOW_CLOSED_WIDTH) / 
+                      (WINDOW_MAX_LEVEL - WINDOW_MIN_LEVEL);
     this->servo->write(mappedValue);
 }
 
