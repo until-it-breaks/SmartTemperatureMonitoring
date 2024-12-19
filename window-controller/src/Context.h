@@ -11,19 +11,16 @@ class Context {
     public:
         Context();
         void setTemperature(float temp);
-        void setAutoLevel(float level);
-        void setManualLevel(float level);
+        void setLevel(float level);
         void setOperatingMode(OperatingMode mode);
         void setSystemState(SystemState state);
         float getTemperature();
-        float getAutoLevel();
-        float getManualLevel();
+        float getLevel();
         OperatingMode getOperatingMode();
         SystemState getSystemState();
     private:
         float temperature;
-        float autoLevel;
-        float manualLevel;
+        float level;
         OperatingMode mode;
         SystemState state;
 };

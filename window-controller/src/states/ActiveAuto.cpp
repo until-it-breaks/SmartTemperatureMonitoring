@@ -15,8 +15,9 @@ ActiveAuto::ActiveAuto(State* state) {
 }
 
 void ActiveAuto::handle() {
-    windowController->setLevel(context->getAutoLevel());
-    lcdController->printInfo(context->getAutoLevel(), "AUTO", context->getTemperature());
+    float level = context->getLevel();
+    windowController->setLevel(level);
+    lcdController->printInfo(level, "AUTO", context->getTemperature());
 }
 
 State* ActiveAuto::next() {

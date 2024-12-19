@@ -2,8 +2,7 @@
 
 Context::Context() {
     this->temperature = 0;
-    this->autoLevel = 0;
-    this->manualLevel = 0;
+    this->level = 0;
     this->mode = OperatingMode::MANUAL;
     this->state = SystemState::NORMAL;
 }
@@ -12,12 +11,8 @@ void Context::setTemperature(float temp) {
     this->temperature = temp;
 }
 
-void Context::setAutoLevel(float level) {
-    this->autoLevel = level;
-}
-
-void Context::setManualLevel(float level) {
-    this->manualLevel = level;
+void Context::setLevel(float level) {
+    this->level = level;
 }
 
 void Context::setOperatingMode(OperatingMode mode) {
@@ -32,12 +27,8 @@ float Context::getTemperature() {
     return this->temperature;
 }
 
-float Context::getAutoLevel() {
-    return this->autoLevel;
-}
-
-float Context::getManualLevel() {
-    return this->manualLevel;
+float Context::getLevel() {
+    return this->level;
 }
 
 OperatingMode Context::getOperatingMode() {

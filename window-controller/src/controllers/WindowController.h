@@ -10,10 +10,8 @@ class WindowController {
         void open();
         void close();
         void setLevel(float level);
-        float getLevel();
     private:
         ServoTimer2* servo;
-        float level;
 };
 
 #endif

@@ -15,8 +15,9 @@ ActiveManual::ActiveManual(State* state) {
 }
 
 void ActiveManual::handle() {
-    windowController->setLevel(context->getManualLevel());
-    lcdController->printInfo(context->getManualLevel(), "MANUAL");
+    float level = context->getLevel();
+    windowController->setLevel(level);
+    lcdController->printInfo(level, "MANUAL");
 }
 
 State* ActiveManual::next() {

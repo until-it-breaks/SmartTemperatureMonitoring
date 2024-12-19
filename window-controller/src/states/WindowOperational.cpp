@@ -19,9 +19,8 @@ State* WindowOperational::next() {
         State* next = currentState->next();
         if (next != nullptr) {
             this->currentState = next;
-        } else {
-            return nullptr;
         }
+        return nullptr;
     } else {
         return new WindowAlarm(this->currentState);
     }
