@@ -12,6 +12,6 @@
 
 #define SCHEDULER_PERIOD 100
 
-#define IDLE_TIME 500
+#define IDLE_TIME 1000
 
 #endif

@@ -1,9 +1,9 @@
 #include "MainTask.h"
-#include "states/IdleManual.h"
+#include "states/IdleAuto.h"
 #include "states/WindowOperational.h"
 
 MainTask::MainTask() {
-    this->currentState = new WindowOperational(new IdleManual(nullptr)); // To be changed to auto
+    this->currentState = new WindowOperational(new IdleAuto(nullptr));
     this->currentState->handle();
 }
 

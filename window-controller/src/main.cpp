@@ -6,6 +6,7 @@
 #include "Config.h"
 #include "communication/MsgService.h"
 #include "tasks/ReadPotentiometerTask.h"
+#include "tasks/ReadButtonTask.h"
 #include "tasks/MainTask.h"
 
 Context* context;
@@ -14,18 +15,20 @@ LcdController* lcdController;
 Scheduler scheduler;
 
 void setup() {
-    Serial.begin(9600); // To be removed
+    MsgService.init();
     context = new Context();
     windowController = new WindowController(SERVO_PIN);
     lcdController = new LcdController(new LiquidCrystal_I2C(0x27, 16, 2));
     scheduler.init(SCHEDULER_PERIOD);
-    Task* readPotentiometer = new ReadPotentiometerTask();
-    readPotentiometer->init(1000);
+    Task* readPotentiometerTask = new ReadPotentiometerTask();
+    readPotentiometerTask->init(1000);
+    Task* readButtonTask = new ReadButtonTask();
+    readButtonTask->init(100);
     Task* mainTask = new MainTask();
     mainTask->init(500);
-    scheduler.addTask(readPotentiometer);
+    scheduler.addTask(readButtonTask);
+    scheduler.addTask(readPotentiometerTask);
     scheduler.addTask(mainTask);
-    Serial.println("Setup done");
     delay(1000);
 }
 
