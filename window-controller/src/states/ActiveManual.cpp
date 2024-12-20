@@ -9,15 +9,16 @@ extern WindowController* windowController;
 extern LcdController* lcdController;
 
 ActiveManual::ActiveManual(State* state) {
+    Serial.println("ActiveManual");
     if (state != nullptr) {
         delete state;
     }
 }
 
 void ActiveManual::handle() {
-    float level = context->getLevel();
-    windowController->setLevel(level);
-    lcdController->printInfo(level, "MANUAL");
+    Serial.println("Handling ActiveManual");
+    windowController->setLevel(context->getLevel());
+    lcdController->printInfo(context->getLevel(), "MANUAL");
 }
 
 State* ActiveManual::next() {

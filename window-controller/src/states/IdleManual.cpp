@@ -7,6 +7,7 @@
 extern Context* context;
 
 IdleManual::IdleManual(State* state) {
+    Serial.println("IdleManual");
     if (state != nullptr) {
         delete state;
     }

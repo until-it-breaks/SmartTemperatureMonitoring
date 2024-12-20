@@ -6,6 +6,12 @@ LcdController::LcdController(LiquidCrystal_I2C* lcd) {
 	this->lcd->backlight();
 }
 
+void LcdController::printWelcome() {
+    this->lcd->clear();
+    this->lcd->setCursor(0,0);
+    this->lcd->print("Starting...");
+}
+
 void LcdController::printInfo(float level, String mode) {
     this->lcd->clear();
     this->lcd->setCursor(0,0);

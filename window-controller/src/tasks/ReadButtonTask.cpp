@@ -3,7 +3,7 @@
 #include "Config.h"
 #include "Arduino.h"
 
-extern Context* context;
+extern Context* context; // replace with interrupts
 
 void ReadButtonTask::tick() {
     if (digitalRead(BUTTON_PIN) == HIGH) {

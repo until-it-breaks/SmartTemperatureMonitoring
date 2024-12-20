@@ -7,6 +7,7 @@
 extern Context* context;
 
 IdleAuto::IdleAuto(State* state) {
+    Serial.println("IdleAuto");
     if (state != nullptr) {
         delete state;
     }

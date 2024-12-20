@@ -9,15 +9,16 @@ extern WindowController* windowController;
 extern LcdController* lcdController;
 
 ActiveAuto::ActiveAuto(State* state) {
+    Serial.println("ActiveAuto");
     if (state != nullptr) {
         delete state;
     }
 }
 
 void ActiveAuto::handle() {
-    float level = context->getLevel();
-    windowController->setLevel(level);
-    lcdController->printInfo(level, "AUTO", context->getTemperature());
+    Serial.println("Handling ActiveAuto");
+    windowController->setLevel(context->getLevel());
+    lcdController->printInfo(context->getLevel(), "AUTO", context->getTemperature());
 }
 
 State* ActiveAuto::next() {

@@ -1,5 +1,5 @@
-#ifndef __READ_POTENTIOMETER__
-#define __READ_POTENTIOMETER__
+#ifndef __READ_POTENTIOMETER_TASK__
+#define __READ_POTENTIOMETER_TASK__
 
 #include "Task.h"
 

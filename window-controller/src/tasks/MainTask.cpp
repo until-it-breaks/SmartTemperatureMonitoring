@@ -4,14 +4,13 @@
 
 MainTask::MainTask() {
     this->currentState = new WindowOperational(new IdleAuto(nullptr));
-    this->currentState->handle();
 }
 
 void MainTask::tick() {
+    this->currentState->handle();
     State* next = this->currentState->next();
     if (next != nullptr) {
         delete this->currentState;
         this->currentState = next;
-        this->currentState->handle();
     }
 }

@@ -10,6 +10,7 @@ class LcdController {
         LcdController(LiquidCrystal_I2C* lcd);
         void turnOff();
         void turnOn();
+        void printWelcome();
         void printInfo(float level, String mode);
         void printInfo(float level, String mode, float temperature);
         void printAlarmInfo();

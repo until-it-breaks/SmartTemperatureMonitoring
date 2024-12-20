@@ -1,8 +1,6 @@
 #ifndef __CONTEXT__
 #define __CONTEXT__
 
-#include <WString.h>
-
 enum OperatingMode {AUTO, MANUAL};
 
 enum SystemState {NORMAL, HOT, TOO_HOT, ALARM};

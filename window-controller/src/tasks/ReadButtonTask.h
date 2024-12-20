@@ -1,4 +1,4 @@
-#ifndef __READ_BUTTON__
+#ifndef __READ_BUTTON_TASK__
 #define __READ_BUTTON__
 
 #include "Task.h"
