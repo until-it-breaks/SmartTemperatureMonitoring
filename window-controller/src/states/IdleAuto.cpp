@@ -8,10 +8,7 @@
 extern Context* context;
 extern LcdController* lcdController;
 
-IdleAuto::IdleAuto(State* state) {
-    if (state != nullptr) {
-        delete state;
-    }
+IdleAuto::IdleAuto() {
     this->startTime = millis();
 }
 
@@ -21,9 +18,9 @@ void IdleAuto::handle() {
 
 State* IdleAuto::next() {
     if ((millis() - this->startTime) > IDLE_TIME) {
-        return new ActiveAuto(this);
+        return new ActiveAuto();
     } else if (context->getOperatingMode() == OperatingMode::MANUAL) {
-        return new IdleManual(this);
+        return new IdleManual();
     } else {
         return this;
     }

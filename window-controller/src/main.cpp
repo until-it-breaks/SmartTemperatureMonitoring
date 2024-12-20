@@ -25,7 +25,7 @@ void setup() {
     readPotentiometerTask->init(1000);
     Task* readButtonTask = new ReadButtonTask();
     readButtonTask->init(100);
-    Task* mainTask = new MainTask();
+    Task* mainTask = new WindowControlTask();
     mainTask->init(500);
     scheduler.addTask(readButtonTask);
     scheduler.addTask(readPotentiometerTask);

@@ -14,7 +14,6 @@ class Task {
 
         virtual void tick() = 0;
 
-        // BasePeriod is the one used by scheduler.
         bool updateAndCheckTime(int basePeriod) {
             timeElapsed += basePeriod;
             if (timeElapsed >= myPeriod) {

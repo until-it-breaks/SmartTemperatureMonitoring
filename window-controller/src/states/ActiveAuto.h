@@ -5,7 +5,6 @@
 
 class ActiveAuto : public State {
     public:
-        ActiveAuto(State* state);
         void handle() override;
         State* next() override;
 };

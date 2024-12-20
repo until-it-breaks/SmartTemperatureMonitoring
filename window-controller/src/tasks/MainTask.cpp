@@ -2,11 +2,11 @@
 #include "states/IdleAuto.h"
 #include "states/WindowOperational.h"
 
-MainTask::MainTask() {
-    this->currentState = new WindowOperational(new IdleAuto(nullptr));
+WindowControlTask::WindowControlTask() {
+    this->currentState = new WindowOperational(new IdleAuto());
 }
 
-void MainTask::tick() {
+void WindowControlTask::tick() {
     this->currentState->handle();
     State* next = this->currentState->next();
     if (next != currentState) {

@@ -5,7 +5,6 @@
 
 class ActiveManual : public State {
     public:
-        ActiveManual(State* state);
         void handle() override;
         State* next() override;
 };

@@ -18,6 +18,7 @@ State* WindowOperational::next() {
     if (context->getSystemState() != SystemState::ALARM) {
         State* next = currentState->next();
         if (next != currentState) {
+            delete currentState;
             this->currentState = next;
         }
         return this;

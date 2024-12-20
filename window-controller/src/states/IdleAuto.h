@@ -7,7 +7,7 @@ class IdleAuto : public State {
     private:
         unsigned long startTime;
     public:
-        IdleAuto(State* state);
+        IdleAuto();
         void handle() override;
         State* next() override;
 };
