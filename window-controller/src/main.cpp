@@ -7,7 +7,7 @@
 #include "communication/MsgService.h"
 #include "tasks/ReadPotentiometerTask.h"
 #include "tasks/ReadButtonTask.h"
-#include "tasks/MainTask.h"
+#include "tasks/WindowControlTask.h"
 
 Context* context;
 WindowController* windowController;
@@ -25,11 +25,11 @@ void setup() {
     readPotentiometerTask->init(1000);
     Task* readButtonTask = new ReadButtonTask();
     readButtonTask->init(100);
-    Task* mainTask = new WindowControlTask();
-    mainTask->init(500);
+    Task* windowControlTask = new WindowControlTask();
+    windowControlTask->init(500);
     scheduler.addTask(readButtonTask);
     scheduler.addTask(readPotentiometerTask);
-    scheduler.addTask(mainTask);
+    scheduler.addTask(windowControlTask);
     delay(1000);
 }
 
