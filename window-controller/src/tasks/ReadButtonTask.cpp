@@ -3,10 +3,14 @@
 #include "Config.h"
 #include "Arduino.h"
 
-extern Context* context; // replace with interrupts
+extern Context* context;
+
+ReadButtonTask::ReadButtonTask() {
+    this->button = new Button(BUTTON_PIN);
+}
 
 void ReadButtonTask::tick() {
-    if (digitalRead(BUTTON_PIN) == HIGH) {
+    if (button->wasPressed()) {
         if (context->getOperatingMode() == OperatingMode::AUTO) {
             context->setOperatingMode(OperatingMode::MANUAL);
         } else {

@@ -20,7 +20,7 @@ void setup() {
     windowController = new WindowController(SERVO_PIN);
     lcdController = new LcdController(new LiquidCrystal_I2C(0x27, 16, 2));
     lcdController->printWelcome();
-    scheduler.init(SCHEDULER_PERIOD);
+    scheduler.init(100);
     Task* readPotentiometerTask = new ReadPotentiometerTask();
     readPotentiometerTask->init(1000);
     Task* readButtonTask = new ReadButtonTask();

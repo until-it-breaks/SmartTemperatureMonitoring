@@ -18,4 +18,6 @@ const int SCHEDULER_PERIOD = 100;
 // Idle time in milliseconds
 const int IDLE_TIME = 1000;
 
+const unsigned long DEBOUNCE_DELAY = 50;
+
 #endif
