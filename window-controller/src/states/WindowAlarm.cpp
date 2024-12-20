@@ -20,6 +20,6 @@ State* WindowAlarm::next() {
     if (context->getSystemState() != SystemState::ALARM) {
         return new WindowOperational(this->prevState);
     } else {
-        return nullptr;
+        return this;
     }
 }

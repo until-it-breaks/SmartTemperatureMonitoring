@@ -9,7 +9,7 @@ MainTask::MainTask() {
 void MainTask::tick() {
     this->currentState->handle();
     State* next = this->currentState->next();
-    if (next != nullptr) {
+    if (next != currentState) {
         delete this->currentState;
         this->currentState = next;
     }

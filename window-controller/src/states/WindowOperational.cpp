@@ -17,10 +17,10 @@ void WindowOperational::handle() {
 State* WindowOperational::next() {
     if (context->getSystemState() != SystemState::ALARM) {
         State* next = currentState->next();
-        if (next != nullptr) {
+        if (next != currentState) {
             this->currentState = next;
         }
-        return nullptr;
+        return this;
     } else {
         return new WindowAlarm(this->currentState);
     }

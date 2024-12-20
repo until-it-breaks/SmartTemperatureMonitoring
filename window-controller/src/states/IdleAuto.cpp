@@ -3,11 +3,12 @@
 #include "IdleManual.h"
 #include "Context.h"
 #include "Config.h"
+#include "controllers/LcdController.h"
 
 extern Context* context;
+extern LcdController* lcdController;
 
 IdleAuto::IdleAuto(State* state) {
-    Serial.println("IdleAuto");
     if (state != nullptr) {
         delete state;
     }
@@ -15,6 +16,7 @@ IdleAuto::IdleAuto(State* state) {
 }
 
 void IdleAuto::handle() {
+    lcdController->printInfo(context->getLevel(), "AUTO", context->getTemperature());
 }
 
 State* IdleAuto::next() {
@@ -23,6 +25,6 @@ State* IdleAuto::next() {
     } else if (context->getOperatingMode() == OperatingMode::MANUAL) {
         return new IdleManual(this);
     } else {
-        return nullptr;
+        return this;
     }
 }
