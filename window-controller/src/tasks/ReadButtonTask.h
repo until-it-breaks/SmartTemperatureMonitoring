@@ -3,13 +3,15 @@
 
 #include "Task.h"
 #include "components/Button.h"
+#include "Context.h"
 
 class ReadButtonTask: public Task {
     public:
-        ReadButtonTask();
+        ReadButtonTask(Context* context);
         void tick() override;
     private:
         Button* button;
+        Context* context;
 };
 
 #endif

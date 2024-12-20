@@ -4,12 +4,12 @@
 #include "State.h"
 
 class IdleManual : public State {
-    private:
-        unsigned long startTime;
     public:
-        IdleManual();
+        IdleManual(Context* context);
         void handle() override;
         State* next() override;
+    private:
+        unsigned long startTime;
 };
 
 #endif

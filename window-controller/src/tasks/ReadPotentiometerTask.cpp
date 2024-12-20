@@ -3,10 +3,9 @@
 #include "Arduino.h"
 #include "Config.h"
 
-extern Context* context;
-
-ReadPotentiometerTask::ReadPotentiometerTask() {
+ReadPotentiometerTask::ReadPotentiometerTask(Context* context) {
     this->potentiometer = new Potentiometer(POTENTIOMETER_PIN);
+    this->context = context;
 }
 
 void ReadPotentiometerTask::tick() {

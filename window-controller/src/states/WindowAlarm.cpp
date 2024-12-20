@@ -8,7 +8,7 @@
 extern Context* context;
 extern LcdController* lcdController;
 
-WindowAlarm::WindowAlarm(State* state) {
+WindowAlarm::WindowAlarm(Context* context, State* state): State(context) {
     this->prevState = state;
 }
 
@@ -18,7 +18,7 @@ void WindowAlarm::handle() {
 
 State* WindowAlarm::next() {
     if (context->getSystemState() != SystemState::ALARM) {
-        return new WindowOperational(this->prevState);
+        return new WindowOperational(context, prevState);
     } else {
         return this;
     }

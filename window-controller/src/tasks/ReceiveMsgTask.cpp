@@ -1,8 +1,6 @@
 #include "ReceiveMsgTask.h"
 #include <Arduino.h>
 
-extern String stateMessage;
-
 void ReceiveMsgTask::tick() {
     if (MsgService.isMsgAvailable()) {
         Msg* msg = MsgService.receiveMsg();

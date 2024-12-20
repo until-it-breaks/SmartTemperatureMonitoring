@@ -4,9 +4,7 @@
 #include "WindowAlarm.h"
 #include "Context.h"
 
-extern Context* context;
-
-WindowOperational::WindowOperational(State* state) {
+WindowOperational::WindowOperational(Context* context, State* state): State(context) {
     this->currentState = state;
 }
 
@@ -23,6 +21,6 @@ State* WindowOperational::next() {
         }
         return this;
     } else {
-        return new WindowAlarm(this->currentState);
+        return new WindowAlarm(context, currentState);
     }
 }

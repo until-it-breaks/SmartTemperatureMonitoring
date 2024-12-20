@@ -9,7 +9,7 @@
 // when the alarm condition is resolved.
 class WindowAlarm : public State {
     public:
-        WindowAlarm(State* state);
+        WindowAlarm(Context* context, State* state);
         void handle() override;
         State* next() override;
     private:

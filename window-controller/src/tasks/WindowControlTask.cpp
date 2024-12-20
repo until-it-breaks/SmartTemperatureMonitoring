@@ -2,8 +2,9 @@
 #include "states/IdleAuto.h"
 #include "states/WindowOperational.h"
 
-WindowControlTask::WindowControlTask() {
-    this->currentState = new WindowOperational(new IdleAuto());
+WindowControlTask::WindowControlTask(Context* context) {
+    this->currentState = new WindowOperational(context, new IdleAuto(context));
+    this->context = context;
 }
 
 void WindowControlTask::tick() {

@@ -8,7 +8,7 @@
 // It delegates behavior to the current substate and determines the next state based on the system's context.
 class WindowOperational : public State {
     public:
-        WindowOperational(State* state);
+        WindowOperational(Context* context, State* state);
         void handle() override;
         State* next() override;
     private:

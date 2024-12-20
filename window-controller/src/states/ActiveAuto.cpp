@@ -3,7 +3,6 @@
 #include "Context.h"
 #include "controllers/WindowController.h"
 
-extern Context* context;
 extern WindowController* windowController;
 
 void ActiveAuto::handle() {
@@ -11,5 +10,5 @@ void ActiveAuto::handle() {
 }
 
 State* ActiveAuto::next() {
-    return new IdleAuto();
+    return new IdleAuto(context);
 }

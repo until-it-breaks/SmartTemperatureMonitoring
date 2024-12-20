@@ -3,16 +3,18 @@
 
 #include "Task.h"
 #include "states/State.h"
+#include "Context.h"
 
 // Represents the main task responsible for managing the state machine of the window control system.
 // This class initializes the state machine, delegates control to the current state, 
 // and handles transitions between states during each tick of the system.
 class WindowControlTask: public Task {
     public:
-        WindowControlTask();
+        WindowControlTask(Context* context);
         void tick() override;
     private:
         State* currentState;
+        Context* context;
 };
 
 #endif

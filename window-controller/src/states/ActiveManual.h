@@ -5,6 +5,7 @@
 
 class ActiveManual : public State {
     public:
+        ActiveManual(Context* context): State(context) {};
         void handle() override;
         State* next() override;
 };

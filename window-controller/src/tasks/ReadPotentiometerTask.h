@@ -3,13 +3,15 @@
 
 #include "Task.h"
 #include "components/Potentiometer.h"
+#include "Context.h"
 
 class ReadPotentiometerTask: public Task {
     public:
-        ReadPotentiometerTask();
+        ReadPotentiometerTask(Context* context);
         void tick() override;
     private:
         Potentiometer* potentiometer;
+        Context* context;
 };
 
 #endif

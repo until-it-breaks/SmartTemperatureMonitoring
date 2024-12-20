@@ -5,10 +5,9 @@
 #include "Config.h"
 #include "controllers/LcdController.h"
 
-extern Context* context;
 extern LcdController* lcdController;
 
-IdleAuto::IdleAuto() {
+IdleAuto::IdleAuto(Context* context): State(context) {
     this->startTime = millis();
 }
 
@@ -18,9 +17,9 @@ void IdleAuto::handle() {
 
 State* IdleAuto::next() {
     if ((millis() - this->startTime) > IDLE_TIME) {
-        return new ActiveAuto();
-    } else if (context->getOperatingMode() == OperatingMode::MANUAL) {
-        return new IdleManual();
+        return new ActiveAuto(context);
+    } else if (this->context->getOperatingMode() == OperatingMode::MANUAL) {
+        return new IdleManual(context);
     } else {
         return this;
     }

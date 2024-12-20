@@ -3,7 +3,6 @@
 #include "Context.h"
 #include "controllers/WindowController.h"
 
-extern Context* context;
 extern WindowController* windowController;
 
 void ActiveManual::handle() {
@@ -11,5 +10,5 @@ void ActiveManual::handle() {
 }
 
 State* ActiveManual::next() {
-    return new IdleManual();
+    return new IdleManual(context);
 }

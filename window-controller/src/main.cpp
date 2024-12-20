@@ -21,11 +21,11 @@ void setup() {
     lcdController = new LcdController(new LiquidCrystal_I2C(0x27, 16, 2));
     lcdController->printWelcome();
     scheduler.init(100);
-    Task* readPotentiometerTask = new ReadPotentiometerTask();
+    Task* readPotentiometerTask = new ReadPotentiometerTask(context);
     readPotentiometerTask->init(1000);
-    Task* readButtonTask = new ReadButtonTask();
+    Task* readButtonTask = new ReadButtonTask(context);
     readButtonTask->init(100);
-    Task* windowControlTask = new WindowControlTask();
+    Task* windowControlTask = new WindowControlTask(context);
     windowControlTask->init(500);
     scheduler.addTask(readButtonTask);
     scheduler.addTask(readPotentiometerTask);

@@ -3,10 +3,9 @@
 #include "Config.h"
 #include "Arduino.h"
 
-extern Context* context;
-
-ReadButtonTask::ReadButtonTask() {
+ReadButtonTask::ReadButtonTask(Context* context) {
     this->button = new Button(BUTTON_PIN);
+    this->context = context;
 }
 
 void ReadButtonTask::tick() {
