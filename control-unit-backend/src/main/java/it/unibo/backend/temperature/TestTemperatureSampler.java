@@ -50,12 +50,5 @@ public class TestTemperatureSampler {
         });
 
         consumerThread.start();
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.warn("Shutting down...");
-            producerThread.interrupt();
-            consumerThread.interrupt();
-            sampler.shutdown();
-        }));
     }
 }

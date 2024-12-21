@@ -9,6 +9,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.DoubleAdder;
 
 public class TemperatureSampler {
     private static final int MAX_READINGS = 500;                    // We will store the 500 most recent temp readings.
@@ -20,26 +24,25 @@ public class TemperatureSampler {
 
     private final ScheduledExecutorService scheduler;
 
-    private volatile double maxTempRead;
-    private volatile double minTempRead;
+    private final DoubleAdder tempSum;
+    private final AtomicInteger tempSampleCount;
+    private final AtomicReference<Double> maxTempRead;
+    private final AtomicReference<Double> minTempRead;
 
-    private volatile double tempSum;
-    private volatile int tempSampleCount;
-
-    private volatile long lastTime;
+    private volatile AtomicLong lastTime;
 
     public TemperatureSampler() {
         this.temperatureReadings = new ConcurrentSkipListMap<>();
         this.history = new ConcurrentLinkedDeque<>();
 
-        this.maxTempRead = Double.MIN_VALUE;
-        this.minTempRead = Double.MAX_VALUE;
-        this.tempSum = 0;
-        this.tempSampleCount = 0;
+        this.tempSum = new DoubleAdder();
+        this.maxTempRead = new AtomicReference<>(Double.MIN_VALUE);
+        this.minTempRead = new AtomicReference<>(Double.MAX_VALUE);
+        this.tempSampleCount = new AtomicInteger();
+        this.lastTime = new AtomicLong(System.currentTimeMillis());
 
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         this.scheduler.scheduleAtFixedRate(this::calculateAverage, DEFAULT_HISTORY_INTERVAL, DEFAULT_HISTORY_INTERVAL, TimeUnit.MILLISECONDS);
-        this.lastTime = System.currentTimeMillis();
     }
 
     public void addReading(final long timeStamp, final double temperature) {
@@ -53,73 +56,38 @@ public class TemperatureSampler {
             temperatureReadings.pollFirstEntry(); // Removes the least recent timestamp and temp reading.
         }
 
-        // Critical section. Both the caller of this method and the scheduler worker can access these.
-        synchronized (this) {
-            if (temperature < minTempRead) {
-                minTempRead = temperature;
-            }
-    
-            if (temperature > maxTempRead) {
-                maxTempRead = temperature;
-            }
-            tempSum += temperature;
-            tempSampleCount++;
-        }
+        maxTempRead.updateAndGet(current -> Math.max(current, temperature));
+        minTempRead.updateAndGet(current -> Math.min(current, temperature));
+        tempSum.add(temperature);
+        tempSampleCount.incrementAndGet();
     }
 
     private void calculateAverage() {
-        double min;
-        double max;
-        double sum;
-        int count;
-    
-        // Critical section. Both the caller of this method and the scheduler worker can access these. Therefore we save those values and operate on those.
-        synchronized (this) {
-            sum = tempSum;
-            count = tempSampleCount;
-            max = maxTempRead;
-            min = minTempRead;
-            minTempRead = Double.MAX_VALUE;
-            maxTempRead = Double.MIN_VALUE;
-            tempSum = 0;
-            tempSampleCount = 0;
-        }
+        double sum = tempSum.sumThenReset();
+        int count = tempSampleCount.getAndSet(0);
+        double max = maxTempRead.getAndSet(Double.MIN_VALUE);
+        double min = minTempRead.getAndSet(Double.MAX_VALUE);
 
         final long now = System.currentTimeMillis();
         if (count == 0) {
-            history.add(new TemperatureReport(lastTime, now, Double.NaN, Double.NaN, Double.NaN));
+            history.add(new TemperatureReport(lastTime.get(), now, Double.NaN, Double.NaN, Double.NaN));
         } else {
-            history.add(new TemperatureReport(lastTime, now, sum / count, min, max));
+            history.add(new TemperatureReport(lastTime.get(), now, sum / count, min, max));
         }
 
         if (history.size() > MAX_HISTORY_LENGTH) {
             history.removeFirst();
         }
 
-        lastTime = System.currentTimeMillis();
+        lastTime.set(System.currentTimeMillis());
     }
 
     public TemperatureSample getTemperature() {
-        if (temperatureReadings.isEmpty()) {
-            return null;
-        }
         var lastEntry = this.temperatureReadings.lastEntry();
         return new TemperatureSample(lastEntry.getValue(), lastEntry.getKey());
     }
 
     public List<TemperatureReport> getHistory() {
         return new ArrayList<>(history);
-    }
-
-    // Stops the scheduler
-    public void shutdown() {
-        scheduler.shutdown();
-        try {
-            if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
-                scheduler.shutdownNow();
-            }
-        } catch (final InterruptedException e) {
-            scheduler.shutdownNow();
-        }
     }
 }
