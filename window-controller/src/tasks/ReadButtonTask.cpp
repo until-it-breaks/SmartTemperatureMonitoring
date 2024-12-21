@@ -10,10 +10,10 @@ ReadButtonTask::ReadButtonTask(Context* context) {
 
 void ReadButtonTask::tick() {
     if (button->wasPressed()) {
-        if (context->getOperatingMode() == OperatingMode::AUTO) {
-            context->setOperatingMode(OperatingMode::MANUAL);
+        if (context->getOperatingMode() == AUTO) {
+            context->setOperatingMode(MANUAL);
         } else {
-            context->setOperatingMode(OperatingMode::AUTO);
+            context->setOperatingMode(AUTO);
         }
     }
 }

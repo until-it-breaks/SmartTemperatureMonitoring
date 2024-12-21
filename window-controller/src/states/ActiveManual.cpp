@@ -3,10 +3,8 @@
 #include "Context.h"
 #include "controllers/WindowController.h"
 
-extern WindowController* windowController;
-
 void ActiveManual::handle() {
-    windowController->setLevel(context->getLevel());
+    context->getWindowController()->setLevel(context->getLevel());
 }
 
 State* ActiveManual::next() {

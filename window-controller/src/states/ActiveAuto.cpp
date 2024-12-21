@@ -3,10 +3,8 @@
 #include "Context.h"
 #include "controllers/WindowController.h"
 
-extern WindowController* windowController;
-
 void ActiveAuto::handle() {
-    windowController->setLevel(context->getLevel());
+    context->getWindowController()->setLevel(context->getLevel());
 }
 
 State* ActiveAuto::next() {

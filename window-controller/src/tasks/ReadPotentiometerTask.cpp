@@ -9,7 +9,7 @@ ReadPotentiometerTask::ReadPotentiometerTask(Context* context) {
 }
 
 void ReadPotentiometerTask::tick() {
-    if (context->getOperatingMode() == OperatingMode::MANUAL) {
+    if (context->getOperatingMode() == MANUAL) {
         int sensorValue = potentiometer->getValue();
         float outputValue = sensorValue / 1023.0f;
         if (outputValue != context->getLevel()) {

@@ -1,7 +1,5 @@
-#include <Arduino.h>
+#include "Arduino.h"
 #include "Context.h"
-#include "controllers/WindowController.h"
-#include "controllers/LcdController.h"
 #include "scheduler/Scheduler.h"
 #include "Config.h"
 #include "communication/MsgService.h"
@@ -12,29 +10,27 @@
 #include "tasks/SendMsgTask.h"
 
 Context* context;
-WindowController* windowController;
-LcdController* lcdController;
 Scheduler scheduler;
 
 void setup() {
     MsgService.init();
     context = new Context();
-    windowController = new WindowController(SERVO_PIN);
-    lcdController = new LcdController(new LiquidCrystal_I2C(0x27, 16, 2));
-    lcdController->printWelcome();
+    context->getLcdController()->printWelcome();
     scheduler.init(100);
     Task* readPotentiometerTask = new ReadPotentiometerTask(context);
-    readPotentiometerTask->init(1000);
+    readPotentiometerTask->init(POTENTIOMETER_PERIOD);
     Task* readButtonTask = new ReadButtonTask(context);
-    readButtonTask->init(100);
-    Task* receiveMsg = new ReceiveMsgTask(context);
-    receiveMsg->init(500);
+    readButtonTask->init(BUTTON_PERIOD);
+    Task* receiveMsgTask= new ReceiveMsgTask(context);
+    receiveMsgTask->init(RECEIVE_MSG_PERIOD);
     Task* sendMsgTask = new SendMsgTask(context);
-    sendMsgTask->init(1000);
+    sendMsgTask->init(SEND_MSG_PERIOD);
     Task* windowControlTask = new WindowControlTask(context);
-    windowControlTask->init(500);
+    windowControlTask->init(WINDOW_PERIOD);
     scheduler.addTask(readButtonTask);
     scheduler.addTask(readPotentiometerTask);
+    scheduler.addTask(receiveMsgTask);
+    scheduler.addTask(sendMsgTask);
     scheduler.addTask(windowControlTask);
     delay(1000);
 }

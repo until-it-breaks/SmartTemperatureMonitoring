@@ -5,18 +5,16 @@
 #include "Context.h"
 #include "controllers/LcdController.h"
 
-extern LcdController* lcdController;
-
 WindowAlarm::WindowAlarm(Context* context, State* state): State(context) {
     this->prevState = state;
 }
 
 void WindowAlarm::handle() {
-    lcdController->printAlarmInfo();
+    context->getLcdController()->printAlarmInfo();
 }
 
 State* WindowAlarm::next() {
-    if (context->getSystemState() != SystemState::ALARM) {
+    if (!context->requireIntervention()) {
         return new WindowOperational(context, prevState);
     } else {
         return this;
