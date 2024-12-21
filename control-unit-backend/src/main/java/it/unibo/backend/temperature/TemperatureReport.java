@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.http.JsonUtility;
+import it.unibo.backend.JsonUtility;
 
 public class TemperatureReport {
     private long startTime;

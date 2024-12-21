@@ -1,8 +1,8 @@
 package it.unibo.backend;
 
-public class Config {
+public class ConnectivityConfig {
 
-    private Config() {
+    private ConnectivityConfig() {
         throw new UnsupportedOperationException("Utility class");
     }
 

@@ -1,7 +1,7 @@
 package it.unibo.backend.temperature;
 
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.http.JsonUtility;
+import it.unibo.backend.JsonUtility;
 
 public class TemperatureSample {
     private final double value;

@@ -3,10 +3,10 @@ package it.unibo.backend;
 import io.vertx.core.Vertx;
 import it.unibo.backend.http.HttpService;
 
-public class RunService {
+public class RunHttpService {
     public static void main(String[] args) {
         Vertx vertx = Vertx.vertx();
-        HttpService service = new HttpService(Config.SERVER_HOST_LOCAL, Config.SERVER_PORT);
+        HttpService service = new HttpService(ConnectivityConfig.SERVER_HOST_LOCAL, ConnectivityConfig.SERVER_PORT);
         vertx.deployVerticle(service);
     }
 }

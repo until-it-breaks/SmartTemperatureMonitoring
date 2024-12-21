@@ -14,7 +14,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import it.unibo.backend.Config;
+import it.unibo.backend.ConnectivityConfig;
+import it.unibo.backend.JsonUtility;
 import it.unibo.backend.temperature.TemperatureReport;
 import it.unibo.backend.temperature.TemperatureSample;
 
@@ -42,10 +43,10 @@ public class HttpService extends AbstractVerticle {
         this.port = port;
         this.samples = new ArrayDeque<>();
         this.reports = new ArrayDeque<>();
-        this.frequency = null;
-        this.windowLevel = null;
-        this.operationMode = null;
-        this.state = null;
+        this.frequency = 0.0;
+        this.windowLevel = 0.0;
+        this.operationMode = "";
+        this.state = "";
         this.interventionRequired = false;
     }
 
@@ -56,20 +57,20 @@ public class HttpService extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         // Creating endpoints RESTful endpoints
-        router.post(Config.TEMPERATURE_PATH).handler(this::handleAddTemperatureSample);
-        router.get(Config.TEMPERATURE_PATH).handler(this::handleGetTemperatureSamples);
+        router.post(ConnectivityConfig.TEMPERATURE_PATH).handler(this::handleAddTemperatureSample);
+        router.get(ConnectivityConfig.TEMPERATURE_PATH).handler(this::handleGetTemperatureSamples);
 
-        router.post(Config.REPORTS_PATH).handler(this::handleAddTemperatureReport);
-        router.get(Config.REPORTS_PATH).handler(this::handleGetTemperatureReports);
+        router.post(ConnectivityConfig.REPORTS_PATH).handler(this::handleAddTemperatureReport);
+        router.get(ConnectivityConfig.REPORTS_PATH).handler(this::handleGetTemperatureReports);
 
-        router.post(Config.OPERATING_MODE_PATH).handler(this::handleUpdateOperatingMode);
-        router.get(Config.OPERATING_MODE_PATH).handler(this::handleGetOperatingMode);
+        router.post(ConnectivityConfig.OPERATING_MODE_PATH).handler(this::handleUpdateOperatingMode);
+        router.get(ConnectivityConfig.OPERATING_MODE_PATH).handler(this::handleGetOperatingMode);
 
-        router.post(Config.INTERVENTION_PATH).handler(this::handleUpdateInterventionNeed);
-        router.get(Config.INTERVENTION_PATH).handler(this::handleGetInterventionNeed);
+        router.post(ConnectivityConfig.INTERVENTION_PATH).handler(this::handleUpdateInterventionNeed);
+        router.get(ConnectivityConfig.INTERVENTION_PATH).handler(this::handleGetInterventionNeed);
 
-        router.post(Config.CONFIG_PATH).handler(this::handleUpdateConfigData);
-        router.get(Config.CONFIG_PATH).handler(this::handleGetConfigData);
+        router.post(ConnectivityConfig.CONFIG_PATH).handler(this::handleUpdateConfigData);
+        router.get(ConnectivityConfig.CONFIG_PATH).handler(this::handleGetConfigData);
 
         vertx.createHttpServer().requestHandler(router).listen(port, host, res -> {
             if (res.succeeded()) {
@@ -211,7 +212,7 @@ public class HttpService extends AbstractVerticle {
         } else {
             this.windowLevel = res.getDouble(JsonUtility.WINDOW_LEVEL);
             this.state = res.getString(JsonUtility.SYSTEM_STATE);
-            this.frequency = res.getDouble(JsonUtility.SAMPLING_FREQ);
+            this.frequency = res.getDouble(JsonUtility.FREQ_MULTIPLIER);
             response.setStatusCode(200).end();
         }
     }
@@ -222,7 +223,7 @@ public class HttpService extends AbstractVerticle {
         final JsonObject data = new JsonObject();
         data.put(JsonUtility.WINDOW_LEVEL, this.windowLevel);
         data.put(JsonUtility.SYSTEM_STATE, this.state);
-        data.put(JsonUtility.SAMPLING_FREQ, this.frequency);
+        data.put(JsonUtility.FREQ_MULTIPLIER, this.frequency);
         routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
     }
 

@@ -1,4 +1,4 @@
-package it.unibo.backend.http;
+package it.unibo.backend;
 
 /**
  * A utiliy class containing json keywords related to the system.
@@ -14,7 +14,7 @@ public class JsonUtility {
     public static final String TEMPERATURE = "temperature";
     public static final String SAMPLE_TIME = "sampleTime";
     public static final String WINDOW_LEVEL = "windowLevel";
-    public static final String SAMPLING_FREQ = "samplingFrequency";
+    public static final String FREQ_MULTIPLIER = "frequencyMultiplier";
     public static final String SYSTEM_STATE = "systemState";
     public static final String START_TIME = "startTime";
     public static final String END_TIME = "endTime";

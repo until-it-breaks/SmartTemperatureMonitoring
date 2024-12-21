@@ -1,7 +1,7 @@
-package it.unibo.backend.controlunit;
+package it.unibo.backend;
 
-public class ControlUnitConfig {
-    private ControlUnitConfig() {
+public class Settings {
+    private Settings() {
         throw new UnsupportedOperationException("Utility class");
     }
 
@@ -10,11 +10,11 @@ public class ControlUnitConfig {
         public static final double INCREASED = 1.5;
     }
 
-    public static class TempThresholds {
+    public static class Temperature {
         public static final double NORMAL = 20;
         public static final double HOT = 25;
         public static final double TOO_HOT = 30;
-        public static final long TOO_HOT_WINDOW = 5000;
+        public static final long TOO_HOT_WINDOW = 1000; // 1 second
     }
 
     public static class DoorState {

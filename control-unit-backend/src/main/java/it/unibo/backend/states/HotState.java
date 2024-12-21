@@ -1,8 +1,9 @@
 package it.unibo.backend.states;
 
+import it.unibo.backend.Settings;
 import it.unibo.backend.controlunit.ControlUnit;
-import it.unibo.backend.controlunit.ControlUnitConfig;
 import it.unibo.backend.enums.OperationMode;
+import it.unibo.backend.temperature.TemperatureSample;
 
 public class HotState implements SystemState {
     private final ControlUnit controlUnit;
@@ -13,26 +14,33 @@ public class HotState implements SystemState {
 
     @Override
     public void handle() {
-        if (controlUnit.getOperatingMode().equals(OperationMode.AUTO)) {
-            controlUnit.setFrequency(ControlUnitConfig.FreqMultiplier.INCREASED);
-            final double temperature = controlUnit.getTemperatureSampler().getTemperature().getValue();
-            final int mappedValue = (int) (((temperature - ControlUnitConfig.TempThresholds.NORMAL)
-                / (ControlUnitConfig.TempThresholds.HOT - ControlUnitConfig.TempThresholds.NORMAL))
-                * (ControlUnitConfig.DoorState.FULLY_OPEN - ControlUnitConfig.DoorState.FULLY_CLOSED)
-                + ControlUnitConfig.DoorState.FULLY_CLOSED);
-            controlUnit.setWindowLevel(mappedValue);
+        final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
+        if (sample != null) {
+            if (controlUnit.getOperatingMode().equals(OperationMode.AUTO)) {
+                controlUnit.setFrequency(Settings.FreqMultiplier.INCREASED);
+                final double temperature = sample.getValue();
+                final int mappedValue = (int) (((temperature - Settings.Temperature.NORMAL)
+                    / (Settings.Temperature.HOT - Settings.Temperature.NORMAL))
+                    * (Settings.DoorState.FULLY_OPEN - Settings.DoorState.FULLY_CLOSED)
+                    + Settings.DoorState.FULLY_CLOSED);
+                controlUnit.setWindowLevel(mappedValue);
+            }
         }
     }
 
     @Override
     public SystemState next() {
-        final double temperature = controlUnit.getTemperatureSampler().getTemperature().getValue();
-        if (temperature < ControlUnitConfig.TempThresholds.NORMAL) {
-            return new NormalState(controlUnit);
-        } else if (temperature < ControlUnitConfig.TempThresholds.HOT) {
-            return this;
+        final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
+        if (sample != null) {
+            if (sample.getValue() < Settings.Temperature.NORMAL) {
+                return new NormalState(controlUnit);
+            } else if (sample.getValue() < Settings.Temperature.HOT) {
+                return new HotState(controlUnit);
+            } else {
+                return new TooHotState(this.controlUnit);
+            }
         } else {
-            return new TooHotState(this.controlUnit);
+            return new HotState(controlUnit);
         }
     }
 

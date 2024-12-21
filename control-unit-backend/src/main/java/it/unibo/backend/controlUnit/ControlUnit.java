@@ -6,15 +6,16 @@ import it.unibo.backend.enums.OperationMode;
 import it.unibo.backend.http.HttpClient;
 import it.unibo.backend.http.HttpEndpointObserver;
 import it.unibo.backend.http.HttpEndpointWatcher;
-import it.unibo.backend.http.JsonUtility;
 import it.unibo.backend.mqtt.MQTTClient;
 import it.unibo.backend.mqtt.MQTTMessageObserver;
 import it.unibo.backend.serial.SerialCommChannel;
 import it.unibo.backend.serial.SerialMessageObserver;
 import it.unibo.backend.states.NormalState;
 import it.unibo.backend.states.SystemState;
+import it.unibo.backend.temperature.TemperatureSample;
 import it.unibo.backend.temperature.TemperatureSampler;
-import it.unibo.backend.Config;
+import it.unibo.backend.ConnectivityConfig;
+import it.unibo.backend.JsonUtility;
 
 public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, HttpEndpointObserver {
 
@@ -23,8 +24,8 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     private OperationMode operatingMode;
     private double windowLevel;
-    private SystemState currentState;
     private boolean interventionRequired;
+    private SystemState currentState;
 
     private final HttpClient httpClient;
     private final SerialCommChannel commChannel;
@@ -40,6 +41,8 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
         this.temperatureSampler = new TemperatureSampler();
         this.frequency = 0;
+        this.operatingMode = OperationMode.AUTO;
+        this.windowLevel = 0.0;
         this.interventionRequired = false;
         this.currentState = new NormalState(this);
 
@@ -55,8 +58,14 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         this.commChannel.registerObserver(this);
         this.operationClient.registerObserver(this);
         this.alarmClient.registerObserver(this);
-        operationClient.start(1000);
-        alarmClient.start(1000);
+        this.mqttClient.start();
+        this.operationClient.start(1000);
+        this.alarmClient.start(1000);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void start() throws InterruptedException {
@@ -109,7 +118,12 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     @Override
     public void onSerialMessageReceived(final JsonObject data) {
-        checkAndUpdateOperatingMode(data);
+        final int mode = data.getInteger(JsonUtility.OPERATING_MODE);
+        if (mode == 0) {
+            this.operatingMode = OperationMode.AUTO;
+        } else if (mode == 1) {
+            this.operatingMode = OperationMode.MANUAL;
+        }
         if (this.operatingMode.equals(OperationMode.MANUAL)) {
             this.windowLevel = data.getDouble(JsonUtility.WINDOW_LEVEL);
         }
@@ -117,50 +131,50 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     @Override
     public void onHTTPMessageReceived(final JsonObject data) {
-        if (data.containsKey(JsonUtility.INTERVENTION_NEED)) {
-            this.interventionRequired = data.getBoolean(JsonUtility.INTERVENTION_NEED);
-        }
-        checkAndUpdateOperatingMode(data);
-    }
-
-    private void checkAndUpdateOperatingMode(final JsonObject data) {
-        final String operatingMode = data.getString(JsonUtility.OPERATING_MODE);
-        if (operatingMode.equals(OperationMode.AUTO.getName())) {
+        System.out.println(data);
+        this.interventionRequired = data.getBoolean(JsonUtility.INTERVENTION_NEED);
+        final String mode = data.getString(JsonUtility.OPERATING_MODE);
+        if (mode.equals(OperationMode.AUTO.getName())) {
             this.operatingMode = OperationMode.AUTO;
-        } else if (operatingMode.equals(OperationMode.MANUAL.getName())) {
+        } else if (mode.equals(OperationMode.MANUAL.getName())) {
             this.operatingMode = OperationMode.MANUAL;
-        } else {
-            throw new IllegalStateException("Unrecognized operating mode");
         }
     }
 
     private void sendHttpUpdate() {
-        httpClient.sendHttpData(Config.TEMPERATURE_PATH, this.temperatureSampler.getTemperature().asJson());
-        httpClient.sendHttpData(Config.REPORTS_PATH, this.temperatureSampler.getHistory().getLast().asJson());
+        if (temperatureSampler.getTemperature() != null) {
+            httpClient.sendHttpData(ConnectivityConfig.TEMPERATURE_PATH, this.temperatureSampler.getTemperature().asJson());
+        }
+        if (!temperatureSampler.getHistory().isEmpty()) {
+            httpClient.sendHttpData(ConnectivityConfig.REPORTS_PATH, this.temperatureSampler.getHistory().getLast().asJson());
+        }
         JsonObject data = new JsonObject();
         data.put(JsonUtility.OPERATING_MODE, this.operatingMode);
-        httpClient.sendHttpData(Config.OPERATING_MODE_PATH, data);
+        httpClient.sendHttpData(ConnectivityConfig.OPERATING_MODE_PATH, data);
         data = new JsonObject();
         data.put(JsonUtility.INTERVENTION_NEED, this.interventionRequired);
-        httpClient.sendHttpData(Config.INTERVENTION_PATH, data);
+        httpClient.sendHttpData(ConnectivityConfig.INTERVENTION_PATH, data);
         data = new JsonObject();
         data.put(JsonUtility.WINDOW_LEVEL, this.windowLevel);
         data.put(JsonUtility.SYSTEM_STATE, this.currentState.getName());
-        data.put(JsonUtility.SAMPLING_FREQ, this.frequency);
-        httpClient.sendHttpData(Config.CONFIG_PATH, data);
+        data.put(JsonUtility.FREQ_MULTIPLIER, this.frequency);
+        httpClient.sendHttpData(ConnectivityConfig.CONFIG_PATH, data);
     }
 
     private void sendMqttUpdate() {
         final JsonObject data = new JsonObject();
-        data.put(JsonUtility.SAMPLING_FREQ, this.frequency);
+        data.put(JsonUtility.FREQ_MULTIPLIER, this.frequency);
         mqttClient.publish(MQTTTopic.FREQUENCY.getName(), data);
     }
 
     private void sendSerialUpdate() {
-        commChannel.sendMsg(String.format("Level:%.2f|Mode:%d|Temp:$.2f|Alarm:%d",
-            windowLevel,
-            operatingMode.getValue(),
-            temperatureSampler.getTemperature().getValue(),
-            this.interventionRequired ? 1 : 0));
+        final TemperatureSample sample = temperatureSampler.getTemperature();
+        if (sample != null) {
+            commChannel.sendMsg(String.format("Level:%.2f|Mode:%d|Temp:$.2f|Alarm:%d",
+                windowLevel,
+                operatingMode.getValue(),
+                sample.getValue(),
+                this.interventionRequired ? 1 : 0));
+        }
     }
 }

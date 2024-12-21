@@ -1,11 +1,10 @@
-package it.unibo.backend;
+package it.unibo.backend.mqtt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.mqtt.MQTTClient;
 
 public class TestMQTTClient {
     private static final Logger logger = LoggerFactory.getLogger(TestMQTTClient.class);

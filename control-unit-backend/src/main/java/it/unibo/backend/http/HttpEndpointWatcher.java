@@ -41,6 +41,7 @@ public class HttpEndpointWatcher {
             client.get(port, host, path).send(ar -> {
                 if (ar.succeeded()) {
                     final JsonObject currentData = ar.result().bodyAsJsonObject();
+                    System.out.println(currentData);
                     if (!currentData.equals(lastData)) {
                         lastData = currentData;
                         notifyObservers(currentData);
