@@ -1,7 +1,7 @@
-package it.unibo.backend.http;
+package it.unibo.backend;
 
 import io.vertx.core.Vertx;
-import it.unibo.backend.Config;
+import it.unibo.backend.http.HttpService;
 
 public class RunService {
     public static void main(String[] args) {

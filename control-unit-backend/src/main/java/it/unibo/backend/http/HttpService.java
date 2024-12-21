@@ -1,7 +1,7 @@
 package it.unibo.backend.http;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -26,8 +26,8 @@ public class HttpService extends AbstractVerticle {
     private final String host;
     private final int port;
 
-    private final List<TemperatureSample> samples;  // Stores individual temperature samples
-    private final List<TemperatureReport> reports;  // Stores periodical average, min, max
+    private final Deque<TemperatureSample> samples;  // Stores individual temperature samples
+    private final Deque<TemperatureReport> reports;  // Stores periodical average, min, max
 
     // Autoboxed variables
     private Double frequency;                       // The sampling frequency multiplier
@@ -40,8 +40,8 @@ public class HttpService extends AbstractVerticle {
     public HttpService(final String host, final int port) {
         this.host = host;
         this.port = port;
-        this.samples = new LinkedList<>();
-        this.reports = new LinkedList<>();
+        this.samples = new ArrayDeque<>();
+        this.reports = new ArrayDeque<>();
         this.frequency = null;
         this.windowLevel = null;
         this.operationMode = null;
@@ -92,9 +92,9 @@ public class HttpService extends AbstractVerticle {
         } else {
             if (samples.size() > MAX_SAMPLES) {
                 logger.debug("Samples list exceeded max size. Removing oldest sample");
-                samples.removeFirst();
+                samples.pollFirst();
             }
-            samples.add(new TemperatureSample(res.getDouble(JsonUtility.TEMPERATURE), res.getLong(JsonUtility.SAMPLE_TIME)));
+            samples.offerLast(new TemperatureSample(res.getDouble(JsonUtility.TEMPERATURE), res.getLong(JsonUtility.SAMPLE_TIME)));
             response.setStatusCode(200).end();
         }
     }
@@ -129,9 +129,9 @@ public class HttpService extends AbstractVerticle {
             temperatureReport.setMin(res.getDouble(JsonUtility.MIN_TEMP));
             if (reports.size() > MAX_REPORTS) {
                 logger.debug("Report list exceeded max size. Removing oldest report");
-                reports.removeFirst();
+                reports.pollFirst();
             }
-            this.reports.add(temperatureReport);
+            this.reports.offerLast(temperatureReport);
             response.setStatusCode(200).end();
         }
     }

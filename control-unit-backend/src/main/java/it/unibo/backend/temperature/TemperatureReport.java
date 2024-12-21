@@ -79,7 +79,7 @@ public class TemperatureReport {
     }
 
     public JsonObject asJson() {
-        JsonObject data = new JsonObject();
+        final JsonObject data = new JsonObject();
         data.put(JsonUtility.START_TIME, this.startTime);
         data.put(JsonUtility.END_TIME, this.endTime);
         data.put(JsonUtility.AVG_TEMP, this.average);
