@@ -6,5 +6,5 @@ SendMsgTask::SendMsgTask(Context* context) {
 }
 
 void SendMsgTask::tick() {
-    MsgService.sendMsg("Level: " + String(context->getLevel()) + "|Mode: " + String(context->getOperatingMode()));
+    MsgService.sendMsg("Level:" + String(context->getLevel()) + "|Mode:" + String(context->getOperatingMode()));
 }
