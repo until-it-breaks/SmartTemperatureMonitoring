@@ -43,7 +43,7 @@ float Context::getLevel() {
     return this->level;
 }
 
-bool Context::requireIntervention() {
+bool Context::requiresIntervention() {
     return this->alarm;
 }
 

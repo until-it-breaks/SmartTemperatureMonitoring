@@ -13,7 +13,7 @@ void WindowOperational::handle() {
 }
 
 State* WindowOperational::next() {
-    if (!context->requireIntervention()) {
+    if (!context->requiresIntervention()) {
         State* next = currentState->next();
         if (next != currentState) {
             delete currentState;

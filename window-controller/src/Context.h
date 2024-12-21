@@ -14,7 +14,7 @@ class Context {
         void turnOffAlarmMode();
         float getTemperature();
         float getLevel();
-        bool requireIntervention();
+        bool requiresIntervention();
         int getOperatingMode();
         LcdController* getLcdController();
         WindowController* getWindowController();

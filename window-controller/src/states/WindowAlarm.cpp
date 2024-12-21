@@ -14,7 +14,7 @@ void WindowAlarm::handle() {
 }
 
 State* WindowAlarm::next() {
-    if (!context->requireIntervention()) {
+    if (!context->requiresIntervention()) {
         return new WindowOperational(context, prevState);
     } else {
         return this;
