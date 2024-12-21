@@ -14,6 +14,7 @@ import it.unibo.backend.serial.SerialMessageObserver;
 import it.unibo.backend.states.NormalState;
 import it.unibo.backend.states.SystemState;
 import it.unibo.backend.temperature.TemperatureSampler;
+import it.unibo.backend.Config;
 
 public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, HttpEndpointObserver {
 
@@ -134,19 +135,19 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     }
 
     private void sendHttpUpdate() {
-        httpClient.sendHttpData("/api/temperature", this.temperatureSampler.getTemperature().asJson());
-        httpClient.sendHttpData("/api/report", this.temperatureSampler.getHistory().getLast().asJson());
+        httpClient.sendHttpData(Config.TEMPERATURE_PATH, this.temperatureSampler.getTemperature().asJson());
+        httpClient.sendHttpData(Config.REPORTS_PATH, this.temperatureSampler.getHistory().getLast().asJson());
         JsonObject data = new JsonObject();
         data.put(JsonUtility.OPERATING_MODE, this.operatingMode);
-        httpClient.sendHttpData("/api/operation", data);
+        httpClient.sendHttpData(Config.OPERATING_MODE_PATH, data);
         data = new JsonObject();
         data.put(JsonUtility.INTERVENTION_NEED, this.interventionRequired);
-        httpClient.sendHttpData("/api/alarm", data);
+        httpClient.sendHttpData(Config.INTERVENTION_PATH, data);
         data = new JsonObject();
         data.put(JsonUtility.WINDOW_LEVEL, this.windowLevel);
         data.put(JsonUtility.SYSTEM_STATE, this.currentState.getName());
         data.put(JsonUtility.SAMPLING_FREQ, this.frequency);
-        httpClient.sendHttpData("/api/data", data);
+        httpClient.sendHttpData(Config.CONFIG_PATH, data);
     }
 
     private void sendMqttUpdate() {
@@ -156,9 +157,10 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     }
 
     private void sendSerialUpdate() {
-        commChannel.sendMsg(String.format("Level: %.2f|Mode: %s|Temp: $.2f",
+        commChannel.sendMsg(String.format("Level:%.2f|Mode:%d|Temp:$.2f|Alarm:%d",
             windowLevel,
-            operatingMode.getName(),
-            temperatureSampler.getTemperature().getValue()));
+            operatingMode.getValue(),
+            temperatureSampler.getTemperature().getValue(),
+            this.interventionRequired ? 1 : 0));
     }
 }

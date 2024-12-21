@@ -17,7 +17,7 @@ import jssc.SerialPortException;
 
 public class SerialCommChannel implements SerialPortEventListener {
     private static final Logger logger = LoggerFactory.getLogger(SerialCommChannel.class);
-    private static final Pattern MESSAGE_PATTERN = Pattern.compile("Level: (\\d+\\.\\d+)|Mode: (\\w+)"); // The agreed message pattern for serial comms
+    private static final Pattern MESSAGE_PATTERN = Pattern.compile("Level:(\\d+\\.\\d+)|Mode:(\\w+)"); // The agreed message pattern for serial comms
 
     private final SerialPort serialPort;
     private final StringBuffer currentMsg = new StringBuffer("");
