@@ -5,7 +5,6 @@
 #include "Context.h"
 #include "controllers/LcdController.h"
 
-extern Context* context;
 extern LcdController* lcdController;
 
 WindowAlarm::WindowAlarm(Context* context, State* state): State(context) {

@@ -8,6 +8,8 @@
 #include "tasks/ReadPotentiometerTask.h"
 #include "tasks/ReadButtonTask.h"
 #include "tasks/WindowControlTask.h"
+#include "tasks/ReceiveMsgTask.h"
+#include "tasks/SendMsgTask.h"
 
 Context* context;
 WindowController* windowController;
@@ -25,6 +27,10 @@ void setup() {
     readPotentiometerTask->init(1000);
     Task* readButtonTask = new ReadButtonTask(context);
     readButtonTask->init(100);
+    Task* receiveMsg = new ReceiveMsgTask(context);
+    receiveMsg->init(500);
+    Task* sendMsgTask = new SendMsgTask(context);
+    sendMsgTask->init(1000);
     Task* windowControlTask = new WindowControlTask(context);
     windowControlTask->init(500);
     scheduler.addTask(readButtonTask);
