@@ -89,4 +89,47 @@ public class TemperatureReport {
         data.put(JsonUtility.MAX_TEMP, this.max);
         return data;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (startTime ^ (startTime >>> 32));
+        result = prime * result + (int) (endTime ^ (endTime >>> 32));
+        result = prime * result + ((average == null) ? 0 : average.hashCode());
+        result = prime * result + ((min == null) ? 0 : min.hashCode());
+        result = prime * result + ((max == null) ? 0 : max.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TemperatureReport other = (TemperatureReport) obj;
+        if (startTime != other.startTime)
+            return false;
+        if (endTime != other.endTime)
+            return false;
+        if (average == null) {
+            if (other.average != null)
+                return false;
+        } else if (!average.equals(other.average))
+            return false;
+        if (min == null) {
+            if (other.min != null)
+                return false;
+        } else if (!min.equals(other.min))
+            return false;
+        if (max == null) {
+            if (other.max != null)
+                return false;
+        } else if (!max.equals(other.max))
+            return false;
+        return true;
+    }
 }

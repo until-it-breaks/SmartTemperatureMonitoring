@@ -23,7 +23,7 @@ public class NormalState implements State {
 
     @Override
     public State next() {
-        final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
+        final TemperatureSample sample = controlUnit.getSampler().getTemperature();
         if (sample != null) {
             if (sample.getValue() < Settings.Temperature.NORMAL) {
                 return this;
@@ -38,7 +38,7 @@ public class NormalState implements State {
     }
 
     @Override
-    public String getName() {
-        return SystemState.NORMAL.getName();
+    public SystemState getStateAlias() {
+        return SystemState.NORMAL;
     }
 }

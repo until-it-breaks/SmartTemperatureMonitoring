@@ -15,7 +15,7 @@ public class HotState implements State {
 
     @Override
     public void handle() {
-        final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
+        final TemperatureSample sample = controlUnit.getSampler().getTemperature();
         if (sample != null) {
             if (controlUnit.getOperatingMode().equals(OperatingMode.AUTO)) {
                 controlUnit.setFrequency(Settings.FreqMultiplier.INCREASED);
@@ -31,7 +31,7 @@ public class HotState implements State {
 
     @Override
     public State next() {
-        final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
+        final TemperatureSample sample = controlUnit.getSampler().getTemperature();
         if (sample != null) {
             if (sample.getValue() < Settings.Temperature.NORMAL) {
                 return new NormalState(controlUnit);
@@ -46,7 +46,7 @@ public class HotState implements State {
     }
 
     @Override
-    public String getName() {
-        return SystemState.HOT.getName();
+    public SystemState getStateAlias() {
+        return SystemState.HOT;
     }
 }

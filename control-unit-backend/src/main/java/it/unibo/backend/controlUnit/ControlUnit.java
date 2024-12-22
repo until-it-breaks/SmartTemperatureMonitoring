@@ -6,12 +6,14 @@ import it.unibo.backend.http.client.HttpClient;
 import it.unibo.backend.http.client.HttpEndpointObserver;
 import it.unibo.backend.http.client.HttpEndpointWatcher;
 import it.unibo.backend.enums.OperatingMode;
+import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.mqtt.MQTTClient;
 import it.unibo.backend.mqtt.MQTTMessageObserver;
 import it.unibo.backend.serial.SerialCommChannel;
 import it.unibo.backend.serial.SerialMessageObserver;
 import it.unibo.backend.states.NormalState;
 import it.unibo.backend.states.State;
+import it.unibo.backend.temperature.TemperatureReport;
 import it.unibo.backend.temperature.TemperatureSample;
 import it.unibo.backend.temperature.TemperatureSampler;
 import it.unibo.backend.ConnectivityConfig;
@@ -19,7 +21,7 @@ import it.unibo.backend.JsonUtility;
 
 public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, HttpEndpointObserver {
 
-    private final TemperatureSampler temperatureSampler;
+    private final TemperatureSampler sampler;
     private double frequency;
 
     private OperatingMode operatingMode;
@@ -33,14 +35,24 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     private final HttpEndpointWatcher operationClient;
     private final HttpEndpointWatcher alarmClient;
 
+    private TemperatureSample lastSample;
+    private TemperatureReport lastReport;
+    private OperatingMode lastMode;
+    private boolean lastInterventionUpdate;
+    private double lastWindowLevel;
+    private double lastHttpFrequency;
+    private double lastMqttFrequency;
+    private SystemState lastStateAlias;
+    private String lastSerialMessage;
+
     public ControlUnit(final SerialCommChannel commChannel,
             final MQTTClient mqttClient,
             final HttpClient httpClient,
             final HttpEndpointWatcher operatingModeDaemon,
             final HttpEndpointWatcher interventionDaemon) {
 
-        this.temperatureSampler = new TemperatureSampler();
-        this.frequency = 0;
+        this.sampler = new TemperatureSampler();
+        this.frequency = 1.0;
         this.operatingMode = OperatingMode.AUTO;
         this.windowLevel = 0.0;
         this.interventionRequired = false;
@@ -53,16 +65,12 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         this.alarmClient = interventionDaemon;
     }
 
-    private void setup() {
+    private void setup() throws InterruptedException {
         this.mqttClient.registerObserver(this);
         this.commChannel.registerObserver(this);
         this.operationClient.registerObserver(this);
         this.alarmClient.registerObserver(this);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Thread.sleep(5000);
     }
 
     public void start() throws InterruptedException {
@@ -70,11 +78,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         currentState.handle();
         Thread.sleep(1000);
         while (true) {
-            final State nextState = currentState.next();
-            if (nextState != currentState) {
-                currentState = nextState;
-                currentState.handle();
-            }
+            processState();
             sendHttpUpdate();
             sendMqttUpdate();
             sendSerialUpdate();
@@ -82,8 +86,16 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         }
     }
 
-    public TemperatureSampler getTemperatureSampler() {
-        return this.temperatureSampler;
+    private void processState() {
+        final State nextState = currentState.next();
+        if (nextState != currentState) {
+            currentState = nextState;
+            currentState.handle();
+        }
+    }
+
+    public TemperatureSampler getSampler() {
+        return this.sampler;
     }
 
     public OperatingMode getOperatingMode() {
@@ -110,7 +122,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     public void onMQTTMessageReceived(final String topic, final JsonObject data) {
         if (topic.equals(Topic.TEMPERATURE.getName())) {
             final double temperature = data.getDouble(JsonUtility.TEMPERATURE);
-            this.temperatureSampler.addReading(System.currentTimeMillis(), temperature);
+            this.sampler.addReading(System.currentTimeMillis(), temperature);
         }
     }
 
@@ -143,39 +155,73 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     }
 
     private void sendHttpUpdate() {
-        if (temperatureSampler.getTemperature() != null) {
-            httpClient.sendHttpData(ConnectivityConfig.TEMPERATURE_PATH, this.temperatureSampler.getTemperature().asJson());
+        final TemperatureSample sample = sampler.getTemperature();
+        if (sample != null && !sample.equals(lastSample)) {
+            httpClient.sendHttpData(ConnectivityConfig.TEMPERATURE_PATH, sample.asJson());
+            lastSample = sample;
         }
-        if (!temperatureSampler.getHistory().isEmpty()) {
-            httpClient.sendHttpData(ConnectivityConfig.REPORTS_PATH, this.temperatureSampler.getHistory().getLast().asJson());
+        if (!sampler.getHistory().isEmpty()) {
+            final TemperatureReport report = sampler.getHistory().getLast();
+            if (!report.equals(lastReport)) {
+                httpClient.sendHttpData(ConnectivityConfig.REPORTS_PATH, this.sampler.getHistory().getLast().asJson());
+                lastReport = report;
+            }
         }
         JsonObject data = new JsonObject();
-        data.put(JsonUtility.OPERATING_MODE, this.operatingMode.getName());
-        httpClient.sendHttpData(ConnectivityConfig.OPERATING_MODE_PATH, data);
-        data = new JsonObject();
-        data.put(JsonUtility.INTERVENTION_NEED, this.interventionRequired);
-        httpClient.sendHttpData(ConnectivityConfig.INTERVENTION_PATH, data);
-        data = new JsonObject();
-        data.put(JsonUtility.WINDOW_LEVEL, this.windowLevel);
-        data.put(JsonUtility.SYSTEM_STATE, this.currentState.getName());
-        data.put(JsonUtility.FREQ_MULTIPLIER, this.frequency);
-        httpClient.sendHttpData(ConnectivityConfig.CONFIG_PATH, data);
+
+        final OperatingMode mode = this.operatingMode;
+        if (!mode.equals(lastMode)) {
+            data.put(JsonUtility.OPERATING_MODE, mode.getName());
+            httpClient.sendHttpData(ConnectivityConfig.OPERATING_MODE_PATH, data);
+            lastMode = mode;
+            data = new JsonObject();
+        }
+
+        final boolean needsIntervention = this.interventionRequired;
+        if (needsIntervention != lastInterventionUpdate) {
+            data.put(JsonUtility.INTERVENTION_NEED, needsIntervention);
+            httpClient.sendHttpData(ConnectivityConfig.INTERVENTION_PATH, data);
+            data = new JsonObject();
+            lastInterventionUpdate = needsIntervention;
+        }
+
+        final double windowLevel = this.windowLevel;
+        final SystemState state = this.currentState.getStateAlias();
+        final double frequency = this.frequency;
+
+        if (windowLevel != lastWindowLevel || !state.equals(lastStateAlias) || frequency != lastHttpFrequency) {
+            data.put(JsonUtility.WINDOW_LEVEL, windowLevel);
+            data.put(JsonUtility.SYSTEM_STATE, state.getName());
+            data.put(JsonUtility.FREQ_MULTIPLIER, frequency);
+            httpClient.sendHttpData(ConnectivityConfig.CONFIG_PATH, data);
+            lastWindowLevel = windowLevel;
+            lastStateAlias = state;
+            lastHttpFrequency = frequency;
+        }
     }
 
     private void sendMqttUpdate() {
-        final JsonObject data = new JsonObject();
-        data.put(JsonUtility.FREQ_MULTIPLIER, this.frequency);
-        mqttClient.publish(Topic.FREQUENCY.getName(), data);
+        if (this.frequency != lastMqttFrequency) {
+            final JsonObject data = new JsonObject();
+            data.put(JsonUtility.FREQ_MULTIPLIER, this.frequency);
+            mqttClient.publish(Topic.FREQUENCY.getName(), data);
+            lastMqttFrequency = frequency;
+        }
     }
 
     private void sendSerialUpdate() {
-        final TemperatureSample sample = temperatureSampler.getTemperature();
+        final TemperatureSample sample = sampler.getTemperature();
         if (sample != null) {
-            commChannel.sendMsg(String.format("Level:%.2f|Mode:%d|Temp:$.2f|Alarm:%d",
-                windowLevel,
-                operatingMode.getValue(),
-                sample.getValue(),
-                this.interventionRequired ? 1 : 0));
+            final String message = String.format("Level:%.2f|Mode:%d|Temp:$.2f|Alarm:%d",
+            windowLevel,
+            operatingMode.getValue(),
+            sample.getValue(),
+            this.interventionRequired ? 1 : 0);
+
+            if (!message.equals(lastSerialMessage)) {
+                commChannel.sendMsg(message);
+                lastSerialMessage = message;
+            }
         }
     }
 }

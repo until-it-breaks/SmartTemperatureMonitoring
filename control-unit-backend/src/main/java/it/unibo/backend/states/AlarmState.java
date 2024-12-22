@@ -22,7 +22,7 @@ public class AlarmState implements State {
         if (controlUnit.needsIntervention()) {
             return this;
         } else {
-            final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
+            final TemperatureSample sample = controlUnit.getSampler().getTemperature();
             if (sample != null) {
                 if (sample.getValue() < Settings.Temperature.NORMAL) {
                     return new NormalState(this.controlUnit);
@@ -38,7 +38,7 @@ public class AlarmState implements State {
     }
 
     @Override
-    public String getName() {
-        return SystemState.ALARM.getName();
+    public SystemState getStateAlias() {
+        return SystemState.ALARM;
     }
 }

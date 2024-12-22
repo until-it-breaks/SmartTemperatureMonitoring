@@ -1,5 +1,7 @@
 package it.unibo.backend.states;
 
+import it.unibo.backend.enums.SystemState;
+
 /**
  * State pattern interface
  */
@@ -19,5 +21,5 @@ public interface State {
      * 
      * @return the state alias
      */
-    String getName();
+    SystemState getStateAlias();
 }
