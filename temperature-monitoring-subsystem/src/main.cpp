@@ -1,12 +1,15 @@
 #include <Arduino.h>
-#include "headers/defines.h"
+#include "headers/pins.h"
+#include "controllers/LedController.h"
+#include "controllers/TemperatureController.h"
+
+LedController* ledController;
+TemperatureController* tempController;
 
 
 void setup() {
-  pinMode(RED_PIN, OUTPUT);
-  pinMode(GREEN_PIN, OUTPUT);
-  digitalWrite(RED_PIN, HIGH);
-  digitalWrite(GREEN_PIN, HIGH);
+  ledController = new LedController(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
+  tempController = new TemperatureController(new TemperatureSensor(TEMP_PIN));
 }
 
 void loop() {

@@ -1,9 +1,8 @@
 #include "TemperatureController.h"
 #include "headers/Defines.h"
 
-TemperatureController::TemperatureController(TemperatureSensor* sensor, int tempThreshold) {
+TemperatureController::TemperatureController(TemperatureSensor* sensor) {
     this->tempSensor = sensor;
-    this->tempThreshold = tempThreshold;
     this->currentTemp = 0;
 }
 
@@ -25,10 +24,3 @@ int TemperatureController::getTemp() {
     return this->currentTemp;
 }
 
-int TemperatureController::getThreshold() {
-    return this->tempThreshold;
-}
-
-bool TemperatureController::isTempHigh() {
-    return this->currentTemp >= tempThreshold;
-}
