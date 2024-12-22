@@ -1,12 +1,15 @@
 package it.unibo.backend.enums;
 
-public enum MQTTTopic {
+/**
+ * Contains MQTT topics.
+ */
+public enum Topic {
     TEMPERATURE("temperature"),
     FREQUENCY("frequency");
 
     private final String name;
 
-    MQTTTopic(final String name) {
+    Topic(final String name) {
         this.name = name;
     }
 

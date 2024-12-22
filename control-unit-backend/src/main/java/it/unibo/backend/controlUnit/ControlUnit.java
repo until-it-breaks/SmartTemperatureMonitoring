@@ -1,7 +1,7 @@
 package it.unibo.backend.controlunit;
 
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.enums.MQTTTopic;
+import it.unibo.backend.enums.Topic;
 import it.unibo.backend.enums.OperationMode;
 import it.unibo.backend.http.HttpClient;
 import it.unibo.backend.http.HttpEndpointObserver;
@@ -108,7 +108,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     @Override
     public void onMQTTMessageReceived(final String topic, final JsonObject data) {
-        if (topic.equals(MQTTTopic.TEMPERATURE.getName())) {
+        if (topic.equals(Topic.TEMPERATURE.getName())) {
             final double temperature = data.getDouble(JsonUtility.TEMPERATURE);
             this.temperatureSampler.addReading(System.currentTimeMillis(), temperature);
         }
@@ -165,7 +165,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     private void sendMqttUpdate() {
         final JsonObject data = new JsonObject();
         data.put(JsonUtility.FREQ_MULTIPLIER, this.frequency);
-        mqttClient.publish(MQTTTopic.FREQUENCY.getName(), data);
+        mqttClient.publish(Topic.FREQUENCY.getName(), data);
     }
 
     private void sendSerialUpdate() {

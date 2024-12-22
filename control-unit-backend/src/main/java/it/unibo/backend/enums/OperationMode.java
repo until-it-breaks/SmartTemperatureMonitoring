@@ -1,11 +1,14 @@
 package it.unibo.backend.enums;
 
+/**
+ * Contains the window operation modes.
+ */
 public enum OperationMode {
     AUTO("auto", 0),
     MANUAL("manual", 1);
 
-    private final String name;
-    private final int value;
+    private final String name;  // Used for http
+    private final int value;    // Used for serial comms for better efficiency
 
     OperationMode(final String name, final int value) {
         this.name = name;
