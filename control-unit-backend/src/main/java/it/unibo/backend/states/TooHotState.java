@@ -17,15 +17,15 @@ public class TooHotState implements State {
 
     @Override
     public void handle() {
-        if (controlUnit.getOperatingMode().equals(OperatingMode.AUTO)) {
-            controlUnit.setFrequency(Settings.FreqMultiplier.INCREASED);
-            controlUnit.setWindowLevel(Settings.DoorState.FULLY_OPEN);
+        if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
+            controlUnit.setFreqMultiplier(Settings.FreqMultiplier.INCREASED);
+            controlUnit.setWindowLevel(Settings.WindowLevel.FULLY_OPEN);
         }
     }
 
     @Override
     public State next() {
-        final TemperatureSample sample = controlUnit.getSampler().getSample();
+        final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
             if (sample.getValue() < Settings.Temperature.NORMAL) {
                 return new NormalState(this.controlUnit);

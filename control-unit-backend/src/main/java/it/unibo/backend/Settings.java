@@ -17,8 +17,8 @@ public class Settings {
         public static final long TOO_HOT_WINDOW = 1000; // 1 second
     }
 
-    public static class DoorState {
-        public static final int FULLY_CLOSED = 0;
-        public static final int FULLY_OPEN = 90;
+    public static class WindowLevel {
+        public static final double FULLY_CLOSED = 0.0;
+        public static final double FULLY_OPEN = 1.0;
     }
 }

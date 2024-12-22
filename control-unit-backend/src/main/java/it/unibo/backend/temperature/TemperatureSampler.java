@@ -45,7 +45,7 @@ public class TemperatureSampler {
         this.scheduler.scheduleAtFixedRate(this::calculateAverage, DEFAULT_HISTORY_INTERVAL, DEFAULT_HISTORY_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
-    public void addReading(final long timeStamp, final double temperature) {
+    public void addSample(final long timeStamp, final double temperature) {
         if (timeStamp > System.currentTimeMillis()) {
             throw new IllegalArgumentException("Timestamp cannot be in the future");
         }
@@ -78,11 +78,10 @@ public class TemperatureSampler {
         if (history.size() > MAX_HISTORY_LENGTH) {
             history.removeFirst();
         }
-
         lastTime.set(System.currentTimeMillis());
     }
 
-    public TemperatureSample getSample() {
+    public TemperatureSample getLastSample() {
         if (temperatureReadings.isEmpty()) {
             return null;
         }

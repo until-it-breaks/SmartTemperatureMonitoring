@@ -16,6 +16,8 @@ import it.unibo.backend.states.NormalState;
 import it.unibo.backend.states.State;
 import it.unibo.backend.temperature.TemperatureSampler;
 import it.unibo.backend.JsonUtility;
+import it.unibo.backend.Settings.FreqMultiplier;
+import it.unibo.backend.Settings.WindowLevel;
 import it.unibo.backend.controlunit.managers.HttpUpdateManager;
 import it.unibo.backend.controlunit.managers.MqttUpdateManager;
 import it.unibo.backend.controlunit.managers.SerialUpdateManager;
@@ -25,11 +27,11 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     private final TemperatureSampler sampler;
     private final List<UpdateManager> updateManagers;
-    private double frequency;
 
-    private OperatingMode operatingMode;
+    private double freqMultiplier;
     private double windowLevel;
-    private boolean interventionRequired;
+    private boolean needsIntervention;
+    private OperatingMode mode;
     private State currentState;
 
     public ControlUnit(final SerialCommChannel commChannel,
@@ -42,20 +44,78 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         this.updateManagers.add(new MqttUpdateManager(mqttClient));
         this.updateManagers.add(new SerialUpdateManager(commChannel));
 
-        this.frequency = 1.0;
-        this.operatingMode = OperatingMode.AUTO;
-        this.windowLevel = 0.0;
-        this.interventionRequired = false;
+        this.freqMultiplier = FreqMultiplier.NORMAL;
+        this.mode = OperatingMode.AUTO;
+        this.windowLevel = WindowLevel.FULLY_CLOSED;
+        this.needsIntervention = false;
         this.currentState = new NormalState(this);
     }
 
     public void start() throws InterruptedException {
-        currentState.handle();
-        Thread.sleep(1000);
         while (true) {
             processState();
             sendUpdates();
             Thread.sleep(1000);
+        }
+    }
+
+    public TemperatureSampler getSampler() {
+        return this.sampler;
+    }
+
+    public OperatingMode getMode() {
+        return this.mode;
+    }
+
+    public void setFreqMultiplier(final double frequency) {
+        this.freqMultiplier = frequency;
+    }
+
+    public void setWindowLevel(final double level) {
+        this.windowLevel = level;
+    }
+
+    public void setNeedForIntervention(final boolean needsIntervention) {
+        this.needsIntervention = needsIntervention;
+    }
+
+    public boolean needsIntervention() {
+        return this.needsIntervention;
+    }
+
+    @Override
+    public void onMQTTMessageReceived(final String topic, final JsonObject data) {
+        if (topic.equals(Topic.TEMPERATURE.getName())) {
+            final double temperature = data.getDouble(JsonUtility.TEMPERATURE);
+            this.sampler.addSample(System.currentTimeMillis(), temperature);
+        }
+    }
+
+    @Override
+    public void onSerialMessageReceived(final JsonObject data) {
+        final int mode = data.getInteger(JsonUtility.OPERATING_MODE);
+        if (mode == 0) {
+            this.mode = OperatingMode.AUTO;
+        } else if (mode == 1) {
+            this.mode = OperatingMode.MANUAL;
+        }
+        if (this.mode.equals(OperatingMode.MANUAL)) {
+            this.windowLevel = data.getDouble(JsonUtility.WINDOW_LEVEL);
+        }
+    }
+
+    @Override
+    public void onHTTPMessageReceived(final JsonObject data) {
+        if (data.containsKey(JsonUtility.INTERVENTION_NEED)) {
+            this.needsIntervention = data.getBoolean(JsonUtility.INTERVENTION_NEED);
+        }
+        if (data.containsKey(JsonUtility.OPERATING_MODE)) {
+            final String mode = data.getString(JsonUtility.OPERATING_MODE);
+            if (mode.equals(OperatingMode.AUTO.getName())) {
+                this.mode = OperatingMode.AUTO;
+            } else if (mode.equals(OperatingMode.MANUAL.getName())) {
+                this.mode = OperatingMode.MANUAL;
+            }
         }
     }
 
@@ -69,73 +129,13 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     private void sendUpdates() {
         for (final UpdateManager updateManager : updateManagers) {
-            updateManager.sendUpdate(new ControlUnitData(frequency, 
-            operatingMode, 
-            windowLevel, 
-            interventionRequired, 
-            this.currentState.getStateAlias(), 
-            this.sampler.getSample(), 
-            this.sampler.getLastReport()));
-        }
-    }
-
-    public TemperatureSampler getSampler() {
-        return this.sampler;
-    }
-
-    public OperatingMode getOperatingMode() {
-        return this.operatingMode;
-    }
-
-    public void setFrequency(final double frequency) {
-        this.frequency = frequency;
-    }
-
-    public void setWindowLevel(final int level) {
-        this.windowLevel = level;
-    }
-
-    public void setNeedForIntervention(final boolean needsIntervention) {
-        this.interventionRequired = needsIntervention;
-    }
-
-    public boolean needsIntervention() {
-        return this.interventionRequired;
-    }
-
-    @Override
-    public void onMQTTMessageReceived(final String topic, final JsonObject data) {
-        if (topic.equals(Topic.TEMPERATURE.getName())) {
-            final double temperature = data.getDouble(JsonUtility.TEMPERATURE);
-            this.sampler.addReading(System.currentTimeMillis(), temperature);
-        }
-    }
-
-    @Override
-    public void onSerialMessageReceived(final JsonObject data) {
-        final int mode = data.getInteger(JsonUtility.OPERATING_MODE);
-        if (mode == 0) {
-            this.operatingMode = OperatingMode.AUTO;
-        } else if (mode == 1) {
-            this.operatingMode = OperatingMode.MANUAL;
-        }
-        if (this.operatingMode.equals(OperatingMode.MANUAL)) {
-            this.windowLevel = data.getDouble(JsonUtility.WINDOW_LEVEL);
-        }
-    }
-
-    @Override
-    public void onHTTPMessageReceived(final JsonObject data) {
-        if (data.containsKey(JsonUtility.INTERVENTION_NEED)) {
-            this.interventionRequired = data.getBoolean(JsonUtility.INTERVENTION_NEED);
-        }
-        if (data.containsKey(JsonUtility.OPERATING_MODE)) {
-            final String mode = data.getString(JsonUtility.OPERATING_MODE);
-            if (mode.equals(OperatingMode.AUTO.getName())) {
-                this.operatingMode = OperatingMode.AUTO;
-            } else if (mode.equals(OperatingMode.MANUAL.getName())) {
-                this.operatingMode = OperatingMode.MANUAL;
-            }
+            updateManager.sendUpdate(new ControlUnitData(this.freqMultiplier, 
+                this.mode, 
+                this.windowLevel, 
+                this.needsIntervention, 
+                this.currentState.getStateAlias(), 
+                this.sampler.getLastSample(), 
+                this.sampler.getLastReport()));
         }
     }
 }

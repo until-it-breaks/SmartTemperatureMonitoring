@@ -15,15 +15,15 @@ public class NormalState implements State {
 
     @Override
     public void handle() {
-        if (controlUnit.getOperatingMode().equals(OperatingMode.AUTO)) {
-            controlUnit.setFrequency(Settings.FreqMultiplier.NORMAL);
-            controlUnit.setWindowLevel(Settings.DoorState.FULLY_CLOSED);
+        if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
+            controlUnit.setFreqMultiplier(Settings.FreqMultiplier.NORMAL);
+            controlUnit.setWindowLevel(Settings.WindowLevel.FULLY_CLOSED);
         }
     }
 
     @Override
     public State next() {
-        final TemperatureSample sample = controlUnit.getSampler().getSample();
+        final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
             if (sample.getValue() < Settings.Temperature.NORMAL) {
                 return this;

@@ -20,7 +20,7 @@ public class TestTemperatureSampler {
                     final long currentTimestamp = System.currentTimeMillis();
                     final double randomTemperature = ThreadLocalRandom.current().nextDouble(-30.0, 50.0); // Random temp between -30 and 50 degrees
 
-                    sampler.addReading(currentTimestamp, randomTemperature);
+                    sampler.addSample(currentTimestamp, randomTemperature);
 
                     logger.info(String.format("Added temperature: %.2f at " + timeFormat.format(currentTimestamp), randomTemperature));
 

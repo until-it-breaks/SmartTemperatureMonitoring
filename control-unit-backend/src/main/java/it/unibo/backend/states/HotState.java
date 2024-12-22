@@ -15,15 +15,15 @@ public class HotState implements State {
 
     @Override
     public void handle() {
-        final TemperatureSample sample = controlUnit.getSampler().getSample();
+        final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
-            if (controlUnit.getOperatingMode().equals(OperatingMode.AUTO)) {
-                controlUnit.setFrequency(Settings.FreqMultiplier.INCREASED);
+            if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
+                controlUnit.setFreqMultiplier(Settings.FreqMultiplier.INCREASED);
                 final double temperature = sample.getValue();
-                final int mappedValue = (int) (((temperature - Settings.Temperature.NORMAL)
+                final double mappedValue = (((temperature - Settings.Temperature.NORMAL)
                     / (Settings.Temperature.HOT - Settings.Temperature.NORMAL))
-                    * (Settings.DoorState.FULLY_OPEN - Settings.DoorState.FULLY_CLOSED)
-                    + Settings.DoorState.FULLY_CLOSED);
+                    * (Settings.WindowLevel.FULLY_OPEN - Settings.WindowLevel.FULLY_CLOSED)
+                    + Settings.WindowLevel.FULLY_CLOSED);
                 controlUnit.setWindowLevel(mappedValue);
             }
         }
@@ -31,7 +31,7 @@ public class HotState implements State {
 
     @Override
     public State next() {
-        final TemperatureSample sample = controlUnit.getSampler().getSample();
+        final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
             if (sample.getValue() < Settings.Temperature.NORMAL) {
                 return new NormalState(controlUnit);
