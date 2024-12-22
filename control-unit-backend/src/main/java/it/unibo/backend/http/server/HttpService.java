@@ -141,24 +141,22 @@ public class HttpService extends AbstractVerticle {
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject data = routingContext.body().asJsonObject();
+
         if (data == null) {
             logger.warn("Temperature report body is null");
             response.setStatusCode(400).end();
         } else {
-            final TemperatureReport temperatureReport = new TemperatureReport();
-            temperatureReport.setStartTime(data.getLong(JsonUtility.START_TIME));
-            temperatureReport.setEndTime(data.getLong(JsonUtility.END_TIME));
-
-            temperatureReport.setAverage(data.getDouble(JsonUtility.AVG_TEMP));
-            temperatureReport.setMax(data.getDouble(JsonUtility.MAX_TEMP));
-            temperatureReport.setMin(data.getDouble(JsonUtility.MIN_TEMP));
-    
             if (reports.size() > MAX_REPORTS) {
                 logger.debug("Report list size exceeded {}. Removing oldest report", MAX_REPORTS);
                 reports.pollFirst();
             }
-            this.reports.offerLast(temperatureReport);
-    
+            final TemperatureReport temperatureReport = new TemperatureReport();
+            temperatureReport.setStartTime(data.getLong(JsonUtility.START_TIME));
+            temperatureReport.setEndTime(data.getLong(JsonUtility.END_TIME));
+            temperatureReport.setAverage(data.getDouble(JsonUtility.AVG_TEMP));
+            temperatureReport.setMax(data.getDouble(JsonUtility.MAX_TEMP));
+            temperatureReport.setMin(data.getDouble(JsonUtility.MIN_TEMP));
+            reports.offerLast(temperatureReport);
             response.setStatusCode(200).end();
         }
     }
@@ -184,7 +182,6 @@ public class HttpService extends AbstractVerticle {
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject data = routingContext.body().asJsonObject();
-
         if (data == null) {
             logger.warn("Operating mode body is null");
             response.setStatusCode(400).end();
@@ -208,7 +205,6 @@ public class HttpService extends AbstractVerticle {
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject data = routingContext.body().asJsonObject();
-
         if (data == null) {
             logger.warn("Intervention body is null");
             response.setStatusCode(400).end();
@@ -221,6 +217,7 @@ public class HttpService extends AbstractVerticle {
 
     private void handleGetInterventionNeed(final RoutingContext routingContext) {
         logger.info("Request for [intervention need] status from {}", getHost(routingContext.request()));
+
         final JsonObject data = new JsonObject();
         data.put(JsonUtility.INTERVENTION_NEED, this.interventionRequired);
         routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
@@ -231,7 +228,6 @@ public class HttpService extends AbstractVerticle {
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject data = routingContext.body().asJsonObject();
-
         if (data == null) {
             response.setStatusCode(400);
             logger.warn("Config body is null");
