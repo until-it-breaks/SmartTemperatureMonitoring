@@ -58,9 +58,6 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         this.commChannel.registerObserver(this);
         this.operationClient.registerObserver(this);
         this.alarmClient.registerObserver(this);
-        this.mqttClient.start();
-        this.operationClient.start(1000);
-        this.alarmClient.start(1000);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -71,6 +68,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     public void start() throws InterruptedException {
         setup();
         currentState.handle();
+        Thread.sleep(1000);
         while (true) {
             final SystemState nextState = currentState.next();
             if (nextState != currentState) {
@@ -130,8 +128,8 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     }
 
     @Override
-    public void onHTTPMessageReceived(final JsonObject data) {
-        System.out.println(data);
+    public synchronized void onHTTPMessageReceived(final JsonObject data) {
+        System.err.println("about to send");
         this.interventionRequired = data.getBoolean(JsonUtility.INTERVENTION_NEED);
         final String mode = data.getString(JsonUtility.OPERATING_MODE);
         if (mode.equals(OperationMode.AUTO.getName())) {
@@ -149,7 +147,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
             httpClient.sendHttpData(ConnectivityConfig.REPORTS_PATH, this.temperatureSampler.getHistory().getLast().asJson());
         }
         JsonObject data = new JsonObject();
-        data.put(JsonUtility.OPERATING_MODE, this.operatingMode);
+        data.put(JsonUtility.OPERATING_MODE, this.operatingMode.getName());
         httpClient.sendHttpData(ConnectivityConfig.OPERATING_MODE_PATH, data);
         data = new JsonObject();
         data.put(JsonUtility.INTERVENTION_NEED, this.interventionRequired);

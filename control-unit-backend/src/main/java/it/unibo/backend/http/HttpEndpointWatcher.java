@@ -41,11 +41,9 @@ public class HttpEndpointWatcher {
             client.get(port, host, path).send(ar -> {
                 if (ar.succeeded()) {
                     final JsonObject currentData = ar.result().bodyAsJsonObject();
-                    System.out.println(currentData);
-                    if (!currentData.equals(lastData)) {
                         lastData = currentData;
-                        notifyObservers(currentData);
-                    }
+                        //notifyObservers(lastData);
+                        System.out.println(lastData);
                 } else {
                     logger.error("Failed to fetch data: {}", ar.cause().getMessage());
                 }

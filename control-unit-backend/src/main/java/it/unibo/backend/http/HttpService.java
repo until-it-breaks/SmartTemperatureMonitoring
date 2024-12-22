@@ -45,8 +45,8 @@ public class HttpService extends AbstractVerticle {
         this.reports = new ArrayDeque<>();
         this.frequency = 0.0;
         this.windowLevel = 0.0;
-        this.operationMode = "";
-        this.state = "";
+        this.operationMode = "auto";
+        this.state = "normal";
         this.interventionRequired = false;
     }
 
@@ -114,7 +114,7 @@ public class HttpService extends AbstractVerticle {
     }
 
     private void handleAddTemperatureReport(final RoutingContext routingContext) {
-        logger.info("Received request add temperature report from {}", getHost(routingContext.request()));
+        logger.info("Received request to add temperature report from {}", getHost(routingContext.request()));
 
         final HttpServerResponse response = routingContext.response();
         final JsonObject res = routingContext.body().asJsonObject();

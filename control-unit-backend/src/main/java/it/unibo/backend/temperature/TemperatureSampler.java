@@ -70,7 +70,7 @@ public class TemperatureSampler {
 
         final long now = System.currentTimeMillis();
         if (count == 0) {
-            history.add(new TemperatureReport(lastTime.get(), now, Double.NaN, Double.NaN, Double.NaN));
+            history.add(new TemperatureReport(lastTime.get(), now, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE));
         } else {
             history.add(new TemperatureReport(lastTime.get(), now, sum / count, min, max));
         }
@@ -83,6 +83,9 @@ public class TemperatureSampler {
     }
 
     public TemperatureSample getTemperature() {
+        if (temperatureReadings.isEmpty()) {
+            return null;
+        }
         var lastEntry = this.temperatureReadings.lastEntry();
         return new TemperatureSample(lastEntry.getValue(), lastEntry.getKey());
     }

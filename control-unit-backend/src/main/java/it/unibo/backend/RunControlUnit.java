@@ -20,6 +20,9 @@ public class RunControlUnit {
                 ConnectivityConfig.SERVER_PORT, ConnectivityConfig.OPERATING_MODE_PATH);
             HttpEndpointWatcher interventionRequirementWatcher = new HttpEndpointWatcher(ConnectivityConfig.SERVER_HOST_LOCAL,
                 ConnectivityConfig.SERVER_PORT, ConnectivityConfig.INTERVENTION_PATH);
+            
+            operationModeWatcher.start(1000);
+            interventionRequirementWatcher.start(1000);
 
             SerialCommChannel serialCommChannel;
             if (args.length != 0) {
@@ -29,6 +32,7 @@ public class RunControlUnit {
             }
 
             MQTTClient mqttClient = new MQTTClient(ConnectivityConfig.MQTT_BROKER_HOST, ConnectivityConfig.MQTT_BROKER_PORT);
+            mqttClient.start();
 
             HttpClient httpClient = new HttpClient(ConnectivityConfig.SERVER_HOST_LOCAL, ConnectivityConfig.SERVER_PORT);
 
