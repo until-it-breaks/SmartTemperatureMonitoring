@@ -53,6 +53,13 @@ public class HttpEndpointWatcher {
         });
     }
 
+    public void stop() {
+        logger.info("Stopping watcher assigned to {}:{}{}", host, port, path);
+        this.client.close();
+        this.vertx.close();
+    }
+
+
     public void registerObserver(final HttpEndpointObserver observer) {
         observers.add(observer);
     }

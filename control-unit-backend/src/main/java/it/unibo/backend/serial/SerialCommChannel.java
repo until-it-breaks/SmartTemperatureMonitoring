@@ -65,6 +65,17 @@ public class SerialCommChannel implements SerialPortEventListener {
         }
     }
 
+    public void close() {
+        try {
+            if (serialPort != null) {
+                serialPort.removeEventListener();
+                serialPort.closePort();
+            }
+        } catch (final SerialPortException e) {
+            logger.error("Error occured while trying to close serial communication channel", e.getMessage());
+        }
+    }
+
     private void processMessage(final String message) {
         final Matcher matcher = MESSAGE_PATTERN.matcher(message);
         boolean containsWindowLevel = false;

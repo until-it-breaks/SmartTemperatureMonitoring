@@ -2,6 +2,8 @@ package it.unibo.backend.controlunit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.vertx.core.json.JsonObject;
 import it.unibo.backend.enums.Topic;
@@ -29,9 +31,9 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     private final List<UpdateManager> updateManagers;
 
     private double freqMultiplier;
-    private double windowLevel;
-    private boolean needsIntervention;
-    private OperatingMode mode;
+    private AtomicReference<Double> windowLevel;
+    private AtomicBoolean needsIntervention;
+    private AtomicReference<OperatingMode> mode;
     private State currentState;
 
     public ControlUnit(final SerialCommChannel commChannel,
@@ -45,9 +47,9 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         this.updateManagers.add(new SerialUpdateManager(commChannel));
 
         this.freqMultiplier = FreqMultiplier.NORMAL;
-        this.mode = OperatingMode.AUTO;
-        this.windowLevel = WindowLevel.FULLY_CLOSED;
-        this.needsIntervention = false;
+        this.mode = new AtomicReference<>(OperatingMode.AUTO);
+        this.windowLevel = new AtomicReference<>(WindowLevel.FULLY_CLOSED);
+        this.needsIntervention = new AtomicBoolean(false);
         this.currentState = new NormalState(this);
     }
 
@@ -64,7 +66,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     }
 
     public OperatingMode getMode() {
-        return this.mode;
+        return this.mode.get();
     }
 
     public void setFreqMultiplier(final double frequency) {
@@ -72,15 +74,15 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     }
 
     public void setWindowLevel(final double level) {
-        this.windowLevel = level;
+        this.windowLevel.set(level);
     }
 
     public void setNeedForIntervention(final boolean needsIntervention) {
-        this.needsIntervention = needsIntervention;
+        this.needsIntervention.set(needsIntervention);
     }
 
     public boolean needsIntervention() {
-        return this.needsIntervention;
+        return this.needsIntervention.get();
     }
 
     @Override
@@ -95,26 +97,26 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     public void onSerialMessageReceived(final JsonObject data) {
         final int mode = data.getInteger(JsonUtility.OPERATING_MODE);
         if (mode == 0) {
-            this.mode = OperatingMode.AUTO;
+            this.mode.set(OperatingMode.AUTO);
         } else if (mode == 1) {
-            this.mode = OperatingMode.MANUAL;
+            this.mode.set(OperatingMode.MANUAL);
         }
-        if (this.mode.equals(OperatingMode.MANUAL)) {
-            this.windowLevel = data.getDouble(JsonUtility.WINDOW_LEVEL);
+        if (this.mode.get().equals(OperatingMode.MANUAL)) {
+            this.windowLevel.set(data.getDouble(JsonUtility.WINDOW_LEVEL));
         }
     }
 
     @Override
     public void onHTTPMessageReceived(final JsonObject data) {
         if (data.containsKey(JsonUtility.INTERVENTION_NEED)) {
-            this.needsIntervention = data.getBoolean(JsonUtility.INTERVENTION_NEED);
+            this.needsIntervention.set(data.getBoolean(JsonUtility.INTERVENTION_NEED));
         }
         if (data.containsKey(JsonUtility.OPERATING_MODE)) {
             final String mode = data.getString(JsonUtility.OPERATING_MODE);
             if (mode.equals(OperatingMode.AUTO.getName())) {
-                this.mode = OperatingMode.AUTO;
+                this.mode.set(OperatingMode.AUTO);
             } else if (mode.equals(OperatingMode.MANUAL.getName())) {
-                this.mode = OperatingMode.MANUAL;
+                this.mode.set(OperatingMode.MANUAL);
             }
         }
     }
@@ -130,9 +132,9 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     private void sendUpdates() {
         for (final UpdateManager updateManager : updateManagers) {
             updateManager.sendUpdate(new ControlUnitData(this.freqMultiplier, 
-                this.mode, 
-                this.windowLevel, 
-                this.needsIntervention, 
+                this.mode.get(), 
+                this.windowLevel.get(), 
+                this.needsIntervention.get(), 
                 this.currentState.getStateAlias(), 
                 this.sampler.getLastSample(), 
                 this.sampler.getLastReport()));

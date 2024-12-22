@@ -115,7 +115,7 @@ public class HttpService extends AbstractVerticle {
             response.setStatusCode(400).end();
         } else {
             if (samples.size() > MAX_SAMPLES) {
-                logger.debug("Sample list size exceeded {}. Removing oldest sample", MAX_REPORTS);
+                logger.info("Sample list size exceeded {}. Removing oldest sample", MAX_REPORTS);
                 samples.pollFirst();
             }
             samples.offerLast(new TemperatureSample(data.getDouble(JsonUtility.TEMPERATURE), data.getLong(JsonUtility.SAMPLE_TIME)));
@@ -147,7 +147,7 @@ public class HttpService extends AbstractVerticle {
             response.setStatusCode(400).end();
         } else {
             if (reports.size() > MAX_REPORTS) {
-                logger.debug("Report list size exceeded {}. Removing oldest report", MAX_REPORTS);
+                logger.info("Report list size exceeded {}. Removing oldest report", MAX_REPORTS);
                 reports.pollFirst();
             }
             final TemperatureReport temperatureReport = new TemperatureReport();

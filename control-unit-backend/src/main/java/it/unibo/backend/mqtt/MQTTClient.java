@@ -52,6 +52,12 @@ public class MQTTClient extends AbstractVerticle {
         });
     }
 
+    public void stop() {
+        logger.info("Stopping MQTT client assigned to {}:{}", brokerHost, brokerPort);
+        client.disconnect();
+        vertx.close();
+    }
+
     public void subscribe(final String topic) {
         client.subscribe(topic, MqttQoS.AT_LEAST_ONCE.value(), result -> {
             if (result.succeeded()) {
@@ -63,7 +69,7 @@ public class MQTTClient extends AbstractVerticle {
     }
 
     public void publish(final String topic, final JsonObject data) {
-        logger.info("Publishing message to [{}]", topic);
+        logger.info("Publishing message to [{}]: {}", topic, data);
         client.publish(topic, Buffer.buffer(data.encode()), MqttQoS.AT_LEAST_ONCE, false, false);
     }
 

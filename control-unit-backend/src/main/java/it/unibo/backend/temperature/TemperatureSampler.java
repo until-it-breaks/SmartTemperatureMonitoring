@@ -96,6 +96,6 @@ public class TemperatureSampler {
 
     public TemperatureReport getLastReport() {
         List<TemperatureReport> output = new ArrayList<>(history);
-        return output.isEmpty() ? null : output.getLast();
+        return output.isEmpty() ? null : output.get(output.size() - 1);
     }
 }

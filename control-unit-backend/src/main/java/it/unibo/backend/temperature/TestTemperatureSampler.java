@@ -39,7 +39,7 @@ public class TestTemperatureSampler {
                     Thread.sleep(5000);
                     final var history = sampler.getReportHistory();
                     if (!history.isEmpty()) {
-                        logger.info(history.getLast().toStringSimple());
+                        logger.info(history.get(history.size() - 1).toStringSimple());
                     } else {
                         logger.info("No info available right now.");
                     }
