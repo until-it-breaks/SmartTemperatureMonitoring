@@ -13,16 +13,19 @@ public class SerialUpdateManager implements UpdateManager {
 
     @Override
     public void sendUpdate(final ControlUnitData data) {
-        /**
-         * Test portion
+        /*
         final String test = String.format("Level:%.2f|Mode:%d|Temp:%.2f|Alarm:%d",
-            0.9,
+            data.getWindowLevel(),
             data.getMode().getValue(),
-            23.5,
+            Math.random() * 25,
             data.isInterventionRequired() ? 1 : 0);
-        commChannel.sendMsg(test);
-        lastSerialMessage = test;
+        if (!test.equals(lastSerialMessage)) {
+            System.out.println(test);
+            commChannel.sendMsg(test);
+            lastSerialMessage = test;
+        }
         */
+
         if (data.getSample() != null) {
             final String message = String.format("Level:%.2f|Mode:%d|Temp:$.2f|Alarm:%d",
             data.getWindowLevel(),

@@ -37,11 +37,11 @@ public class TooHotState implements State {
                 if (System.currentTimeMillis() - timeSinceCreation > Temperature.TOO_HOT_WINDOW) {
                     return new AlarmState(controlUnit);
                 } else {
-                    return this;
+                    return new TooHotState(controlUnit);
                 }
             }
         } else {
-            return this;
+            return new TooHotState(controlUnit);
         }
     }
 
