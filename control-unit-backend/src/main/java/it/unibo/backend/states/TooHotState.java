@@ -25,7 +25,7 @@ public class TooHotState implements State {
 
     @Override
     public State next() {
-        final TemperatureSample sample = controlUnit.getSampler().getTemperature();
+        final TemperatureSample sample = controlUnit.getSampler().getSample();
         if (sample != null) {
             if (sample.getValue() < Settings.Temperature.NORMAL) {
                 return new NormalState(this.controlUnit);

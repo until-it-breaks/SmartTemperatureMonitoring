@@ -37,7 +37,7 @@ public class TestTemperatureSampler {
             try {
                 while (true) {
                     Thread.sleep(5000);
-                    final var history = sampler.getHistory();
+                    final var history = sampler.getReportHistory();
                     if (!history.isEmpty()) {
                         logger.info(history.getLast().toStringSimple());
                     } else {

@@ -82,7 +82,7 @@ public class TemperatureSampler {
         lastTime.set(System.currentTimeMillis());
     }
 
-    public TemperatureSample getTemperature() {
+    public TemperatureSample getSample() {
         if (temperatureReadings.isEmpty()) {
             return null;
         }
@@ -90,7 +90,13 @@ public class TemperatureSampler {
         return new TemperatureSample(lastEntry.getValue(), lastEntry.getKey());
     }
 
-    public List<TemperatureReport> getHistory() {
-        return new ArrayList<>(history);
+    public List<TemperatureReport> getReportHistory() {
+        List<TemperatureReport> output = new ArrayList<>(history);
+        return output.isEmpty() ? null : output;
+    }
+
+    public TemperatureReport getLastReport() {
+        List<TemperatureReport> output = new ArrayList<>(history);
+        return output.isEmpty() ? null : output.getLast();
     }
 }

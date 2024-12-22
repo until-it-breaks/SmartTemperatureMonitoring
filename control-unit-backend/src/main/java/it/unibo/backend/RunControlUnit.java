@@ -22,22 +22,24 @@ public class RunControlUnit {
             HttpEndpointWatcher interventionRequirementWatcher = new HttpEndpointWatcher(ConnectivityConfig.SERVER_HOST_LOCAL,
                 ConnectivityConfig.SERVER_PORT, ConnectivityConfig.INTERVENTION_PATH);
 
-            operationModeWatcher.start(1000);
-            interventionRequirementWatcher.start(1000);
-
             SerialCommChannel serialCommChannel;
             if (args.length != 0) {
                 serialCommChannel = new SerialCommChannel(args[0], SerialPort.BAUDRATE_9600);
             } else {
                 serialCommChannel = new SerialCommChannel(ConnectivityConfig.DEFAULT_SERIAL_PORT, SerialPort.BAUDRATE_9600);
             }
-
             MQTTClient mqttClient = new MQTTClient(ConnectivityConfig.MQTT_BROKER_HOST, ConnectivityConfig.MQTT_BROKER_PORT);
-            mqttClient.start();
-
             HttpClient httpClient = new HttpClientImpl(ConnectivityConfig.SERVER_HOST_LOCAL, ConnectivityConfig.SERVER_PORT);
 
-            ControlUnit controlUnit = new ControlUnit(serialCommChannel, mqttClient, httpClient, operationModeWatcher, interventionRequirementWatcher);
+            ControlUnit controlUnit = new ControlUnit(serialCommChannel, mqttClient, httpClient);
+            operationModeWatcher.registerObserver(controlUnit);
+            interventionRequirementWatcher.registerObserver(controlUnit);
+            serialCommChannel.registerObserver(controlUnit);
+            mqttClient.registerObserver(controlUnit);
+
+            operationModeWatcher.start(1000);
+            interventionRequirementWatcher.start(1000);
+            mqttClient.start();
             controlUnit.start();
 
         } catch (SerialPortException e) {

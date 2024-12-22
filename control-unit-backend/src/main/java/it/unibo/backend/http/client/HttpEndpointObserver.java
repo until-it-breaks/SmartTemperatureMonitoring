@@ -8,5 +8,7 @@ import io.vertx.core.json.JsonObject;
  * Implementing classes should define how to process or handle the received HTTP message.
  */
 public interface HttpEndpointObserver {
+
     void onHTTPMessageReceived(JsonObject data);
+
 }
