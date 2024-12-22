@@ -1,4 +1,4 @@
-package it.unibo.backend.http;
+package it.unibo.backend.http.client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,17 +34,19 @@ public class HttpEndpointWatcher {
     }
 
     /*
-     * Performs GET request periodically at the specified interval.
+     * Performs GET requests periodically at the specified interval and notifies its subscribers the data if new.
      */
     public void start(final long interval) {
-        vertx.setPeriodic(interval, timerId -> {
+        vertx.setPeriodic(interval, handler -> {
             client.get(port, host, path).send(ar -> {
                 if (ar.succeeded()) {
                     final JsonObject currentData = ar.result().bodyAsJsonObject();
+                    if (!currentData.equals(lastData)) {
                         lastData = currentData;
-                        notifyObservers(lastData);
+                        notifyObservers(currentData);
+                    }
                 } else {
-                    logger.error("Failed to fetch data: {}", ar.cause().getMessage());
+                    logger.error("[Failed to fetch data]: {}", ar.cause().getMessage());
                 }
             });
 

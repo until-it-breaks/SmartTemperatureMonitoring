@@ -3,7 +3,7 @@ package it.unibo.backend.states;
 /**
  * State pattern interface
  */
-public interface SystemState {
+public interface State {
     /**
      * Performs its internal logic.
      */
@@ -13,7 +13,7 @@ public interface SystemState {
      * 
      * @return the next logical state
      */
-    SystemState next();
+    State next();
 
     /**
      * 

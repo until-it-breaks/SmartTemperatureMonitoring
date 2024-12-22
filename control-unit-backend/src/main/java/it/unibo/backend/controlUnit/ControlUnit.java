@@ -2,16 +2,16 @@ package it.unibo.backend.controlunit;
 
 import io.vertx.core.json.JsonObject;
 import it.unibo.backend.enums.Topic;
-import it.unibo.backend.enums.OperationMode;
-import it.unibo.backend.http.HttpClient;
-import it.unibo.backend.http.HttpEndpointObserver;
-import it.unibo.backend.http.HttpEndpointWatcher;
+import it.unibo.backend.http.client.HttpClient;
+import it.unibo.backend.http.client.HttpEndpointObserver;
+import it.unibo.backend.http.client.HttpEndpointWatcher;
+import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.mqtt.MQTTClient;
 import it.unibo.backend.mqtt.MQTTMessageObserver;
 import it.unibo.backend.serial.SerialCommChannel;
 import it.unibo.backend.serial.SerialMessageObserver;
 import it.unibo.backend.states.NormalState;
-import it.unibo.backend.states.SystemState;
+import it.unibo.backend.states.State;
 import it.unibo.backend.temperature.TemperatureSample;
 import it.unibo.backend.temperature.TemperatureSampler;
 import it.unibo.backend.ConnectivityConfig;
@@ -22,10 +22,10 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     private final TemperatureSampler temperatureSampler;
     private double frequency;
 
-    private OperationMode operatingMode;
+    private OperatingMode operatingMode;
     private double windowLevel;
     private boolean interventionRequired;
-    private SystemState currentState;
+    private State currentState;
 
     private final HttpClient httpClient;
     private final SerialCommChannel commChannel;
@@ -41,7 +41,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
         this.temperatureSampler = new TemperatureSampler();
         this.frequency = 0;
-        this.operatingMode = OperationMode.AUTO;
+        this.operatingMode = OperatingMode.AUTO;
         this.windowLevel = 0.0;
         this.interventionRequired = false;
         this.currentState = new NormalState(this);
@@ -70,7 +70,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         currentState.handle();
         Thread.sleep(1000);
         while (true) {
-            final SystemState nextState = currentState.next();
+            final State nextState = currentState.next();
             if (nextState != currentState) {
                 currentState = nextState;
                 currentState.handle();
@@ -86,7 +86,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         return this.temperatureSampler;
     }
 
-    public OperationMode getOperatingMode() {
+    public OperatingMode getOperatingMode() {
         return this.operatingMode;
     }
 
@@ -118,11 +118,11 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     public void onSerialMessageReceived(final JsonObject data) {
         final int mode = data.getInteger(JsonUtility.OPERATING_MODE);
         if (mode == 0) {
-            this.operatingMode = OperationMode.AUTO;
+            this.operatingMode = OperatingMode.AUTO;
         } else if (mode == 1) {
-            this.operatingMode = OperationMode.MANUAL;
+            this.operatingMode = OperatingMode.MANUAL;
         }
-        if (this.operatingMode.equals(OperationMode.MANUAL)) {
+        if (this.operatingMode.equals(OperatingMode.MANUAL)) {
             this.windowLevel = data.getDouble(JsonUtility.WINDOW_LEVEL);
         }
     }
@@ -134,10 +134,10 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         }
         if (data.containsKey(JsonUtility.OPERATING_MODE)) {
             final String mode = data.getString(JsonUtility.OPERATING_MODE);
-            if (mode.equals(OperationMode.AUTO.getName())) {
-                this.operatingMode = OperationMode.AUTO;
-            } else if (mode.equals(OperationMode.MANUAL.getName())) {
-                this.operatingMode = OperationMode.MANUAL;
+            if (mode.equals(OperatingMode.AUTO.getName())) {
+                this.operatingMode = OperatingMode.AUTO;
+            } else if (mode.equals(OperatingMode.MANUAL.getName())) {
+                this.operatingMode = OperatingMode.MANUAL;
             }
         }
     }

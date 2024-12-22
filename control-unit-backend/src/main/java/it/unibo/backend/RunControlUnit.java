@@ -4,8 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.unibo.backend.controlunit.ControlUnit;
-import it.unibo.backend.http.HttpClient;
-import it.unibo.backend.http.HttpEndpointWatcher;
+import it.unibo.backend.http.client.HttpClient;
+import it.unibo.backend.http.client.HttpClientImpl;
+import it.unibo.backend.http.client.HttpEndpointWatcher;
 import it.unibo.backend.mqtt.MQTTClient;
 import it.unibo.backend.serial.SerialCommChannel;
 import jssc.SerialPort;
@@ -20,7 +21,7 @@ public class RunControlUnit {
                 ConnectivityConfig.SERVER_PORT, ConnectivityConfig.OPERATING_MODE_PATH);
             HttpEndpointWatcher interventionRequirementWatcher = new HttpEndpointWatcher(ConnectivityConfig.SERVER_HOST_LOCAL,
                 ConnectivityConfig.SERVER_PORT, ConnectivityConfig.INTERVENTION_PATH);
-            
+
             operationModeWatcher.start(1000);
             interventionRequirementWatcher.start(1000);
 
@@ -34,7 +35,7 @@ public class RunControlUnit {
             MQTTClient mqttClient = new MQTTClient(ConnectivityConfig.MQTT_BROKER_HOST, ConnectivityConfig.MQTT_BROKER_PORT);
             mqttClient.start();
 
-            HttpClient httpClient = new HttpClient(ConnectivityConfig.SERVER_HOST_LOCAL, ConnectivityConfig.SERVER_PORT);
+            HttpClient httpClient = new HttpClientImpl(ConnectivityConfig.SERVER_HOST_LOCAL, ConnectivityConfig.SERVER_PORT);
 
             ControlUnit controlUnit = new ControlUnit(serialCommChannel, mqttClient, httpClient, operationModeWatcher, interventionRequirementWatcher);
             controlUnit.start();

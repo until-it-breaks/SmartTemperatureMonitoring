@@ -2,10 +2,11 @@ package it.unibo.backend.states;
 
 import it.unibo.backend.Settings;
 import it.unibo.backend.controlunit.ControlUnit;
-import it.unibo.backend.enums.OperationMode;
+import it.unibo.backend.enums.OperatingMode;
+import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.temperature.TemperatureSample;
 
-public class HotState implements SystemState {
+public class HotState implements State {
     private final ControlUnit controlUnit;
 
     public HotState(final ControlUnit controlUnit) {
@@ -16,7 +17,7 @@ public class HotState implements SystemState {
     public void handle() {
         final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
         if (sample != null) {
-            if (controlUnit.getOperatingMode().equals(OperationMode.AUTO)) {
+            if (controlUnit.getOperatingMode().equals(OperatingMode.AUTO)) {
                 controlUnit.setFrequency(Settings.FreqMultiplier.INCREASED);
                 final double temperature = sample.getValue();
                 final int mappedValue = (int) (((temperature - Settings.Temperature.NORMAL)
@@ -29,7 +30,7 @@ public class HotState implements SystemState {
     }
 
     @Override
-    public SystemState next() {
+    public State next() {
         final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
         if (sample != null) {
             if (sample.getValue() < Settings.Temperature.NORMAL) {
@@ -46,6 +47,6 @@ public class HotState implements SystemState {
 
     @Override
     public String getName() {
-        return SystemStateEnum.HOT.getName();
+        return SystemState.HOT.getName();
     }
 }

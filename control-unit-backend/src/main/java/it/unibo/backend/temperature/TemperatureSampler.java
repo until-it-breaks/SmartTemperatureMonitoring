@@ -70,7 +70,7 @@ public class TemperatureSampler {
 
         final long now = System.currentTimeMillis();
         if (count == 0) {
-            history.add(new TemperatureReport(lastTime.get(), now, Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE));
+            history.add(new TemperatureReport(lastTime.get(), now, null, null, null));
         } else {
             history.add(new TemperatureReport(lastTime.get(), now, sum / count, min, max));
         }

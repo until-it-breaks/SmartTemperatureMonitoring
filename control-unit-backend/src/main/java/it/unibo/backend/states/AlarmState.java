@@ -2,9 +2,10 @@ package it.unibo.backend.states;
 
 import it.unibo.backend.Settings;
 import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.temperature.TemperatureSample;
 
-public class AlarmState implements SystemState {
+public class AlarmState implements State {
     private final ControlUnit controlUnit;
 
     public AlarmState(final ControlUnit controlUnit) {
@@ -17,7 +18,7 @@ public class AlarmState implements SystemState {
     }
 
     @Override
-    public SystemState next() {
+    public State next() {
         if (controlUnit.needsIntervention()) {
             return this;
         } else {
@@ -38,6 +39,6 @@ public class AlarmState implements SystemState {
 
     @Override
     public String getName() {
-        return SystemStateEnum.ALARM.getName();
+        return SystemState.ALARM.getName();
     }
 }

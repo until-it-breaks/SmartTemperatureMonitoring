@@ -10,14 +10,14 @@ public class TemperatureReport {
     private long startTime;
     private long endTime;
 
-    private double average;
-    private double min;
-    private double max;
+    private Double average;
+    private Double min;
+    private Double max;
 
     public TemperatureReport() {
     }
 
-    public TemperatureReport(final long startTime, final long endTime, final double average, final double min, final double max) {
+    public TemperatureReport(final long startTime, final long endTime, final Double average, final Double min, final Double max) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.average = average;
@@ -26,23 +26,23 @@ public class TemperatureReport {
     }
 
     public long getStartTime() {
-        return startTime;
+        return this.startTime;
     }
 
     public long getEndTime() {
-        return endTime;
+        return this.endTime;
     }
 
-    public double getAverage() {
-        return average;
+    public Double getAverage() {
+        return this.average;
     }
 
-    public double getMin() {
-        return min;
+    public Double getMin() {
+        return this.min;
     }
 
-    public double getMax() {
-        return max;
+    public Double getMax() {
+        return this.max;
     }
 
     public void setStartTime(final long startTime) {
@@ -53,29 +53,31 @@ public class TemperatureReport {
         this.endTime = endTime;
     }
 
-    public void setAverage(final double average) {
+    public void setAverage(final Double average) {
         this.average = average;
     }
 
-    public void setMin(final double min) {
+    public void setMin(final Double min) {
         this.min = min;
     }
 
-    public void setMax(final double max) {
+    public void setMax(final Double max) {
         this.max = max;
     }
 
     @Override
     public String toString() {
-        return "TemperatureReport [from " + startTime + " to " 
-            + endTime + ", average=" + average + ", min=" 
-            + min + ", max=" + max + "]";
+        return "TemperatureReport [from " + this.startTime + " to " 
+            + this.endTime + ", average=" + this.average + ", min=" 
+            + this.min + ", max=" + this.max + "]";
     }
 
     public String toStringSimple() {
         final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-        return "TemperatureReport [from " + timeFormat.format(new Date(startTime)) + " to " 
-            + timeFormat.format(new Date(endTime)) + String.format(" Average= %.2f, Min= %.2f, Max= %.2f]", average, min, max);
+        return "TemperatureReport [from " + timeFormat.format(new Date(this.startTime)) + " to " 
+            + timeFormat.format(new Date(this.endTime))
+            + String.format(" Average= %.2f, Min= %.2f, Max= %.2f]"
+            , this.average, this.min, this.max);
     }
 
     public JsonObject asJson() {

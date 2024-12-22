@@ -1,14 +1,17 @@
-package it.unibo.backend.states;
+package it.unibo.backend.enums;
 
-public enum SystemStateEnum {
+/**
+ * Contains system states.
+ */
+public enum SystemState {
     NORMAL("normal"),
     HOT("hot"),
-    TOO_HOT("too hot"),
+    TOO_HOT("too_hot"),
     ALARM("alarm");
 
     private final String name;
 
-    SystemStateEnum(final String name) {
+    SystemState(String name) {
         this.name = name;
     }
 
