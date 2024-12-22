@@ -1,6 +1,8 @@
 package it.unibo.backend.states;
 
-import it.unibo.backend.Settings;
+import it.unibo.backend.Settings.FreqMultiplier;
+import it.unibo.backend.Settings.Temperature;
+import it.unibo.backend.Settings.WindowLevel;
 import it.unibo.backend.controlunit.ControlUnit;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
@@ -15,15 +17,15 @@ public class HotState implements State {
 
     @Override
     public void handle() {
-        final TemperatureSample sample = controlUnit.getSampler().getLastSample();
-        if (sample != null) {
-            if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
-                controlUnit.setFreqMultiplier(Settings.FreqMultiplier.INCREASED);
-                final double temperature = sample.getValue();
-                final double mappedValue = (((temperature - Settings.Temperature.NORMAL)
-                    / (Settings.Temperature.HOT - Settings.Temperature.NORMAL))
-                    * (Settings.WindowLevel.FULLY_OPEN - Settings.WindowLevel.FULLY_CLOSED)
-                    + Settings.WindowLevel.FULLY_CLOSED);
+        if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
+            final TemperatureSample sample = controlUnit.getSampler().getLastSample();
+            if (sample != null) {
+                controlUnit.setFreqMultiplier(FreqMultiplier.INCREASED);
+                final double temperature = sample.getTemperature();
+                final double mappedValue = ((temperature - Temperature.NORMAL)
+                    / (Temperature.HOT - Temperature.NORMAL))
+                    * (WindowLevel.FULLY_OPEN - WindowLevel.FULLY_CLOSED)
+                    + WindowLevel.FULLY_CLOSED;
                 controlUnit.setWindowLevel(mappedValue);
             }
         }
@@ -33,15 +35,15 @@ public class HotState implements State {
     public State next() {
         final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
-            if (sample.getValue() < Settings.Temperature.NORMAL) {
+            if (sample.getTemperature() < Temperature.NORMAL) {
                 return new NormalState(controlUnit);
-            } else if (sample.getValue() < Settings.Temperature.HOT) {
-                return new HotState(controlUnit);
+            } else if (sample.getTemperature() < Temperature.HOT) {
+                return new HotState(controlUnit); // We do not return "this" because the mapped value could vary at each handle.
             } else {
-                return new TooHotState(this.controlUnit);
+                return new TooHotState(controlUnit);
             }
         } else {
-            return new HotState(controlUnit);
+            return new HotState(controlUnit); // Same here.
         }
     }
 

@@ -1,6 +1,10 @@
 package it.unibo.backend;
 
+/**
+ * Contains the desired system parameters.
+ */
 public class Settings {
+
     private Settings() {
         throw new UnsupportedOperationException("Utility class");
     }

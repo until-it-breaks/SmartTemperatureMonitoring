@@ -9,7 +9,7 @@ public class JsonUtility {
         throw new UnsupportedOperationException("Utility class");
     }
 
-    public static final String INTERVENTION_NEED = "requireIntervention";
+    public static final String INTERVENTION_NEED = "needsIntervention";
     public static final String OPERATING_MODE = "operatingMode";
     public static final String TEMPERATURE = "temperature";
     public static final String SAMPLE_TIME = "sampleTime";

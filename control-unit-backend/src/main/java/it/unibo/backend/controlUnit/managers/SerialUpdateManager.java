@@ -27,7 +27,7 @@ public class SerialUpdateManager implements UpdateManager {
             final String message = String.format("Level:%.2f|Mode:%d|Temp:$.2f|Alarm:%d",
             data.getWindowLevel(),
             data.getMode().getValue(),
-            data.getSample().getValue(),
+            data.getSample().getTemperature(),
             data.isInterventionRequired() ? 1 : 0);
             if (!message.equals(lastSerialMessage)) {
                 commChannel.sendMsg(message);

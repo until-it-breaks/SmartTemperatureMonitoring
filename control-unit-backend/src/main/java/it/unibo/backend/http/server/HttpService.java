@@ -129,8 +129,8 @@ public class HttpService extends AbstractVerticle {
         final JsonArray array = new JsonArray();
         for (final TemperatureSample value: samples) {
             final JsonObject data = new JsonObject();
-            data.put(JsonUtility.TEMPERATURE, value.getValue());
-            data.put(JsonUtility.SAMPLE_TIME, value.getTime());
+            data.put(JsonUtility.TEMPERATURE, value.getTemperature());
+            data.put(JsonUtility.SAMPLE_TIME, value.getTimeStamp());
             array.add(data);
         }
         routingContext.response().putHeader("Content-Type", "application/json").end(array.encodePrettily());

@@ -1,5 +1,8 @@
 package it.unibo.backend;
 
+/**
+ * Contains connectivity parameters.
+ */
 public class ConnectivityConfig {
 
     private ConnectivityConfig() {
@@ -9,6 +12,7 @@ public class ConnectivityConfig {
     public static final String SERVER_HOST_LOCAL = "localhost";
     public static final String SERVER_HOST = "https://hamster-holy-mutt.ngrok-free.app";
     public static final int SERVER_PORT = 8080;
+
     public static final String TEMPERATURE_PATH = "/api/temperature_samples";
     public static final String REPORTS_PATH = "/api/reports";
     public static final String OPERATING_MODE_PATH = "/api/operating_mode";

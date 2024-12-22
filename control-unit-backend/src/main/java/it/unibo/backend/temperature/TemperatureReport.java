@@ -6,6 +6,9 @@ import java.util.Date;
 import io.vertx.core.json.JsonObject;
 import it.unibo.backend.JsonUtility;
 
+/**
+ * A container for aggregate temperature information between two timestamps.
+ */
 public class TemperatureReport {
     private long startTime;
     private long endTime;
@@ -103,14 +106,14 @@ public class TemperatureReport {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj)
             return true;
         if (obj == null)
             return false;
         if (getClass() != obj.getClass())
             return false;
-        TemperatureReport other = (TemperatureReport) obj;
+        final TemperatureReport other = (TemperatureReport) obj;
         if (startTime != other.startTime)
             return false;
         if (endTime != other.endTime)

@@ -14,6 +14,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.DoubleAdder;
 
+/**
+ * A thread safe sampler that stores temperature and calculates and stores aggregate information on the samples.
+ */
 public class TemperatureSampler {
     private static final int MAX_READINGS = 500;                    // We will store the 500 most recent temp readings.
     private static final int MAX_HISTORY_LENGTH = 30;               // We will store the 30 most recent averages.
@@ -34,13 +37,13 @@ public class TemperatureSampler {
     public TemperatureSampler() {
         this.temperatureReadings = new ConcurrentSkipListMap<>();
         this.history = new ConcurrentLinkedDeque<>();
-
         this.tempSum = new DoubleAdder();
         this.maxTempRead = new AtomicReference<>(Double.MIN_VALUE);
         this.minTempRead = new AtomicReference<>(Double.MAX_VALUE);
         this.tempSampleCount = new AtomicInteger();
         this.lastTime = new AtomicLong(System.currentTimeMillis());
 
+        // A worker that periodically calculates aggregate information on temperature since the last period.
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         this.scheduler.scheduleAtFixedRate(this::calculateAverage, DEFAULT_HISTORY_INTERVAL, DEFAULT_HISTORY_INTERVAL, TimeUnit.MILLISECONDS);
     }

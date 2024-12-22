@@ -1,6 +1,8 @@
 package it.unibo.backend.states;
 
-import it.unibo.backend.Settings;
+import it.unibo.backend.Settings.FreqMultiplier;
+import it.unibo.backend.Settings.Temperature;
+import it.unibo.backend.Settings.WindowLevel;
 import it.unibo.backend.controlunit.ControlUnit;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
@@ -16,8 +18,8 @@ public class NormalState implements State {
     @Override
     public void handle() {
         if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
-            controlUnit.setFreqMultiplier(Settings.FreqMultiplier.NORMAL);
-            controlUnit.setWindowLevel(Settings.WindowLevel.FULLY_CLOSED);
+            controlUnit.setFreqMultiplier(FreqMultiplier.NORMAL);
+            controlUnit.setWindowLevel(WindowLevel.FULLY_CLOSED);
         }
     }
 
@@ -25,12 +27,12 @@ public class NormalState implements State {
     public State next() {
         final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
-            if (sample.getValue() < Settings.Temperature.NORMAL) {
+            if (sample.getTemperature() < Temperature.NORMAL) {
                 return this;
-            } else if (sample.getValue() < Settings.Temperature.HOT) {
-                return new HotState(this.controlUnit);
+            } else if (sample.getTemperature() < Temperature.HOT) {
+                return new HotState(controlUnit);
             } else {
-                return new TooHotState(this.controlUnit);
+                return new TooHotState(controlUnit);
             }
         } else {
             return this;

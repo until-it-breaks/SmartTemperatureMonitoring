@@ -1,6 +1,8 @@
 package it.unibo.backend.states;
 
-import it.unibo.backend.Settings;
+import it.unibo.backend.Settings.FreqMultiplier;
+import it.unibo.backend.Settings.Temperature;
+import it.unibo.backend.Settings.WindowLevel;
 import it.unibo.backend.controlunit.ControlUnit;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
@@ -18,8 +20,8 @@ public class TooHotState implements State {
     @Override
     public void handle() {
         if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
-            controlUnit.setFreqMultiplier(Settings.FreqMultiplier.INCREASED);
-            controlUnit.setWindowLevel(Settings.WindowLevel.FULLY_OPEN);
+            controlUnit.setFreqMultiplier(FreqMultiplier.INCREASED);
+            controlUnit.setWindowLevel(WindowLevel.FULLY_OPEN);
         }
     }
 
@@ -27,12 +29,12 @@ public class TooHotState implements State {
     public State next() {
         final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
-            if (sample.getValue() < Settings.Temperature.NORMAL) {
-                return new NormalState(this.controlUnit);
-            } else if (sample.getValue() < Settings.Temperature.HOT) {
-                return new HotState(this.controlUnit);
+            if (sample.getTemperature() < Temperature.NORMAL) {
+                return new NormalState(controlUnit);
+            } else if (sample.getTemperature() < Temperature.HOT) {
+                return new HotState(controlUnit);
             } else {
-                if (System.currentTimeMillis() - timeSinceCreation > Settings.Temperature.TOO_HOT_WINDOW) {
+                if (System.currentTimeMillis() - timeSinceCreation > Temperature.TOO_HOT_WINDOW) {
                     return new AlarmState(controlUnit);
                 } else {
                     return this;

@@ -5,6 +5,9 @@ import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.temperature.TemperatureReport;
 import it.unibo.backend.temperature.TemperatureSample;
 
+/**
+ * Contains data sampled from the control unit.
+ */
 public class ControlUnitData {
     private final double freqMultiplier;
     private final OperatingMode mode;
