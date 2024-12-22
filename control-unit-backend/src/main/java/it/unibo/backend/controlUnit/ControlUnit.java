@@ -128,14 +128,17 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     }
 
     @Override
-    public synchronized void onHTTPMessageReceived(final JsonObject data) {
-        System.err.println("about to send");
-        this.interventionRequired = data.getBoolean(JsonUtility.INTERVENTION_NEED);
-        final String mode = data.getString(JsonUtility.OPERATING_MODE);
-        if (mode.equals(OperationMode.AUTO.getName())) {
-            this.operatingMode = OperationMode.AUTO;
-        } else if (mode.equals(OperationMode.MANUAL.getName())) {
-            this.operatingMode = OperationMode.MANUAL;
+    public void onHTTPMessageReceived(final JsonObject data) {
+        if (data.containsKey(JsonUtility.INTERVENTION_NEED)) {
+            this.interventionRequired = data.getBoolean(JsonUtility.INTERVENTION_NEED);
+        }
+        if (data.containsKey(JsonUtility.OPERATING_MODE)) {
+            final String mode = data.getString(JsonUtility.OPERATING_MODE);
+            if (mode.equals(OperationMode.AUTO.getName())) {
+                this.operatingMode = OperationMode.AUTO;
+            } else if (mode.equals(OperationMode.MANUAL.getName())) {
+                this.operatingMode = OperationMode.MANUAL;
+            }
         }
     }
 
