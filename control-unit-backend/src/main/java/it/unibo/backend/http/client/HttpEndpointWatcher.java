@@ -20,7 +20,6 @@ public class HttpEndpointWatcher {
     private final String host;
     private final int port;
     private final String path;
-    private JsonObject lastData;
     private final Vertx vertx;
     private final WebClient client;
 
@@ -28,7 +27,6 @@ public class HttpEndpointWatcher {
         this.host = host;
         this.port = port;
         this.path = uri;
-        this.lastData = null;
         this.vertx = Vertx.vertx();
         this.client = WebClient.create(vertx);
     }
@@ -40,16 +38,12 @@ public class HttpEndpointWatcher {
         vertx.setPeriodic(interval, handler -> {
             client.get(port, host, path).send(ar -> {
                 if (ar.succeeded()) {
-                    final JsonObject currentData = ar.result().bodyAsJsonObject();
-                    if (!currentData.equals(lastData)) {
-                        lastData = currentData;
-                        notifyObservers(lastData);
-                    }
+                    final JsonObject data = ar.result().bodyAsJsonObject();
+                    notifyObservers(data);
                 } else {
-                    logger.error("[Failed to fetch data]: {}", ar.cause().getMessage());
+                    logger.error("Failed to fetch data: {}", ar.cause().getMessage());
                 }
             });
-
         });
     }
 
