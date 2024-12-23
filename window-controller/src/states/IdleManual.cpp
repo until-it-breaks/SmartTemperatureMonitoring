@@ -10,7 +10,7 @@ IdleManual::IdleManual(Context* context): State(context) {
 }
 
 void IdleManual::handle() {
-    context->getLcdController()->printInfo(context->getLevel(), "MANUAL");
+    context->getLcdController()->printInfo(context->getLevel(), "MANUAL", context->getTemperature());
 }
 
 State* IdleManual::next() {
