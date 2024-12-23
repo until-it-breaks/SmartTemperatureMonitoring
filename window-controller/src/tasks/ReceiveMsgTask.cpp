@@ -12,8 +12,8 @@ void ReceiveMsgTask::tick() {
         String content = msg->getContent();
         
         if (content.startsWith("Level:")) {
-            // Parse the content based on the expected format (AUTO is 0, MANUAL is 1)
-            // Example: "Level:23.45|Mode:0|Temp:21.5|Alarm:1"
+            // Parse the content based on the expected format (AUTO is 1, MANUAL is 2)
+            // Example: "Level:23.45|Mode:1|Temp:21.5|Alarm:1"
             int levelStart = content.indexOf("Level:") + 6;
             int levelEnd = content.indexOf("|", levelStart);
             String levelStr = content.substring(levelStart, levelEnd);
@@ -23,10 +23,10 @@ void ReceiveMsgTask::tick() {
             int modeEnd = content.indexOf("|", modeStart);
             String mode = content.substring(modeStart, modeEnd);
             int modeInt = mode.toInt();
-            
-            if (modeInt == AUTO && context->getOperatingMode() == MANUAL) {
+
+            if (modeInt == AUTO) {
                 context->setOperatingMode(AUTO);
-            } else if (modeInt == MANUAL && context->getOperatingMode() == MANUAL) {
+            } else if (modeInt == MANUAL) {
                 context->setOperatingMode(MANUAL);
             }
 

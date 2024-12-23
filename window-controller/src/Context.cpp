@@ -2,10 +2,11 @@
 #include "Config.h"
 
 Context::Context() {
-    this->temperature = 0;
-    this->level = 0;
+    this->temperature = 0.0f;
+    this->level = 0.0f;
     this->mode = AUTO;
-    this->alarm = false;
+    this->needIntervention = false;
+    this->modeToSwitchTo = NONE,
     this->lcdController = new LcdController(new LiquidCrystal_I2C(0x27, 16, 2));
     this->windowController = new WindowController(SERVO_PIN);
 }
@@ -28,11 +29,11 @@ void Context::setOperatingMode(int mode) {
 }
 
 void Context::turnOnAlarmMode() {
-    this->alarm = true;
+    this->needIntervention = true;
 }
 
 void Context::turnOffAlarmMode() {
-    this->alarm = false;
+    this->needIntervention = false;
 }
 
 float Context::getTemperature() {
@@ -44,7 +45,15 @@ float Context::getLevel() {
 }
 
 bool Context::requiresIntervention() {
-    return this->alarm;
+    return this->needIntervention;
+}
+
+void Context::setModeToSwitchTo(int newMode) {
+    this->modeToSwitchTo = newMode;
+}
+
+int Context::getModeToSwitchTo() {
+    return this->modeToSwitchTo;
 }
 
 int Context::getOperatingMode() {

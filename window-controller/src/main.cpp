@@ -21,16 +21,16 @@ void setup() {
     readPotentiometerTask->init(POTENTIOMETER_PERIOD);
     Task* readButtonTask = new ReadButtonTask(context);
     readButtonTask->init(BUTTON_PERIOD);
-    Task* receiveMsgTask= new ReceiveMsgTask(context);
-    receiveMsgTask->init(RECEIVE_MSG_PERIOD);
     Task* sendMsgTask = new SendMsgTask(context);
     sendMsgTask->init(SEND_MSG_PERIOD);
+    Task* receiveMsgTask= new ReceiveMsgTask(context);
+    receiveMsgTask->init(RECEIVE_MSG_PERIOD);
     Task* windowControlTask = new WindowControlTask(context);
     windowControlTask->init(WINDOW_PERIOD);
-    scheduler.addTask(readButtonTask);
     scheduler.addTask(readPotentiometerTask);
-    scheduler.addTask(receiveMsgTask);
+    scheduler.addTask(readButtonTask);
     scheduler.addTask(sendMsgTask);
+    scheduler.addTask(receiveMsgTask);
     scheduler.addTask(windowControlTask);
     delay(1000);
 }

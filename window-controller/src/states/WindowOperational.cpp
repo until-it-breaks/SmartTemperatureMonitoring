@@ -1,5 +1,4 @@
 #include "IdleAuto.h"
-#include "ActiveManual.h"
 #include "WindowOperational.h"
 #include "WindowAlarm.h"
 #include "Context.h"
@@ -15,7 +14,7 @@ void WindowOperational::handle() {
 State* WindowOperational::next() {
     if (!context->requiresIntervention()) {
         State* next = currentState->next();
-        if (next != currentState) {
+        if (next != currentState && next != nullptr) {
             delete currentState;
             this->currentState = next;
         }

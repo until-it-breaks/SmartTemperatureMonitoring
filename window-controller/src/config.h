@@ -17,7 +17,7 @@ const int WINDOW_OPEN_WIDTH = 2250;
 const int SCHEDULER_PERIOD = 100;
 const int POTENTIOMETER_PERIOD = 1000;
 const int BUTTON_PERIOD = 100;
-const int RECEIVE_MSG_PERIOD = 500;
+const int RECEIVE_MSG_PERIOD = 1000;
 const int SEND_MSG_PERIOD = 1000;
 const int WINDOW_PERIOD = 500;
 
@@ -27,8 +27,9 @@ const unsigned long IDLE_TIME = 1000;
 // The button has to be held for at least 50ms in order to register a press
 const unsigned long DEBOUNCE_DELAY = 50;
 
-// Operating modes
-const int AUTO = 0;
-const int MANUAL = 1;
+// Operating modes / switch request modes
+const int NONE = 0;
+const int AUTO = 1;
+const int MANUAL = 2;
 
 #endif

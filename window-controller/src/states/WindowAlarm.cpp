@@ -1,5 +1,4 @@
 #include "IdleAuto.h"
-#include "ActiveManual.h"
 #include "WindowAlarm.h"
 #include "WindowOperational.h"
 #include "Context.h"
