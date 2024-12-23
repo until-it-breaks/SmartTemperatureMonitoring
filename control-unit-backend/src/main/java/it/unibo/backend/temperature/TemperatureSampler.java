@@ -27,6 +27,7 @@ public class TemperatureSampler {
 
     private final ScheduledExecutorService scheduler;
 
+    // Atomic classes are used here since they are both the main thread and the worker dedicated to calculating the aggregate data for the reports.
     private final DoubleAdder tempSum;
     private final AtomicInteger tempSampleCount;
     private final AtomicReference<Double> maxTempRead;

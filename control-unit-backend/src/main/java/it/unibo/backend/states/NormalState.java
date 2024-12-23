@@ -17,8 +17,8 @@ public class NormalState implements State {
 
     @Override
     public void handle() {
+        controlUnit.setFreqMultiplier(FreqMultiplier.NORMAL);
         if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
-            controlUnit.setFreqMultiplier(FreqMultiplier.NORMAL);
             controlUnit.setWindowLevel(WindowLevel.FULLY_CLOSED);
         }
     }
@@ -28,14 +28,14 @@ public class NormalState implements State {
         final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
             if (sample.getTemperature() < Temperature.NORMAL) {
-                return this;
+                return new NormalState(controlUnit);
             } else if (sample.getTemperature() < Temperature.HOT) {
                 return new HotState(controlUnit);
             } else {
                 return new TooHotState(controlUnit);
             }
         } else {
-            return this;
+            return new NormalState(controlUnit);
         }
     }
 

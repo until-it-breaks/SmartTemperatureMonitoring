@@ -2,6 +2,7 @@ package it.unibo.backend.states;
 
 import it.unibo.backend.Settings.Temperature;
 import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.temperature.TemperatureSample;
 
@@ -14,7 +15,10 @@ public class AlarmState implements State {
 
     @Override
     public void handle() {
-        this.controlUnit.setNeedForIntervention(true);
+        // The system is blocked only when operating in AUTO mode.
+        if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
+            this.controlUnit.setNeedForIntervention(true);
+        }
     }
 
     @Override

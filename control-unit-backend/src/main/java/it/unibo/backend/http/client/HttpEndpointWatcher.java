@@ -24,17 +24,17 @@ public class HttpEndpointWatcher {
     private final Vertx vertx;
     private final WebClient client;
 
-    public HttpEndpointWatcher(final String host, final int port, final String path) {
+    public HttpEndpointWatcher(final String host, final int port, final String uri) {
         this.host = host;
         this.port = port;
-        this.path = path;
+        this.path = uri;
         this.lastData = null;
         this.vertx = Vertx.vertx();
         this.client = WebClient.create(vertx);
     }
 
     /*
-     * Performs GET requests periodically at the specified interval and notifies its subscribers the data if new.
+     * Performs GET requests periodically at the specified interval and notifies its subscribers with data if new.
      */
     public void start(final long interval) {
         vertx.setPeriodic(interval, handler -> {
@@ -43,7 +43,7 @@ public class HttpEndpointWatcher {
                     final JsonObject currentData = ar.result().bodyAsJsonObject();
                     if (!currentData.equals(lastData)) {
                         lastData = currentData;
-                        notifyObservers(currentData);
+                        notifyObservers(lastData);
                     }
                 } else {
                     logger.error("[Failed to fetch data]: {}", ar.cause().getMessage());
@@ -54,11 +54,9 @@ public class HttpEndpointWatcher {
     }
 
     public void stop() {
-        logger.info("Stopping watcher assigned to {}:{}{}", host, port, path);
         this.client.close();
         this.vertx.close();
     }
-
 
     public void registerObserver(final HttpEndpointObserver observer) {
         observers.add(observer);

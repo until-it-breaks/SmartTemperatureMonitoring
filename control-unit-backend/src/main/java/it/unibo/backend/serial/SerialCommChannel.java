@@ -17,10 +17,12 @@ import jssc.SerialPortException;
 
 public class SerialCommChannel implements SerialPortEventListener {
     private static final Logger logger = LoggerFactory.getLogger(SerialCommChannel.class);
-    private static final Pattern MESSAGE_PATTERN = Pattern.compile("Level:(\\d+\\.\\d+)|Mode:(\\d+)"); // The agreed message pattern for serial comms
+    // Pattern that matches a message like: Level:0.9|Mode:1
+    private static final Pattern MESSAGE_PATTERN = Pattern.compile("Level:(\\d+\\.\\d+)|Mode:(\\d+)");
 
     private final SerialPort serialPort;
     private final StringBuffer currentMsg = new StringBuffer("");
+    private String lastMessage;
 
     private final List<SerialMessageObserver> observers = new ArrayList<>();
 
@@ -77,29 +79,31 @@ public class SerialCommChannel implements SerialPortEventListener {
     }
 
     private void processMessage(final String message) {
-        final Matcher matcher = MESSAGE_PATTERN.matcher(message);
-        boolean containsWindowLevel = false;
-        boolean containsOperationMode = false;
-        String windowLevel = null;
-        String operationMode = null;
-
-        while (matcher.find()) {
-            if (matcher.group(1) != null) {
-                containsWindowLevel = true;
-                windowLevel = matcher.group(1);
+        if (!message.equals(lastMessage)) {
+            final Matcher matcher = MESSAGE_PATTERN.matcher(message);
+            boolean containsWindowLevel = false;
+            boolean containsOperationMode = false;
+            String windowLevel = null;
+            String operationMode = null;
+    
+            while (matcher.find()) {
+                if (matcher.group(1) != null) {
+                    containsWindowLevel = true;
+                    windowLevel = matcher.group(1);
+                }
+                if (matcher.group(2) != null) {
+                    containsOperationMode = true;
+                    operationMode = matcher.group(2);
+                }
             }
-            if (matcher.group(2) != null) {
-                containsOperationMode = true;
-                operationMode = matcher.group(2);
+    
+            if (containsWindowLevel && containsOperationMode) {
+                final JsonObject jsonMessage = new JsonObject()
+                    .put(JsonUtility.WINDOW_LEVEL, Double.parseDouble(windowLevel))
+                    .put(JsonUtility.OPERATING_MODE, Integer.parseInt(operationMode));
+                notifyObservers(jsonMessage);
             }
-        }
-
-        if (containsWindowLevel && containsOperationMode) {
-            final JsonObject jsonMessage = new JsonObject()
-                .put(JsonUtility.WINDOW_LEVEL, windowLevel)
-                .put(JsonUtility.OPERATING_MODE, operationMode);
-
-            notifyObservers(jsonMessage);
+            lastMessage = message;
         }
     }
 

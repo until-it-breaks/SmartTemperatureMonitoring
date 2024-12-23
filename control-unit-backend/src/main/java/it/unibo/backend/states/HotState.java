@@ -17,10 +17,10 @@ public class HotState implements State {
 
     @Override
     public void handle() {
+        controlUnit.setFreqMultiplier(FreqMultiplier.INCREASED); // The multiplier is calculated regardless of the operating mode.
         if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
             final TemperatureSample sample = controlUnit.getSampler().getLastSample();
             if (sample != null) {
-                controlUnit.setFreqMultiplier(FreqMultiplier.INCREASED);
                 final double temperature = sample.getTemperature();
                 final double mappedValue = ((temperature - Temperature.NORMAL)
                     / (Temperature.HOT - Temperature.NORMAL))
@@ -38,12 +38,12 @@ public class HotState implements State {
             if (sample.getTemperature() < Temperature.NORMAL) {
                 return new NormalState(controlUnit);
             } else if (sample.getTemperature() < Temperature.HOT) {
-                return new HotState(controlUnit); // We do not return "this" because the mapped value could vary at each handle.
+                return new HotState(controlUnit);
             } else {
                 return new TooHotState(controlUnit);
             }
         } else {
-            return new HotState(controlUnit); // Same here.
+            return new HotState(controlUnit);
         }
     }
 

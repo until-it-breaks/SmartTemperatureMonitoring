@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import it.unibo.backend.Settings.Connectivity;
 import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.enums.Topic;
 import it.unibo.backend.http.client.HttpClient;
 import it.unibo.backend.http.client.HttpClientImpl;
 import it.unibo.backend.http.client.HttpEndpointWatcher;
@@ -26,20 +27,27 @@ public class RunControlUnit {
             final HttpClient httpClient = new HttpClientImpl(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT);
             final ControlUnit controlUnit = new ControlUnit(serialCommChannel, mqttClient, httpClient);
             final HttpEndpointWatcher opWatcher = new HttpEndpointWatcher(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT, Connectivity.OPERATING_MODE_PATH);
-            final HttpEndpointWatcher intWatcher = new HttpEndpointWatcher(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT, Connectivity.OPERATING_MODE_PATH);
+            final HttpEndpointWatcher intWatcher = new HttpEndpointWatcher(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT, Connectivity.INTERVENTION_PATH);
             opWatcher.registerObserver(controlUnit);
             intWatcher.registerObserver(controlUnit);
             opWatcher.start(1000);
             intWatcher.start(1000);
+            serialCommChannel.registerObserver(controlUnit);
+            mqttClient.registerObserver(controlUnit);
             mqttClient.start();
-            logger.info("Starting Control Unit in 5 seconds");
+
+            logger.info("Starting Control Unit in 5 seconds"); // Wait for the mqtt client to fully estabilish a connection.
             Thread.sleep(5000);
+            mqttClient.subscribe(Topic.TEMPERATURE.getName());
 
             Thread controlUnitThread = new Thread(controlUnit, "ControlUnit");
             controlUnitThread.start();
-            // For testing purposes, disable when an actual temperature sensor is providing data via MQTT
+
+            // #########################################################################################
+            // For testing purposes, comment when an actual temperature sensor is providing data via MQTT
             Thread testThread = new Thread(new TemperatureTest(controlUnit, 2000), "TemperatureTest");
             testThread.start();
+            // #########################################################################################
         } catch (final Exception e) {
             logger.error("Unexpected error: {}", e.getMessage(), e);
         }

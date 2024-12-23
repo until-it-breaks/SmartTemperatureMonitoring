@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.vertx.core.json.JsonObject;
 import it.unibo.backend.enums.Topic;
 import it.unibo.backend.http.client.HttpClient;
@@ -26,14 +29,17 @@ import it.unibo.backend.controlunit.managers.SerialUpdateManager;
 import it.unibo.backend.controlunit.managers.UpdateManager;
 
 public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, HttpEndpointObserver, Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(ControlUnit.class);
 
     private final TemperatureSampler sampler;
     private final List<UpdateManager> updateManagers;
 
-    private double freqMultiplier;
+    // Since those are modified by the vertx threads atomic was the easiest way to handle shared variables.
     private AtomicReference<Double> windowLevel;
     private AtomicBoolean needsIntervention;
     private AtomicReference<OperatingMode> mode;
+
+    private double freqMultiplier;
     private State currentState;
 
     public ControlUnit(final SerialCommChannel commChannel,
@@ -87,6 +93,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     @Override
     public void onMQTTMessageReceived(final String topic, final JsonObject data) {
+        logger.info("Received MQTT message of topic [{}]: {}", topic, data);
         if (topic.equals(Topic.TEMPERATURE.getName())) {
             final double temperature = data.getDouble(JsonUtility.TEMPERATURE);
             this.sampler.addSample(System.currentTimeMillis(), temperature);
@@ -95,6 +102,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     @Override
     public void onSerialMessageReceived(final JsonObject data) {
+        logger.info("Received serial message: {}", data);
         final int mode = data.getInteger(JsonUtility.OPERATING_MODE);
         if (mode == 0) {
             this.mode.set(OperatingMode.AUTO);
@@ -108,6 +116,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     @Override
     public void onHTTPMessageReceived(final JsonObject data) {
+        logger.info("Received HTTP message: {}", data);
         if (data.containsKey(JsonUtility.INTERVENTION_NEED)) {
             this.needsIntervention.set(data.getBoolean(JsonUtility.INTERVENTION_NEED));
         }
@@ -122,6 +131,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     }
 
     private void processState() {
+        logger.info("Current state: {}", currentState.getStateAlias());
         final State nextState = currentState.next();
         if (nextState != currentState || nextState != null) {
             currentState = nextState;
@@ -146,7 +156,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
         try {
             this.start();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Thread interrupted: {}", e.getMessage());
         }
     }
 }

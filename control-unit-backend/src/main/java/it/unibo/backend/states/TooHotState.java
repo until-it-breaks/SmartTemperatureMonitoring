@@ -10,11 +10,11 @@ import it.unibo.backend.temperature.TemperatureSample;
 
 public class TooHotState implements State {
     private final ControlUnit controlUnit;
-    private final long timeSinceCreation;
+    private final long lastTime;
 
     public TooHotState(final ControlUnit controlUnit) {
         this.controlUnit = controlUnit;
-        this.timeSinceCreation = System.currentTimeMillis();
+        this.lastTime = System.currentTimeMillis();
     }
 
     @Override
@@ -27,22 +27,19 @@ public class TooHotState implements State {
 
     @Override
     public State next() {
+        if (System.currentTimeMillis() - lastTime > Temperature.TOO_HOT_WINDOW) {
+            return new AlarmState(controlUnit);
+        }
         final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
             if (sample.getTemperature() < Temperature.NORMAL) {
                 return new NormalState(controlUnit);
-            } else if (sample.getTemperature() < Temperature.HOT) {
-                return new HotState(controlUnit);
-            } else {
-                if (System.currentTimeMillis() - timeSinceCreation > Temperature.TOO_HOT_WINDOW) {
-                    return new AlarmState(controlUnit);
-                } else {
-                    return this;
-                }
             }
-        } else {
-            return this;
+            if (sample.getTemperature() < Temperature.HOT) {
+                return new HotState(controlUnit);
+            }
         }
+        return this; // Only case "this" is used since knowing when this state was created is needed.
     }
 
     @Override

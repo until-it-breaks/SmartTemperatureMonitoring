@@ -18,7 +18,7 @@ public class Settings {
         public static final double NORMAL = 20;
         public static final double HOT = 25;
         public static final double TOO_HOT = 30;
-        public static final long TOO_HOT_WINDOW = 10000; // Being in the too hot for 10 seconds will transition to the ALARM state
+        public static final long TOO_HOT_WINDOW = 5000; // Being in the too hot for 5 seconds will transition to the ALARM state
     }
 
     public static class WindowLevel {

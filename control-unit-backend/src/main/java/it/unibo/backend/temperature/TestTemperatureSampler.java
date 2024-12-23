@@ -6,6 +6,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A test class for the TemperatureSampler.
+ */
 public class TestTemperatureSampler {
 
     private static final Logger logger = LoggerFactory.getLogger(TestTemperatureSampler.class);

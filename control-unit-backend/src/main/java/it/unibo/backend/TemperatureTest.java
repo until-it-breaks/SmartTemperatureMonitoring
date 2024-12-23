@@ -8,10 +8,13 @@ import org.slf4j.LoggerFactory;
 import it.unibo.backend.controlunit.ControlUnit;
 import it.unibo.backend.Settings.Temperature;
 
+/**
+ * Simulates a stream of incoming temperature samples. Just a test case.
+ */
 public class TemperatureTest implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(TemperatureTest.class);
     private static final List<Double> temperatureList = List.of(Temperature.NORMAL - 2, Temperature.NORMAL - 3, Temperature.NORMAL - 4, Temperature.NORMAL -5,
-        Temperature.HOT + 1, Temperature.HOT + 3, Temperature.HOT + 4, Temperature.HOT + 4,
+        Temperature.HOT -1, Temperature.HOT -2, Temperature.HOT + 4, Temperature.HOT + 4,
         Temperature.NORMAL + 1, Temperature.NORMAL + 2, Temperature.NORMAL + 3, Temperature.NORMAL + 4,
         Temperature.TOO_HOT + 2, Temperature.TOO_HOT + 1, Temperature.TOO_HOT + 4, Temperature.TOO_HOT - 10);
 

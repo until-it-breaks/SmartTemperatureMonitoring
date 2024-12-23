@@ -14,6 +14,9 @@ import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mqtt.MqttClient;
 
+/**
+ * A client that allows both subscription and publishing when connected to a MQTT broker.
+ */
 public class MQTTClient extends AbstractVerticle {
     private static final Logger logger = LoggerFactory.getLogger(MQTTClient.class);
 
@@ -43,9 +46,9 @@ public class MQTTClient extends AbstractVerticle {
         client.publishHandler(message -> {
             final String topic = message.topicName();
             final String payload = message.payload().toString();
-            logger.info("Received message of topic [{}]", topic);
             try {
-                notifyObservers(topic, new JsonObject(payload));
+                JsonObject data = new JsonObject(payload);
+                notifyObservers(topic, data);
             } catch (final NullPointerException | DecodeException e) {
                 logger.error("Failed to parse payload as JSON: {}", e.getMessage());
             }
@@ -53,7 +56,6 @@ public class MQTTClient extends AbstractVerticle {
     }
 
     public void stop() {
-        logger.info("Stopping MQTT client assigned to {}:{}", brokerHost, brokerPort);
         client.disconnect();
         vertx.close();
     }
