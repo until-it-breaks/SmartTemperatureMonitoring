@@ -34,7 +34,6 @@ public class RunControlUnit {
             logger.info("Starting Control Unit in 5 seconds");
             Thread.sleep(5000);
             controlUnit.start();
-
         } catch (final Exception e) {
             logger.error("Unexpected error: {}", e.getMessage(), e);
         }

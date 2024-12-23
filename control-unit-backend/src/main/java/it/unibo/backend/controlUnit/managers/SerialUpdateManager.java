@@ -27,7 +27,7 @@ public class SerialUpdateManager implements UpdateManager {
         */
 
         if (data.getSample() != null) {
-            final String message = String.format("Level:%.2f|Mode:%d|Temp:$.2f|Alarm:%d",
+            final String message = String.format("Level:%.2f|Mode:%d|Temp:%.2f|Alarm:%d",
             data.getWindowLevel(),
             data.getMode().getValue(),
             data.getSample().getTemperature(),
