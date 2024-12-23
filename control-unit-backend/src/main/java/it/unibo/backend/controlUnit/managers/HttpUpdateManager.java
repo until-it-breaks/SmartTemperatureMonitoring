@@ -1,8 +1,8 @@
 package it.unibo.backend.controlunit.managers;
 
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.ConnectivityConfig;
-import it.unibo.backend.JsonUtility;
+import it.unibo.backend.Settings.Connectivity;
+import it.unibo.backend.Settings.JsonUtility;
 import it.unibo.backend.controlunit.ControlUnitData;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
@@ -37,7 +37,7 @@ public class HttpUpdateManager implements UpdateManager {
     private void sendSample(final ControlUnitData data) {
         final TemperatureSample sample = data.getSample();
         if (sample != null && !sample.equals(lastSample)) {
-            httpClient.sendHttpData(ConnectivityConfig.TEMPERATURE_PATH, sample.asJson());
+            httpClient.sendHttpData(Connectivity.TEMPERATURE_PATH, sample.asJson());
             lastSample = sample;
         }
     }
@@ -45,7 +45,7 @@ public class HttpUpdateManager implements UpdateManager {
     private void sendReport(final ControlUnitData data) {
         final TemperatureReport report = data.getReport();
         if (report != null && !report.equals(lastReport)) {
-            httpClient.sendHttpData(ConnectivityConfig.REPORTS_PATH, report.asJson());
+            httpClient.sendHttpData(Connectivity.REPORTS_PATH, report.asJson());
             lastReport = report;
         }
     }
@@ -54,7 +54,7 @@ public class HttpUpdateManager implements UpdateManager {
         if (!data.getMode().equals(lastMode)) {
             final JsonObject updateData = new JsonObject();
             updateData.put(JsonUtility.OPERATING_MODE, data.getMode().getName());
-            httpClient.sendHttpData(ConnectivityConfig.OPERATING_MODE_PATH, updateData);
+            httpClient.sendHttpData(Connectivity.OPERATING_MODE_PATH, updateData);
             lastMode = data.getMode();
         }
     }
@@ -63,7 +63,7 @@ public class HttpUpdateManager implements UpdateManager {
         if (data.isInterventionRequired() != lastInterventionNeed) {
             final JsonObject updateData = new JsonObject();
             updateData.put(JsonUtility.INTERVENTION_NEED, data.isInterventionRequired());
-            httpClient.sendHttpData(ConnectivityConfig.INTERVENTION_PATH, updateData);
+            httpClient.sendHttpData(Connectivity.INTERVENTION_PATH, updateData);
             lastInterventionNeed = data.isInterventionRequired();
         }
     }
@@ -78,7 +78,7 @@ public class HttpUpdateManager implements UpdateManager {
             updateData.put(JsonUtility.SYSTEM_STATE, data.getState().getName());
             updateData.put(JsonUtility.FREQ_MULTIPLIER, data.getFreqMultiplier());
 
-            httpClient.sendHttpData(ConnectivityConfig.CONFIG_PATH, updateData);
+            httpClient.sendHttpData(Connectivity.CONFIG_PATH, updateData);
             lastWindowLevel = data.getWindowLevel();
             lastStateAlias = data.getState();
             lastFrequencyMultiplier = data.getFreqMultiplier();

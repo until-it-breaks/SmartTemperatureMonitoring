@@ -1,7 +1,7 @@
 package it.unibo.backend.temperature;
 
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.JsonUtility;
+import it.unibo.backend.Settings.JsonUtility;
 
 /**
  * A container that holds a temperature reading and its timestamp.

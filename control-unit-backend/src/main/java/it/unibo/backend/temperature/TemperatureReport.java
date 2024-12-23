@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.JsonUtility;
+import it.unibo.backend.Settings.JsonUtility;
 
 /**
  * A container for aggregate temperature information between two timestamps.

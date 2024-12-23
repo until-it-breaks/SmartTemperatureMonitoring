@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.JsonUtility;
+import it.unibo.backend.Settings.JsonUtility;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;

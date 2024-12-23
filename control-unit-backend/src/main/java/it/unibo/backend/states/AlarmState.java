@@ -20,7 +20,7 @@ public class AlarmState implements State {
     @Override
     public State next() {
         if (controlUnit.needsIntervention()) {
-            return this;
+            return new AlarmState(controlUnit);
         } else {
             final TemperatureSample sample = controlUnit.getSampler().getLastSample();
             if (sample != null) {
@@ -32,7 +32,7 @@ public class AlarmState implements State {
                     return new TooHotState(controlUnit);
                 }
             } else {
-                return this;
+                return new AlarmState(controlUnit);
             }
         }
     }

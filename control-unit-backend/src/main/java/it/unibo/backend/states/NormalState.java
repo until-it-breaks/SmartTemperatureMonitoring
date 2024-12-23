@@ -28,14 +28,14 @@ public class NormalState implements State {
         final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
             if (sample.getTemperature() < Temperature.NORMAL) {
-                return new NormalState(controlUnit);
+                return this;
             } else if (sample.getTemperature() < Temperature.HOT) {
                 return new HotState(controlUnit);
             } else {
                 return new TooHotState(controlUnit);
             }
         } else {
-            return new NormalState(controlUnit);
+            return this;
         }
     }
 

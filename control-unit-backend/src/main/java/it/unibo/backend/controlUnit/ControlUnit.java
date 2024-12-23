@@ -17,15 +17,15 @@ import it.unibo.backend.serial.SerialMessageObserver;
 import it.unibo.backend.states.NormalState;
 import it.unibo.backend.states.State;
 import it.unibo.backend.temperature.TemperatureSampler;
-import it.unibo.backend.JsonUtility;
 import it.unibo.backend.Settings.FreqMultiplier;
+import it.unibo.backend.Settings.JsonUtility;
 import it.unibo.backend.Settings.WindowLevel;
 import it.unibo.backend.controlunit.managers.HttpUpdateManager;
 import it.unibo.backend.controlunit.managers.MqttUpdateManager;
 import it.unibo.backend.controlunit.managers.SerialUpdateManager;
 import it.unibo.backend.controlunit.managers.UpdateManager;
 
-public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, HttpEndpointObserver {
+public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, HttpEndpointObserver, Runnable {
 
     private final TemperatureSampler sampler;
     private final List<UpdateManager> updateManagers;
@@ -123,7 +123,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
 
     private void processState() {
         final State nextState = currentState.next();
-        if (nextState != currentState) {
+        if (nextState != currentState || nextState != null) {
             currentState = nextState;
             currentState.handle();
         }
@@ -138,6 +138,15 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
                 this.currentState.getStateAlias(), 
                 this.sampler.getLastSample(), 
                 this.sampler.getLastReport()));
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            this.start();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
