@@ -28,13 +28,7 @@ public class AlarmState implements State {
         } else {
             final TemperatureSample sample = controlUnit.getSampler().getLastSample();
             if (sample != null) {
-                if (sample.getTemperature() < Temperature.NORMAL) {
-                    return new NormalState(controlUnit);
-                } else if (sample.getTemperature() < Temperature.HOT) {
-                    return new HotState(controlUnit);
-                } else {
-                    return new TooHotState(controlUnit);
-                }
+                return new NormalState(controlUnit);
             } else {
                 return new AlarmState(controlUnit);
             }
