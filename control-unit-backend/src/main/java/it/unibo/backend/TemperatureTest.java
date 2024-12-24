@@ -5,8 +5,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import it.unibo.backend.controlunit.ControlUnit;
 import it.unibo.backend.Settings.Temperature;
+import it.unibo.backend.controller.ControlUnit;
 
 /**
  * Simulates a stream of incoming temperature samples. Just a test case.

@@ -1,4 +1,4 @@
-package it.unibo.backend.controlunit;
+package it.unibo.backend.controller;
 
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;

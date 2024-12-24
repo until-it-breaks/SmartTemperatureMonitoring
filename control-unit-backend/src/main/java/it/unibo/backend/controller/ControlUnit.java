@@ -1,4 +1,4 @@
-package it.unibo.backend.controlunit;
+package it.unibo.backend.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,14 +22,14 @@ import it.unibo.backend.states.State;
 import it.unibo.backend.temperature.TemperatureSampler;
 import it.unibo.backend.Settings.FreqMultiplier;
 import it.unibo.backend.Settings.WindowLevel;
-import it.unibo.backend.controlunit.handlers.HttpMessageHandler;
-import it.unibo.backend.controlunit.handlers.MessageHandler;
-import it.unibo.backend.controlunit.handlers.MqttMessageHandler;
-import it.unibo.backend.controlunit.handlers.SerialMessageHandler;
-import it.unibo.backend.controlunit.managers.HttpUpdateManager;
-import it.unibo.backend.controlunit.managers.MqttUpdateManager;
-import it.unibo.backend.controlunit.managers.SerialUpdateManager;
-import it.unibo.backend.controlunit.managers.UpdateManager;
+import it.unibo.backend.controller.handlers.HttpMessageHandler;
+import it.unibo.backend.controller.handlers.MessageHandler;
+import it.unibo.backend.controller.handlers.MqttMessageHandler;
+import it.unibo.backend.controller.handlers.SerialMessageHandler;
+import it.unibo.backend.controller.managers.HttpUpdateManager;
+import it.unibo.backend.controller.managers.MqttUpdateManager;
+import it.unibo.backend.controller.managers.SerialUpdateManager;
+import it.unibo.backend.controller.managers.UpdateManager;
 
 public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, HttpEndpointObserver, Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ControlUnit.class);
@@ -133,7 +133,7 @@ public class ControlUnit implements MQTTMessageObserver, SerialMessageObserver, 
     private void processState() {
         logger.info("Current state: {}", currentState.getStateAlias());
         final State nextState = currentState.next();
-        if (nextState != currentState || nextState != null) {
+        if (nextState != currentState && nextState != null) {
             currentState = nextState;
             currentState.handle();
         }

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import it.unibo.backend.Settings.Connectivity;
-import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.controller.ControlUnit;
 import it.unibo.backend.enums.Topic;
 import it.unibo.backend.http.client.HttpClient;
 import it.unibo.backend.http.client.HttpClientImpl;

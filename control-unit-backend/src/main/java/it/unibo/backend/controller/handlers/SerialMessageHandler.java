@@ -1,8 +1,8 @@
-package it.unibo.backend.controlunit.handlers;
+package it.unibo.backend.controller.handlers;
 
 import io.vertx.core.json.JsonObject;
 import it.unibo.backend.Settings.JsonUtility;
-import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.controller.ControlUnit;
 import it.unibo.backend.enums.OperatingMode;
 
 public class SerialMessageHandler implements MessageHandler {

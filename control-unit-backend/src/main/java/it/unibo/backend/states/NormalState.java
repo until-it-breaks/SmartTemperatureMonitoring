@@ -3,7 +3,7 @@ package it.unibo.backend.states;
 import it.unibo.backend.Settings.FreqMultiplier;
 import it.unibo.backend.Settings.Temperature;
 import it.unibo.backend.Settings.WindowLevel;
-import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.controller.ControlUnit;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.temperature.TemperatureSample;

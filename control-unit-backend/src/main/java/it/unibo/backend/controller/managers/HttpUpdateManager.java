@@ -1,9 +1,9 @@
-package it.unibo.backend.controlunit.managers;
+package it.unibo.backend.controller.managers;
 
 import io.vertx.core.json.JsonObject;
 import it.unibo.backend.Settings.Connectivity;
 import it.unibo.backend.Settings.JsonUtility;
-import it.unibo.backend.controlunit.ControlUnitData;
+import it.unibo.backend.controller.ControlUnitData;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.http.client.HttpClient;
