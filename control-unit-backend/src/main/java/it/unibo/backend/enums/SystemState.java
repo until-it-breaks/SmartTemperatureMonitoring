@@ -6,7 +6,7 @@ package it.unibo.backend.enums;
 public enum SystemState {
     NORMAL("normal"),
     HOT("hot"),
-    TOO_HOT("too_hot"),
+    TOO_HOT("too hot"),
     ALARM("alarm");
 
     private final String name;

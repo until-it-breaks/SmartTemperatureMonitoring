@@ -18,7 +18,7 @@ import jssc.SerialPortException;
 public class SerialCommChannel implements SerialPortEventListener {
     private static final Logger logger = LoggerFactory.getLogger(SerialCommChannel.class);
     // Pattern that matches a message like: Level:0.9|Mode:1
-    private static final Pattern MESSAGE_PATTERN = Pattern.compile("Level:(\\d+\\.\\d+)|Mode:(\\d+)");
+    private static final Pattern MESSAGE_PATTERN = Pattern.compile("Level:(\\d+\\.\\d+)|Switch:(\\d+)");
 
     private final SerialPort serialPort;
     private final StringBuffer currentMsg = new StringBuffer("");
@@ -84,8 +84,8 @@ public class SerialCommChannel implements SerialPortEventListener {
             boolean containsWindowLevel = false;
             boolean containsOperationMode = false;
             String windowLevel = null;
-            String operationMode = null;
-    
+            String modeToSwitchTo = null;
+
             while (matcher.find()) {
                 if (matcher.group(1) != null) {
                     containsWindowLevel = true;
@@ -93,14 +93,14 @@ public class SerialCommChannel implements SerialPortEventListener {
                 }
                 if (matcher.group(2) != null) {
                     containsOperationMode = true;
-                    operationMode = matcher.group(2);
+                    modeToSwitchTo = matcher.group(2);
                 }
             }
-    
+
             if (containsWindowLevel && containsOperationMode) {
                 final JsonObject jsonMessage = new JsonObject()
                     .put(JsonUtility.WINDOW_LEVEL, Double.parseDouble(windowLevel))
-                    .put(JsonUtility.OPERATING_MODE, Integer.parseInt(operationMode));
+                    .put(JsonUtility.REQUESTED_MODE, Integer.parseInt(modeToSwitchTo));
                 notifyObservers(jsonMessage);
             }
             lastMessage = message;

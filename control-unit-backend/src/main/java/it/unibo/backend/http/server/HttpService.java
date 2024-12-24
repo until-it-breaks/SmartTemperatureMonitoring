@@ -15,7 +15,9 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import it.unibo.backend.Settings.Connectivity;
+import it.unibo.backend.Settings.FreqMultiplier;
 import it.unibo.backend.Settings.JsonUtility;
+import it.unibo.backend.Settings.WindowLevel;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.temperature.TemperatureReport;
@@ -32,7 +34,9 @@ import it.unibo.backend.temperature.TemperatureSample;
  *     <li>Adding and retrieving periodic temperature reports</li>
  *     <li>Updating and retrieving the system's operating mode</li>
  *     <li>Updating and retrieving the need for operator intervention</li>
- *     <li>Updating and retrieving system configuration data (e.g., window level, frequency multiplier)</li>
+ *     <li>Updating and retrieving system configuration data (e.g., window level, frequency multiplier, operating mode and need for intervention)</li>
+ *     <li>Updating and retrieving requests for alarm switch</li>
+ *     <li>Updating and retrieving request for mode switch</li>
  * </ul>
  * 
  * <p>Since Vert.x operates on a single event loop, the handlers for HTTP requests are not thread-safe.
@@ -56,21 +60,25 @@ public class HttpService extends AbstractVerticle {
 
     private Double freqMultiplier;                  // The sampling frequency multiplier
     private Double windowLevel;                     // The window opening leve (percentage). Ideally between 0.0 and 1.0
+    private String operatingMode;                   // The current window operating mode (auto/manual)
+    private String state;                           // The system state (normal, hot, too_hot, alarm)
+    private boolean interventionRequired;           // Indicates whether an operator's intervention is needed.
 
-    private String operatingMode;                   // The window operatin mode (AUTO/MANUAL)
-    private String state;                           // The system state (NORMAL, HOT, TOO_HOT, ALARM)
-    private boolean interventionRequired;           // Flag indicating whether an operator's intervention is needed.
+    private String modeToSwitchTo;                  // Indicates the mode requested to switch to.
+    private boolean switchOffAlarm;                        // Indicates a request to switch the alarm ON/OFF.
 
     public HttpService(final String host, final int port) {
         this.host = host;
         this.port = port;
         this.samples = new ArrayDeque<>();
         this.reports = new ArrayDeque<>();
-        this.freqMultiplier = null;
-        this.windowLevel = null;
+        this.freqMultiplier = FreqMultiplier.NORMAL;
+        this.windowLevel = WindowLevel.FULLY_CLOSED;
         this.operatingMode = OperatingMode.AUTO.getName();
         this.state = SystemState.NORMAL.getName();
         this.interventionRequired = false;
+        this.modeToSwitchTo = OperatingMode.NONE.getName();
+        this.switchOffAlarm = false;
     }
 
     @Override
@@ -86,14 +94,14 @@ public class HttpService extends AbstractVerticle {
         router.post(Connectivity.REPORTS_PATH).handler(this::handleAddTemperatureReport);
         router.get(Connectivity.REPORTS_PATH).handler(this::handleGetTemperatureReports);
 
-        router.post(Connectivity.OPERATING_MODE_PATH).handler(this::handleUpdateOperatingMode);
-        router.get(Connectivity.OPERATING_MODE_PATH).handler(this::handleGetOperatingMode);
-
-        router.post(Connectivity.INTERVENTION_PATH).handler(this::handleUpdateInterventionNeed);
-        router.get(Connectivity.INTERVENTION_PATH).handler(this::handleGetInterventionNeed);
-
         router.post(Connectivity.CONFIG_PATH).handler(this::handleUpdateConfigData);
         router.get(Connectivity.CONFIG_PATH).handler(this::handleGetConfigData);
+
+        // Special endpoints for interacting with the backend
+        router.post(Connectivity.SWITCH_MODE_PATH).handler(this::handleRequestToSwitchMode);
+        router.get(Connectivity.SWITCH_MODE_PATH).handler(this::handleGetModeToSwitchTo);
+        router.post(Connectivity.SWITCH_ALARM_PATH).handler(this::handleRequestToSwitchAlarm);
+        router.get(Connectivity.SWITCH_ALARM_PATH).handler(this::handleGetAlarmRequest);
 
         vertx.createHttpServer().requestHandler(router).listen(port, host, res -> {
             if (res.succeeded()) {
@@ -177,52 +185,6 @@ public class HttpService extends AbstractVerticle {
         routingContext.response().putHeader("Content-Type", "application/json").end(array.encodePrettily());
     }
 
-    private void handleUpdateOperatingMode(final RoutingContext routingContext) {
-        logger.info("Request to update operating mode from {}", getHost(routingContext.request()));
-
-        final HttpServerResponse response = routingContext.response();
-        final JsonObject data = routingContext.body().asJsonObject();
-        if (data == null) {
-            logger.warn("Operating mode body is null");
-            response.setStatusCode(400).end();
-        } else {
-            this.operatingMode = data.getString(JsonUtility.OPERATING_MODE);
-            logger.info("Updated operating mode to: {}", this.operatingMode);
-            response.setStatusCode(200).end();
-        }
-    }
-
-    private void handleGetOperatingMode(final RoutingContext routingContext) {
-        logger.info("Request for operating mode from {}", getHost(routingContext.request()));
-
-        final JsonObject data = new JsonObject();
-        data.put(JsonUtility.OPERATING_MODE, this.operatingMode);
-        routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
-    }
-
-    private void handleUpdateInterventionNeed(final RoutingContext routingContext) {
-        logger.info("Request to update [intervention need] from {}", getHost(routingContext.request()));
-
-        final HttpServerResponse response = routingContext.response();
-        final JsonObject data = routingContext.body().asJsonObject();
-        if (data == null) {
-            logger.warn("Intervention body is null");
-            response.setStatusCode(400).end();
-        } else {
-            this.interventionRequired = data.getBoolean(JsonUtility.INTERVENTION_NEED);
-            logger.info("Updated [intervention need] to: {}", this.interventionRequired);
-            response.setStatusCode(200).end();
-        }
-    }
-
-    private void handleGetInterventionNeed(final RoutingContext routingContext) {
-        logger.info("Request for [intervention need] status from {}", getHost(routingContext.request()));
-
-        final JsonObject data = new JsonObject();
-        data.put(JsonUtility.INTERVENTION_NEED, this.interventionRequired);
-        routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
-    }
-
     private void handleUpdateConfigData(final RoutingContext routingContext) {
         logger.info("Request to update configuration data from {}", getHost(routingContext.request()));
 
@@ -236,7 +198,11 @@ public class HttpService extends AbstractVerticle {
             this.windowLevel = data.getDouble(JsonUtility.WINDOW_LEVEL);
             this.state = data.getString(JsonUtility.SYSTEM_STATE);
             this.freqMultiplier = data.getDouble(JsonUtility.FREQ_MULTIPLIER);
-            logger.info("Updated config data: windowLevel = {}; state = {}; frequencyMultiplier = {}", this.windowLevel, this.state, this.freqMultiplier);
+            this.operatingMode = data.getString(JsonUtility.OPERATING_MODE);
+            this.interventionRequired = data.getBoolean(JsonUtility.NEEDS_INTERVENTION);
+            logger.info("Updated config data: windowLevel = {}; state = {}; frequencyMultiplier = {}; mode = {}; interventionNeeded = {}", 
+                this.windowLevel,this.state, this.freqMultiplier,
+                this.operatingMode, this.interventionRequired);
             response.setStatusCode(200).end();
         }
     }
@@ -248,6 +214,54 @@ public class HttpService extends AbstractVerticle {
         data.put(JsonUtility.WINDOW_LEVEL, this.windowLevel);
         data.put(JsonUtility.SYSTEM_STATE, this.state);
         data.put(JsonUtility.FREQ_MULTIPLIER, this.freqMultiplier);
+        data.put(JsonUtility.OPERATING_MODE, this.operatingMode);
+        data.put(JsonUtility.NEEDS_INTERVENTION, this.interventionRequired);
+        routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
+    }
+
+    private void handleRequestToSwitchMode(final RoutingContext routingContext) {
+        logger.info("Request to switch mode from {}", getHost(routingContext.request()));
+
+        final HttpServerResponse response = routingContext.response();
+        final JsonObject data = routingContext.body().asJsonObject();
+        if (data == null) {
+            logger.warn("Switch mode body is null");
+            response.setStatusCode(400).end();
+        } else {
+            this.modeToSwitchTo = data.getString(JsonUtility.REQUESTED_MODE);
+            logger.info("Mode to switch to has been set: {}", this.modeToSwitchTo);
+            response.setStatusCode(200).end();
+        }
+    }
+
+    private void handleGetModeToSwitchTo(final RoutingContext routingContext) {
+        logger.info("Request for mode to switch to from {}", getHost(routingContext.request()));
+
+        final JsonObject data = new JsonObject();
+        data.put(JsonUtility.REQUESTED_MODE, this.modeToSwitchTo);
+        routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
+    }
+
+    private void handleRequestToSwitchAlarm(final RoutingContext routingContext) {
+        logger.info("Request to switch alarm from {}", getHost(routingContext.request()));
+
+        final HttpServerResponse response = routingContext.response();
+        final JsonObject data = routingContext.body().asJsonObject();
+        if (data == null) {
+            logger.warn("Alarm switch request body is null");
+            response.setStatusCode(400).end();
+        } else {
+            this.switchOffAlarm = data.getBoolean(JsonUtility.REQUESTED_ALARM_SWITCH);
+            logger.info("Updated alarm state request to: {}", this.switchOffAlarm);
+            response.setStatusCode(200).end();
+        }
+    }
+
+    private void handleGetAlarmRequest(final RoutingContext routingContext) {
+        logger.info("Request for alarm switch status from {}", getHost(routingContext.request()));
+
+        final JsonObject data = new JsonObject();
+        data.put(JsonUtility.REQUESTED_ALARM_SWITCH, this.switchOffAlarm);
         routingContext.response().putHeader("Content-Type", "application/json").end(data.encodePrettily());
     }
 

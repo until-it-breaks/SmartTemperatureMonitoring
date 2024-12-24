@@ -26,14 +26,16 @@ public class RunControlUnit {
             final MQTTClient mqttClient = new MQTTClient(Connectivity.MQTT_BROKER_HOST, Connectivity.MQTT_BROKER_PORT);
             final HttpClient httpClient = new HttpClientImpl(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT);
             final ControlUnit controlUnit = new ControlUnit(serialCommChannel, mqttClient, httpClient);
-            final HttpEndpointWatcher opWatcher = new HttpEndpointWatcher(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT, Connectivity.OPERATING_MODE_PATH);
-            final HttpEndpointWatcher intWatcher = new HttpEndpointWatcher(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT, Connectivity.INTERVENTION_PATH);
-            opWatcher.registerObserver(controlUnit);
-            intWatcher.registerObserver(controlUnit);
-            opWatcher.start(1000);
-            intWatcher.start(1000);
+            // Those daemons will be fetching requests from the dashboard.
+            final HttpEndpointWatcher modeSwitchRequestsWatcher = new HttpEndpointWatcher(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT, Connectivity.SWITCH_MODE_PATH);
+            final HttpEndpointWatcher alarmSwitchRequestWatcher = new HttpEndpointWatcher(Connectivity.SERVER_HOST_LOCAL, Connectivity.SERVER_PORT, Connectivity.SWITCH_ALARM_PATH);
+
+            modeSwitchRequestsWatcher.registerObserver(controlUnit);
+            alarmSwitchRequestWatcher.registerObserver(controlUnit);
             serialCommChannel.registerObserver(controlUnit);
             mqttClient.registerObserver(controlUnit);
+            modeSwitchRequestsWatcher.start(1000);
+            alarmSwitchRequestWatcher.start(1000);
             mqttClient.start();
 
             logger.info("Starting Control Unit in 5 seconds"); // Wait for the mqtt client to fully estabilish a connection.

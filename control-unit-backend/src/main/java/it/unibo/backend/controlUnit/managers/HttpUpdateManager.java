@@ -29,8 +29,6 @@ public class HttpUpdateManager implements UpdateManager {
     public void sendUpdate(final ControlUnitData data) {
         sendSample(data);
         sendReport(data);
-        sendOperatingMode(data);
-        sendInterventionNeed(data);
         sendConfiguration(data);
     }
 
@@ -50,38 +48,25 @@ public class HttpUpdateManager implements UpdateManager {
         }
     }
 
-    private void sendOperatingMode(final ControlUnitData data) {
-        if (!data.getMode().equals(lastMode)) {
-            final JsonObject updateData = new JsonObject();
-            updateData.put(JsonUtility.OPERATING_MODE, data.getMode().getName());
-            httpClient.sendHttpData(Connectivity.OPERATING_MODE_PATH, updateData);
-            lastMode = data.getMode();
-        }
-    }
-
-    private void sendInterventionNeed(final ControlUnitData data) {
-        if (data.isInterventionRequired() != lastInterventionNeed) {
-            final JsonObject updateData = new JsonObject();
-            updateData.put(JsonUtility.INTERVENTION_NEED, data.isInterventionRequired());
-            httpClient.sendHttpData(Connectivity.INTERVENTION_PATH, updateData);
-            lastInterventionNeed = data.isInterventionRequired();
-        }
-    }
-
     private void sendConfiguration(final ControlUnitData data) {
         if (data.getWindowLevel() != lastWindowLevel || 
             !data.getState().equals(lastStateAlias) || 
-            data.getFreqMultiplier() != lastFrequencyMultiplier) {
+            data.getFreqMultiplier() != lastFrequencyMultiplier ||
+            data.getMode() != lastMode || data.isInterventionRequired() != lastInterventionNeed) {
             
             final JsonObject updateData = new JsonObject();
             updateData.put(JsonUtility.WINDOW_LEVEL, data.getWindowLevel());
             updateData.put(JsonUtility.SYSTEM_STATE, data.getState().getName());
             updateData.put(JsonUtility.FREQ_MULTIPLIER, data.getFreqMultiplier());
+            updateData.put(JsonUtility.OPERATING_MODE, data.getMode().getName());
+            updateData.put(JsonUtility.NEEDS_INTERVENTION, data.isInterventionRequired());
 
             httpClient.sendHttpData(Connectivity.CONFIG_PATH, updateData);
             lastWindowLevel = data.getWindowLevel();
             lastStateAlias = data.getState();
             lastFrequencyMultiplier = data.getFreqMultiplier();
+            lastMode = data.getMode();
+            lastInterventionNeed = data.isInterventionRequired();
         }
     }
 }

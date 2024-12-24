@@ -18,7 +18,7 @@ public class Settings {
         public static final double NORMAL = 20;
         public static final double HOT = 25;
         public static final double TOO_HOT = 30;
-        public static final long TOO_HOT_WINDOW = 5000; // Being in the too hot for 5 seconds will transition to the ALARM state
+        public static final long TOO_HOT_WINDOW = 4000; // Being in the too hot for 4 seconds will transition to the ALARM state
     }
 
     public static class WindowLevel {
@@ -29,14 +29,15 @@ public class Settings {
     public static class Connectivity {
         // HTTP Server
         public static final String SERVER_HOST_LOCAL = "localhost";
-        public static final String SERVER_HOST = "https://hamster-holy-mutt.ngrok-free.app";
+        public static final String SERVER_HOST = "https://hamster-holy-mutt.ngrok-free.app";    // Needed when the HTTP server and backend are not hosted on the same pc
         public static final int SERVER_PORT = 8080;
-        // Endpoint paths
-        public static final String TEMPERATURE_PATH = "/api/temperature_samples";
-        public static final String REPORTS_PATH = "/api/reports";
-        public static final String OPERATING_MODE_PATH = "/api/operating_mode";
-        public static final String INTERVENTION_PATH = "/api/intervention";
-        public static final String CONFIG_PATH = "/api/config";
+        // Endpoints used to publish system information
+        public static final String TEMPERATURE_PATH = "/api/samples";   // Provides a list of temperature samples (timestamp and temperature)
+        public static final String REPORTS_PATH = "/api/reports";       // Provides a list of temperature reports (startTime, endTime and aggregate statistics)   
+        public static final String CONFIG_PATH = "/api/config";         // Provides system configurations (windowLevel, status, mode, need for intervention)
+        // Special endpoints for requesting backend changes via http
+        public static final String SWITCH_MODE_PATH = "/api/request_mode_switch";
+        public static final String SWITCH_ALARM_PATH = "/api/request_alarm_switch";
         // MQTT
         public static final String MQTT_BROKER_HOST = "34.154.239.184";
         public static final int MQTT_BROKER_PORT = 1883;
@@ -48,17 +49,23 @@ public class Settings {
      * Contains JSON keywords
      */
     public class JsonUtility {
-        public static final String INTERVENTION_NEED = "needsIntervention";
-        public static final String OPERATING_MODE = "operatingMode";
-        public static final String TEMPERATURE = "temperature";
-        public static final String SAMPLE_TIME = "sampleTime";
-        public static final String WINDOW_LEVEL = "windowLevel";
-        public static final String FREQ_MULTIPLIER = "frequencyMultiplier";
-        public static final String SYSTEM_STATE = "systemState";
-        public static final String START_TIME = "startTime";
-        public static final String END_TIME = "endTime";
-        public static final String AVG_TEMP = "averageTemp";
-        public static final String MIN_TEMP = "minimumTemp";
-        public static final String MAX_TEMP = "maximumTemp";
+        // Temperature sample
+        public static final String TEMPERATURE = "temperature";                 // value is a double
+        public static final String SAMPLE_TIME = "sampleTime";                  // value is a long
+        // Temperature report
+        public static final String START_TIME = "startTime";                    // value is a long
+        public static final String END_TIME = "endTime";                        // value is a long
+        public static final String AVG_TEMP = "averageTemp";                    // value is a double
+        public static final String MIN_TEMP = "minimumTemp";                    // value is a double
+        public static final String MAX_TEMP = "maximumTemp";                    // value is a double
+        // System configuration
+        public static final String WINDOW_LEVEL = "windowLevel";                // value is a double
+        public static final String FREQ_MULTIPLIER = "frequencyMultiplier";     // value is a double
+        public static final String SYSTEM_STATE = "systemState";                // value is a string
+        public static final String NEEDS_INTERVENTION = "needsIntervention";    // value is a boolean
+        public static final String OPERATING_MODE = "operatingMode";            // value is a string ("auto" or "manual")
+        // Request keywords
+        public static final String REQUESTED_MODE = "requestedMode";            // must be set to either "auto", "manual" or "none"
+        public static final String REQUESTED_ALARM_SWITCH = "switchOffAlarm";   // either true or false
     }
 }
