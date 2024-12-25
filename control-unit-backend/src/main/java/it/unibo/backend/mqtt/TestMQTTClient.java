@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
+/**
+ * Unrelated to the backend. Just a MQTT test class.
+ */
 public class TestMQTTClient {
     private static final Logger logger = LoggerFactory.getLogger(TestMQTTClient.class);
 

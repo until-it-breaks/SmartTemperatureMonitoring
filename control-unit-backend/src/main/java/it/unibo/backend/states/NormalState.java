@@ -1,7 +1,9 @@
 package it.unibo.backend.states;
 
-import it.unibo.backend.Settings;
-import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.Settings.FreqMultiplier;
+import it.unibo.backend.Settings.Temperature;
+import it.unibo.backend.Settings.WindowLevel;
+import it.unibo.backend.controller.ControlUnit;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.temperature.TemperatureSample;
@@ -15,30 +17,30 @@ public class NormalState implements State {
 
     @Override
     public void handle() {
-        if (controlUnit.getOperatingMode().equals(OperatingMode.AUTO)) {
-            controlUnit.setFrequency(Settings.FreqMultiplier.NORMAL);
-            controlUnit.setWindowLevel(Settings.DoorState.FULLY_CLOSED);
+        controlUnit.setFreqMultiplier(FreqMultiplier.NORMAL);
+        if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
+            controlUnit.setWindowLevel(WindowLevel.FULLY_CLOSED);
         }
     }
 
     @Override
     public State next() {
-        final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
+        final TemperatureSample sample = controlUnit.getSampler().getLastSample();
         if (sample != null) {
-            if (sample.getValue() < Settings.Temperature.NORMAL) {
-                return this;
-            } else if (sample.getValue() < Settings.Temperature.HOT) {
-                return new HotState(this.controlUnit);
+            if (sample.getTemperature() < Temperature.NORMAL) {
+                return new NormalState(controlUnit);
+            } else if (sample.getTemperature() < Temperature.HOT) {
+                return new HotState(controlUnit);
             } else {
-                return new TooHotState(this.controlUnit);
+                return new TooHotState(controlUnit);
             }
         } else {
-            return this;
+            return new NormalState(controlUnit);
         }
     }
 
     @Override
-    public String getName() {
-        return SystemState.NORMAL.getName();
+    public SystemState getStateAlias() {
+        return SystemState.NORMAL;
     }
 }

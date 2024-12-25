@@ -8,12 +8,13 @@ ReadButtonTask::ReadButtonTask(Context* context) {
     this->context = context;
 }
 
+// Does not directly change the operating mode. Instead request the master (control-unit) to change it first and let it communicate the new mode to use.
 void ReadButtonTask::tick() {
     if (button->wasPressed()) {
         if (context->getOperatingMode() == AUTO) {
-            context->setOperatingMode(MANUAL);
-        } else {
-            context->setOperatingMode(AUTO);
+            context->setModeToSwitchTo(MANUAL);
+        } else if (context->getOperatingMode() == MANUAL) {
+            context->setModeToSwitchTo(AUTO);
         }
     }
 }

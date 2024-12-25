@@ -15,14 +15,17 @@ class Context {
         float getTemperature();
         float getLevel();
         bool requiresIntervention();
+        void setModeToSwitchTo(int newMode);
+        int getModeToSwitchTo();
         int getOperatingMode();
         LcdController* getLcdController();
         WindowController* getWindowController();
     private:
         float temperature;
         float level;
-        bool alarm;
+        bool needIntervention;
         int mode;
+        int modeToSwitchTo;
         LcdController* lcdController;
         WindowController* windowController;
 };

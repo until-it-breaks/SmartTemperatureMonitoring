@@ -10,7 +10,7 @@ WindowControlTask::WindowControlTask(Context* context) {
 void WindowControlTask::tick() {
     this->currentState->handle();
     State* next = this->currentState->next();
-    if (next != currentState) {
+    if (next != currentState && next != nullptr) {
         delete this->currentState;
         this->currentState = next;
     }

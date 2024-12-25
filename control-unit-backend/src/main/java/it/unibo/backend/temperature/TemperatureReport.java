@@ -4,8 +4,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.vertx.core.json.JsonObject;
-import it.unibo.backend.JsonUtility;
+import it.unibo.backend.Settings.JsonUtility;
 
+/**
+ * A container for aggregate temperature information between two timestamps.
+ */
 public class TemperatureReport {
     private long startTime;
     private long endTime;
@@ -88,5 +91,48 @@ public class TemperatureReport {
         data.put(JsonUtility.MIN_TEMP, this.min);
         data.put(JsonUtility.MAX_TEMP, this.max);
         return data;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (startTime ^ (startTime >>> 32));
+        result = prime * result + (int) (endTime ^ (endTime >>> 32));
+        result = prime * result + ((average == null) ? 0 : average.hashCode());
+        result = prime * result + ((min == null) ? 0 : min.hashCode());
+        result = prime * result + ((max == null) ? 0 : max.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final TemperatureReport other = (TemperatureReport) obj;
+        if (startTime != other.startTime)
+            return false;
+        if (endTime != other.endTime)
+            return false;
+        if (average == null) {
+            if (other.average != null)
+                return false;
+        } else if (!average.equals(other.average))
+            return false;
+        if (min == null) {
+            if (other.min != null)
+                return false;
+        } else if (!min.equals(other.min))
+            return false;
+        if (max == null) {
+            if (other.max != null)
+                return false;
+        } else if (!max.equals(other.max))
+            return false;
+        return true;
     }
 }

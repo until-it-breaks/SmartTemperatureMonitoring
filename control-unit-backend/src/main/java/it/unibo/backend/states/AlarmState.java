@@ -1,7 +1,8 @@
 package it.unibo.backend.states;
 
-import it.unibo.backend.Settings;
-import it.unibo.backend.controlunit.ControlUnit;
+import it.unibo.backend.Settings.Temperature;
+import it.unibo.backend.controller.ControlUnit;
+import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
 import it.unibo.backend.temperature.TemperatureSample;
 
@@ -14,31 +15,28 @@ public class AlarmState implements State {
 
     @Override
     public void handle() {
-        this.controlUnit.setNeedForIntervention(true);
+        // The system is blocked only when operating in AUTO mode.
+        if (controlUnit.getMode().equals(OperatingMode.AUTO)) {
+            this.controlUnit.setNeedForIntervention(true);
+        }
     }
 
     @Override
     public State next() {
         if (controlUnit.needsIntervention()) {
-            return this;
+            return new AlarmState(controlUnit);
         } else {
-            final TemperatureSample sample = controlUnit.getTemperatureSampler().getTemperature();
+            final TemperatureSample sample = controlUnit.getSampler().getLastSample();
             if (sample != null) {
-                if (sample.getValue() < Settings.Temperature.NORMAL) {
-                    return new NormalState(this.controlUnit);
-                } else if (sample.getValue() < Settings.Temperature.HOT) {
-                    return new HotState(this.controlUnit);
-                } else {
-                    return new TooHotState(controlUnit);
-                }
+                return new NormalState(controlUnit);
             } else {
-                return this;
+                return new AlarmState(controlUnit);
             }
         }
     }
 
     @Override
-    public String getName() {
-        return SystemState.ALARM.getName();
+    public SystemState getStateAlias() {
+        return SystemState.ALARM;
     }
 }

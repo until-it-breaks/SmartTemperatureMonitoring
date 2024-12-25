@@ -27,7 +27,7 @@ public class HttpClientImpl implements HttpClient {
     public void sendHttpData(final String uri, final JsonObject data) {
         client.post(port, host, uri).sendJson(data, ar -> {
             if (!ar.succeeded()) {
-                logger.error("[Failed to send data]: {}", ar.cause().getMessage());
+                logger.error("Failed to send data: {}", ar.cause().getMessage());
             }
         });
     }

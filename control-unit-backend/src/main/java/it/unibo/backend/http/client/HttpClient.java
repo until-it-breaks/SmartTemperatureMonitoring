@@ -8,7 +8,5 @@ import io.vertx.core.json.JsonObject;
  * asynchronously to a specified URI using HTTP POST requests.
  */
 public interface HttpClient {
-
     void sendHttpData(String uri, JsonObject data);
-
 }

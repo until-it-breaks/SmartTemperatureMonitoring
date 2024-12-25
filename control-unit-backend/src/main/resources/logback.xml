@@ -8,8 +8,8 @@
     </encoder>
   </appender>
 
-  <!-- Set root logging level for your app -->
-  <root level="debug">
+  <!-- Only allow info, warn and error logs, debug and trace are not logged -->
+  <root level="info">
     <appender-ref ref="STDOUT" />
   </root>
 

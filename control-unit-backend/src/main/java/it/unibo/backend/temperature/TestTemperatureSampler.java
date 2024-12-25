@@ -6,6 +6,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A test class for the TemperatureSampler.
+ */
 public class TestTemperatureSampler {
 
     private static final Logger logger = LoggerFactory.getLogger(TestTemperatureSampler.class);
@@ -20,7 +23,7 @@ public class TestTemperatureSampler {
                     final long currentTimestamp = System.currentTimeMillis();
                     final double randomTemperature = ThreadLocalRandom.current().nextDouble(-30.0, 50.0); // Random temp between -30 and 50 degrees
 
-                    sampler.addReading(currentTimestamp, randomTemperature);
+                    sampler.addSample(currentTimestamp, randomTemperature);
 
                     logger.info(String.format("Added temperature: %.2f at " + timeFormat.format(currentTimestamp), randomTemperature));
 
@@ -37,9 +40,9 @@ public class TestTemperatureSampler {
             try {
                 while (true) {
                     Thread.sleep(5000);
-                    final var history = sampler.getHistory();
+                    final var history = sampler.getReportHistory();
                     if (!history.isEmpty()) {
-                        logger.info(history.getLast().toStringSimple());
+                        logger.info(history.get(history.size() - 1).toStringSimple());
                     } else {
                         logger.info("No info available right now.");
                     }

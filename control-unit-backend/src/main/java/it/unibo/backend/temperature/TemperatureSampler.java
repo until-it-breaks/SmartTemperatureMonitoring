@@ -14,6 +14,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.DoubleAdder;
 
+/**
+ * A thread safe sampler that stores temperature and calculates and stores aggregate information on the samples.
+ */
 public class TemperatureSampler {
     private static final int MAX_READINGS = 500;                    // We will store the 500 most recent temp readings.
     private static final int MAX_HISTORY_LENGTH = 30;               // We will store the 30 most recent averages.
@@ -24,6 +27,7 @@ public class TemperatureSampler {
 
     private final ScheduledExecutorService scheduler;
 
+    // Atomic classes are used here since they are both the main thread and the worker dedicated to calculating the aggregate data for the reports.
     private final DoubleAdder tempSum;
     private final AtomicInteger tempSampleCount;
     private final AtomicReference<Double> maxTempRead;
@@ -34,18 +38,18 @@ public class TemperatureSampler {
     public TemperatureSampler() {
         this.temperatureReadings = new ConcurrentSkipListMap<>();
         this.history = new ConcurrentLinkedDeque<>();
-
         this.tempSum = new DoubleAdder();
         this.maxTempRead = new AtomicReference<>(Double.MIN_VALUE);
         this.minTempRead = new AtomicReference<>(Double.MAX_VALUE);
         this.tempSampleCount = new AtomicInteger();
         this.lastTime = new AtomicLong(System.currentTimeMillis());
 
+        // A worker that periodically calculates aggregate information on temperature since the last period.
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
         this.scheduler.scheduleAtFixedRate(this::calculateAverage, DEFAULT_HISTORY_INTERVAL, DEFAULT_HISTORY_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
-    public void addReading(final long timeStamp, final double temperature) {
+    public void addSample(final long timeStamp, final double temperature) {
         if (timeStamp > System.currentTimeMillis()) {
             throw new IllegalArgumentException("Timestamp cannot be in the future");
         }
@@ -78,11 +82,10 @@ public class TemperatureSampler {
         if (history.size() > MAX_HISTORY_LENGTH) {
             history.removeFirst();
         }
-
         lastTime.set(System.currentTimeMillis());
     }
 
-    public TemperatureSample getTemperature() {
+    public TemperatureSample getLastSample() {
         if (temperatureReadings.isEmpty()) {
             return null;
         }
@@ -90,7 +93,13 @@ public class TemperatureSampler {
         return new TemperatureSample(lastEntry.getValue(), lastEntry.getKey());
     }
 
-    public List<TemperatureReport> getHistory() {
-        return new ArrayList<>(history);
+    public List<TemperatureReport> getReportHistory() {
+        List<TemperatureReport> output = new ArrayList<>(history);
+        return output.isEmpty() ? null : output;
+    }
+
+    public TemperatureReport getLastReport() {
+        List<TemperatureReport> output = new ArrayList<>(history);
+        return output.isEmpty() ? null : output.get(output.size() - 1);
     }
 }

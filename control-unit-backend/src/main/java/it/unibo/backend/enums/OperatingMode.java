@@ -4,8 +4,9 @@ package it.unibo.backend.enums;
  * Contains the window operation modes.
  */
 public enum OperatingMode {
-    AUTO("auto", 0),
-    MANUAL("manual", 1);
+    NONE("none", 0), // Used to tell no mode switch is requested
+    AUTO("auto", 1),
+    MANUAL("manual", 2);
 
     private final String name;  // Used for http
     private final int value;    // Used for serial comms for better efficiency
