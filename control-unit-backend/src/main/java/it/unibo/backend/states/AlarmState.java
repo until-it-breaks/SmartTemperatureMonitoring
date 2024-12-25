@@ -1,6 +1,5 @@
 package it.unibo.backend.states;
 
-import it.unibo.backend.Settings.Temperature;
 import it.unibo.backend.controller.ControlUnit;
 import it.unibo.backend.enums.OperatingMode;
 import it.unibo.backend.enums.SystemState;
