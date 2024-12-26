@@ -10,8 +10,8 @@ void measuringTemperatureTask(void* parameter) {
 
   for(;;){
     tempController->readTemp();
-    delay(500);
+    delay(1000);
     Serial.println("current temperature: " + String(tempController->getTemp()));
-    delay(500);
+    delay(1000);
   } 
 }
