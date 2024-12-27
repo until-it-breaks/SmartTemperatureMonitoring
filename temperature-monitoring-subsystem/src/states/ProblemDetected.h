@@ -10,8 +10,8 @@ extern bool isNetworkConnected;
 class ProblemDetected : public State {
     public:
         ProblemDetected();
-        void init() override;
-        State* handle() override;
+        void execute() override;
+        State* next() override;
 };
 
 #endif

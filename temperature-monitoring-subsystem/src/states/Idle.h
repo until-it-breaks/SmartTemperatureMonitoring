@@ -11,8 +11,8 @@ extern bool isNetworkConnected;
 class Idle : public State {
     public:
         Idle();
-        void init() override;
-        State* handle() override;
+        void execute() override;
+        State* next() override;
 };
 
 #endif

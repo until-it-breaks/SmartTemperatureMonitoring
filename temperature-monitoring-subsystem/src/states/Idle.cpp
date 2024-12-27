@@ -4,12 +4,12 @@
 Idle::Idle() {
 }
 
-void Idle::init() {
+void Idle::execute() {
     ledController->switchOnGreen();
     ledController->switchOffRed();
 }
 
-State* Idle::handle() {
+State* Idle::next() {
     if (!isNetworkConnected) {
         return new ProblemDetected();
     }
