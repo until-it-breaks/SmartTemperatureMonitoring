@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include "utils/Connection.h"
 
 // Wi-Fi credentials
 const char* ssid = "TIM-43496337";
@@ -26,10 +27,6 @@ const char* topic_samples = "temperature";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-
-void setup_wifi();
-
-void connect_to_mqtt();
 
 /* MQTT subscribing callback */
 
@@ -65,10 +62,11 @@ void setup() {
   ledController = new LedController(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
   tempController = new TemperatureController(new TemperatureSensor(TEMP_PIN));
 
-  setup_wifi();
+  connect_wifi((char*) ssid, (char*) password);
   client.setServer(mqtt_server, mqtt_port);
-  connect_to_mqtt();
+  connect_to_mqtt(client);
   client.setCallback(callback);
+  client.subscribe(topic_frequency);
 
   xTaskCreatePinnedToCore(measuringTemperatureTask, "measureTemperatureTask", 10000, NULL, 1, &MeasuringTask, 0);
   xTaskCreatePinnedToCore(monitoringTask, "monitoringTask", 10000, NULL, 1, &MonitoringTask, 1);
@@ -76,33 +74,8 @@ void setup() {
 
 void loop() {
   if (!client.connected()) {
-      connect_to_mqtt();
+      connect_to_mqtt(client);
   }
   client.loop();
   delay(5000);
-}
-
-void setup_wifi() {
-    Serial.print("Connecting to Wi-Fi...");
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        Serial.print(".");
-    }
-    Serial.println("Connected to Wi-Fi");
-}
-
-void connect_to_mqtt() {
-    while (!client.connected()) {
-        Serial.print("Connecting to MQTT broker...");
-        if (client.connect("ESP32Client")) {
-            Serial.println("Connected");
-            client.subscribe(topic_frequency);
-            isNetworkConnected = true;
-        } else {
-            Serial.print("Failed. State: ");
-            Serial.println(client.state());
-            delay(5000);
-        }
-    }
 }
