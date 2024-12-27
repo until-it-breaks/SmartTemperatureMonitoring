@@ -5,6 +5,7 @@ ProblemDetected::ProblemDetected() {
 }
 
 void ProblemDetected::execute() {
+    Serial.println("Problem State");
     ledController->switchOffGreen();
     ledController->switchOnRed();
 }

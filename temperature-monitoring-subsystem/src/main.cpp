@@ -16,6 +16,7 @@ LedController* ledController;
 TemperatureController* tempController;
 TaskHandle_t MeasuringTask;
 TaskHandle_t MonitoringTask;
+bool isNetworkConnected;
 
 // MQTT broker details
 const char* mqtt_server = "34.154.239.184";
@@ -99,6 +100,7 @@ void connect_to_mqtt() {
         if (client.connect("ESP32Client")) {
             Serial.println("Connected");
             client.subscribe(topic_frequency);
+            isNetworkConnected = true;
         } else {
             Serial.print("Failed. State: ");
             Serial.println(client.state());
