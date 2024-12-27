@@ -1,5 +1,5 @@
-#ifndef __IDLE__
-#define __IDLE__
+#ifndef __PROBLEMDETECTED__
+#define __PROBLEMDETECTED__
 
 #include "State.h"
 #include "../controllers/LedController.h"
@@ -7,10 +7,9 @@
 extern LedController* ledController;
 extern bool isNetworkConnected;
 
-
-class Idle : public State {
+class ProblemDetected : public State {
     public:
-        Idle();
+        ProblemDetected();
         void init() override;
         State* handle() override;
 };
