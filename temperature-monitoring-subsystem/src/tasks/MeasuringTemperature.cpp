@@ -6,9 +6,6 @@
 extern TemperatureController* tempController;
 
 void measuringTemperatureTask(void* parameter) {
-  Serial.print("Task1 is running on core ");
-  Serial.println(xPortGetCoreID());
-
   for(;;){
     tempController->readTemp();
     delay(MONITORING_PERIOD);

@@ -9,6 +9,8 @@ extern bool isNetworkConnected;
 
 
 class Idle : public State {
+    private:
+        unsigned long startTime;
     public:
         Idle();
         void execute() override;

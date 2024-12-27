@@ -3,6 +3,7 @@
 #include "controllers/LedController.h"
 #include "controllers/TemperatureController.h"
 #include "tasks/MeasuringTemperature.h"
+#include "tasks/MonitoringTemperature.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
@@ -13,7 +14,8 @@ const char* password = "DSE5udhet7tk6KAd3QsZAHQh";
 
 LedController* ledController;
 TemperatureController* tempController;
-TaskHandle_t Task1;
+TaskHandle_t MeasuringTask;
+TaskHandle_t MonitoringTask;
 
 // MQTT broker details
 const char* mqtt_server = "34.154.239.184";
@@ -69,7 +71,8 @@ void setup() {
   connect_to_mqtt();
   client.setCallback(callback);
 
-  xTaskCreatePinnedToCore(measuringTemperatureTask, "measureTemperatureTask", 10000, NULL, 1, &Task1, 0);
+  xTaskCreatePinnedToCore(measuringTemperatureTask, "measureTemperatureTask", 10000, NULL, 1, &MeasuringTask, 0);
+  xTaskCreatePinnedToCore(monitoringTask, "monitoringTask", 10000, NULL, 2, &MonitoringTask, 0);
 }
 
 void loop() {
@@ -77,11 +80,6 @@ void loop() {
       connect_to_mqtt();
   }
   client.loop();
-  // Example: Publish a message
-  // Creazione del messaggio JSON
-  String jsonMessage = "{\"temperature\":23.5}";
-  // Pubblicazione del messaggio JSON
-  client.publish(topic_samples, jsonMessage.c_str());
   delay(5000);
 }
 

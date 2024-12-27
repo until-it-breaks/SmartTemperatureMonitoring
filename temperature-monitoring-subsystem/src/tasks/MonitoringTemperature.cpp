@@ -6,10 +6,10 @@
 #include "states/State.h"
 #include "headers/defines.h"
 
-void monitoring(void* parameter) {
+void monitoringTask(void* parameter) {
     State* currentState = new Idle();
     while(1) {
-        delay(MONITORING_PERIOD);
+        delay(TASKS_PERIOD);
         State* nextState = currentState->next();
         if (nextState != nullptr) {
             currentState = nextState;
