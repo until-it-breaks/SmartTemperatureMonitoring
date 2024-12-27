@@ -13,7 +13,7 @@ void connect_wifi(char* ssid, char* password) {
     Serial.println("Connected to Wi-Fi");
 }
 
-void connect_to_mqtt(PubSubClient client ) {
+void connect_to_mqtt(PubSubClient client) {
     while (!client.connected()) {
         Serial.print("Connecting to MQTT broker...");
         if (client.connect("ESP32Client")) {

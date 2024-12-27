@@ -64,9 +64,7 @@ void setup() {
 
   connect_wifi((char*) ssid, (char*) password);
   client.setServer(mqtt_server, mqtt_port);
-  connect_to_mqtt(client);
   client.setCallback(callback);
-  client.subscribe(topic_frequency);
 
   xTaskCreatePinnedToCore(measuringTemperatureTask, "measureTemperatureTask", 10000, NULL, 1, &MeasuringTask, 0);
   xTaskCreatePinnedToCore(monitoringTask, "monitoringTask", 10000, NULL, 1, &MonitoringTask, 1);
@@ -74,7 +72,9 @@ void setup() {
 
 void loop() {
   if (!client.connected()) {
-      connect_to_mqtt(client);
+    isNetworkConnected = false;
+    connect_to_mqtt(client);
+    client.subscribe(topic_frequency);
   }
   client.loop();
   delay(5000);
