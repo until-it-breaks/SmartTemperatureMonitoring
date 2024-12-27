@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "MeasuringTemperature.h"
 #include "controllers/TemperatureController.h"
+#include "headers/defines.h"
 
 extern TemperatureController* tempController;
 
@@ -10,8 +11,8 @@ void measuringTemperatureTask(void* parameter) {
 
   for(;;){
     tempController->readTemp();
-    delay(1000);
+    delay(MONITORING_PERIOD);
     Serial.println("current temperature: " + String(tempController->getTemp()));
-    delay(1000);
+    delay(MONITORING_PERIOD);
   } 
 }
