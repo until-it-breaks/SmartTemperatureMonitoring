@@ -64,8 +64,6 @@ void setup() {
   Serial.begin(115200); 
   ledController = new LedController(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
   tempController = new TemperatureController(new TemperatureSensor(TEMP_PIN));
-  ledController->switchOnGreen();
-  ledController->switchOnRed();
 
   setup_wifi();
   client.setServer(mqtt_server, mqtt_port);
@@ -73,7 +71,7 @@ void setup() {
   client.setCallback(callback);
 
   xTaskCreatePinnedToCore(measuringTemperatureTask, "measureTemperatureTask", 10000, NULL, 1, &MeasuringTask, 0);
-  xTaskCreatePinnedToCore(monitoringTask, "monitoringTask", 10000, NULL, 2, &MonitoringTask, 0);
+  xTaskCreatePinnedToCore(monitoringTask, "monitoringTask", 10000, NULL, 1, &MonitoringTask, 1);
 }
 
 void loop() {

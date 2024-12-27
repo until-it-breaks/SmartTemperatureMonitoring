@@ -8,6 +8,7 @@
 
 void monitoringTask(void* parameter) {
     State* currentState = new Idle();
+    currentState->execute();
     while(1) {
         delay(TASKS_PERIOD);
         State* nextState = currentState->next();

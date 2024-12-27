@@ -1,5 +1,6 @@
 #include "Idle.h"
 #include "ProblemDetected.h"
+#include "SendingSamples.h"
 #include "headers/defines.h"
 
 Idle::Idle() {
@@ -16,7 +17,7 @@ State* Idle::next() {
         return new ProblemDetected();
     }
     if (millis() - startTime >= SENDING_PERIOD) {
-
+        return new SendingSamples();
     }
     return nullptr;
 }

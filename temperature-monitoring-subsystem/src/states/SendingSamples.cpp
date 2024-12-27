@@ -17,5 +17,5 @@ State* SendingSamples::next() {
     if (!isNetworkConnected) {
         return new ProblemDetected();
     }
-    return nullptr;
+    return new Idle();
 }
