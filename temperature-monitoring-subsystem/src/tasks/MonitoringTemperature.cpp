@@ -10,10 +10,10 @@ void monitoring(void* parameter) {
     State* currentState = new Idle();
     while(1) {
         delay(MONITORING_PERIOD);
-        State* nextState = currentState->handle();
+        State* nextState = currentState->next();
         if (nextState != nullptr) {
             currentState = nextState;
-            currentState->init();
+            currentState->execute();
         }
     }
 }
