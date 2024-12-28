@@ -48,26 +48,6 @@ const sendAlarmSwitchRequest = async (switchState) => {
     }
 };
 
-const sendModeSwitchRequest = async (mode) => {
-    const modePayload = { requestedMode: mode };
-    console.log("Sending mode payload:", modePayload);
-    try {
-        const response = await fetch(`${SERVER_HOST}${SWITCH_MODE_PATH}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                requestedMode: mode,
-            }),
-        });
-        const result = await response.json();
-        console.log("Mode Switch Response:", result);
-    } catch (error) {
-        console.error("Error sending mode switch request:", error);
-    }
-};
-
 // Function to toggle between auto and manual mode
 async function toggleMode() {
     const modeElement = document.getElementById("manualModeToggle");
@@ -111,13 +91,6 @@ document.getElementById('manualModeToggle').addEventListener('click', toggleMode
 
 document.getElementById('resolveAlarm').addEventListener('click', () => {
     sendAlarmSwitchRequest(true);
-});
-
-document.getElementById('windowControl').addEventListener('input', (event) => {
-    if (!isManualMode) {
-        alert("Cannot change window level in automatic mode.");
-        event.target.value = 0; // Reset the range input value
-    }
 });
 
 // Initial data fetch
