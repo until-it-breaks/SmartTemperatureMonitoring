@@ -29,34 +29,17 @@ async function fetchConfigData() {
 }
 
 const sendAlarmSwitchRequest = async (switchState) => {
-    const modePayload = { switchOffAlarm: switchState };
-    console.log("Sending mode payload:", modePayload);
-    try {
-        const response = await fetch(`${SERVER_HOST}${SWITCH_ALARM_PATH}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                switchOffAlarm: switchState,
-            }),
-        });
-        const result = await response.json();
-        console.log("Alarm Switch Response:", result);
-    } catch (error) {
-        console.error("Error sending alarm switch request:", error);
-    }
+
 };
 
-// Function to toggle between auto and manual mode
-async function toggleMode() {
+document.getElementById('manualModeToggle').addEventListener('click', async () => {
     const modeElement = document.getElementById("manualModeToggle");
     const currentMode = modeElement.getAttribute("data-mode"); // Get the current mode from the button's data attribute
 
     const newMode = currentMode === "auto" ? "manual" : "auto";
     const modePayload = { requestedMode: newMode };
 
-    console.log("Sending mode payload:", modePayload); // Debug log
+    console.log("Sending mode payload:", modePayload);
 
     try {
         const response = await fetch(`${SERVER_HOST}${SWITCH_MODE_PATH}`, {
@@ -84,13 +67,24 @@ async function toggleMode() {
     // Disable the range input if not in manual mode
     const windowControl = document.getElementById('windowControl');
     windowControl.disabled = !isManualMode;
-}
+});
 
-
-document.getElementById('manualModeToggle').addEventListener('click', toggleMode);
-
-document.getElementById('resolveAlarm').addEventListener('click', () => {
-    sendAlarmSwitchRequest(true);
+document.getElementById('resolveAlarm').addEventListener('click', async () => {
+    const payload = { switchOffAlarm: true };
+    console.log("Sending mode payload:", payload);
+    try {
+        const response = await fetch(`${SERVER_HOST}${SWITCH_ALARM_PATH}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+        const result = await response.json();
+        console.log("Alarm Switch Response:", result);
+    } catch (error) {
+        console.error("Error sending alarm switch request:", error);
+    }
 });
 
 // Initial data fetch
