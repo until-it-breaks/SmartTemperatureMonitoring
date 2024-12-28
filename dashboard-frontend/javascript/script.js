@@ -35,6 +35,8 @@ async function fetchConfigData() {
 }
 
 const sendAlarmSwitchRequest = async (switchState) => {
+    const modePayload = { switchOffAlarm: switchState };
+    console.log("Sending mode payload:", modePayload);
     try {
         const response = await fetch(`${SERVER_HOST}${SWITCH_ALARM_PATH}`, {
             method: "POST",
@@ -42,7 +44,7 @@ const sendAlarmSwitchRequest = async (switchState) => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                requestedAlarmSwitch: switchState,
+                switchOffAlarm: switchState,
             }),
         });
         const result = await response.json();
@@ -53,6 +55,8 @@ const sendAlarmSwitchRequest = async (switchState) => {
 };
 
 const sendModeSwitchRequest = async (mode) => {
+    const modePayload = { requestedMode: mode };
+    console.log("Sending mode payload:", modePayload);
     try {
         const response = await fetch(`${SERVER_HOST}${SWITCH_MODE_PATH}`, {
             method: "POST",
