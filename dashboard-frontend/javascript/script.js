@@ -26,12 +26,6 @@ async function fetchConfigData() {
 
     systemState.textContent = data.systemState;
     windowLevel.textContent = data.windowLevel;
-
-    isManualMode = data.operatingMode === "manual";
-
-    // Disable the range input if not in manual mode
-    const windowControl = document.getElementById('windowControl');
-    windowControl.disabled = !isManualMode;
 }
 
 const sendAlarmSwitchRequest = async (switchState) => {
@@ -74,10 +68,46 @@ const sendModeSwitchRequest = async (mode) => {
     }
 };
 
-document.getElementById('manualModeToggle').addEventListener('click', () => {
-    const mode = isManualMode ? "auto" : "manual";
-    sendModeSwitchRequest(mode);
-});
+// Function to toggle between auto and manual mode
+async function toggleMode() {
+    const modeElement = document.getElementById("manualModeToggle");
+    const currentMode = modeElement.getAttribute("data-mode"); // Get the current mode from the button's data attribute
+
+    const newMode = currentMode === "auto" ? "manual" : "auto";
+    const modePayload = { requestedMode: newMode };
+
+    console.log("Sending mode payload:", modePayload); // Debug log
+
+    try {
+        const response = await fetch(`${SERVER_HOST}${SWITCH_MODE_PATH}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(modePayload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Update the button text and data attribute based on the new mode
+        modeElement.setAttribute("data-mode", newMode);
+        modeElement.textContent = `Enter ${currentMode === "auto" ? "Manual" : "Auto"} Mode`;
+
+        console.log("Mode toggled successfully to:", newMode);
+    } catch (error) {
+        console.error("Error toggling mode:", error);
+    }
+
+    isManualMode = currentMode === "manual";
+    // Disable the range input if not in manual mode
+    const windowControl = document.getElementById('windowControl');
+    windowControl.disabled = !isManualMode;
+}
+
+
+document.getElementById('manualModeToggle').addEventListener('click', toggleMode);
 
 document.getElementById('resolveAlarm').addEventListener('click', () => {
     sendAlarmSwitchRequest(true);
