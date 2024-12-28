@@ -1,5 +1,4 @@
-const SERVER_HOST = "https://hamster-holy-mutt.ngrok-free.app";
-const SERVER_PORT = 8080;
+const SERVER_HOST = "http://127.0.0.1:8080";
 
 const TEMPERATURE_PATH = "/api/samples";
 const REPORTS_PATH = "/api/reports";
@@ -24,10 +23,11 @@ async function fetchConfigData() {
     const systemState = document.getElementById('systemState');
     const windowLevel = document.getElementById('windowLevel');
 
-    systemState.textContent = data.status;
+
+    systemState.textContent = data.systemState;
     windowLevel.textContent = data.windowLevel;
 
-    isManualMode = data.mode === "manual";
+    isManualMode = data.operatingMode === "manual";
 
     // Disable the range input if not in manual mode
     const windowControl = document.getElementById('windowControl');
