@@ -27,29 +27,56 @@ async function fetchConfigData() {
     systemState.textContent = data.status;
     windowLevel.textContent = data.windowLevel;
 
-    isManualMode = data.mode === "MANUAL";
+    isManualMode = data.mode === "manual";
 
     // Disable the range input if not in manual mode
     const windowControl = document.getElementById('windowControl');
     windowControl.disabled = !isManualMode;
 }
 
-document.getElementById('manualModeToggle').addEventListener('click', async () => {
-    const response = await fetch(`${SERVER_HOST}${SWITCH_MODE_PATH}`, { method: 'POST' });
-    const result = await response.json();
-    console.log("Manual Mode Toggle Result:", result);
+const sendAlarmSwitchRequest = async (switchState) => {
+    try {
+        const response = await fetch(`${SERVER_HOST}${SWITCH_ALARM_PATH}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                requestedAlarmSwitch: switchState,
+            }),
+        });
+        const result = await response.json();
+        console.log("Alarm Switch Response:", result);
+    } catch (error) {
+        console.error("Error sending alarm switch request:", error);
+    }
+};
 
-    // Refresh the config data to update the UI
-    fetchConfigData();
+const sendModeSwitchRequest = async (mode) => {
+    try {
+        const response = await fetch(`${SERVER_HOST}${SWITCH_MODE_PATH}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                requestedMode: mode,
+            }),
+        });
+        const result = await response.json();
+        console.log("Mode Switch Response:", result);
+    } catch (error) {
+        console.error("Error sending mode switch request:", error);
+    }
+};
+
+document.getElementById('manualModeToggle').addEventListener('click', () => {
+    const mode = isManualMode ? "auto" : "manual";
+    sendModeSwitchRequest(mode);
 });
 
-document.getElementById('resolveAlarm').addEventListener('click', async () => {
-    const response = await fetch(`${SERVER_HOST}${SWITCH_ALARM_PATH}`, { method: 'POST' });
-    const result = await response.json();
-    console.log("Alarm Resolved:", result);
-
-    // Refresh the config data to update the UI
-    fetchConfigData();
+document.getElementById('resolveAlarm').addEventListener('click', () => {
+    sendAlarmSwitchRequest(true);
 });
 
 document.getElementById('windowControl').addEventListener('input', (event) => {
