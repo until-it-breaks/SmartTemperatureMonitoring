@@ -28,10 +28,6 @@ async function fetchConfigData() {
     windowLevel.textContent = data.windowLevel;
 }
 
-const sendAlarmSwitchRequest = async (switchState) => {
-
-};
-
 document.getElementById('manualModeToggle').addEventListener('click', async () => {
     const modeElement = document.getElementById("manualModeToggle");
     const currentMode = modeElement.getAttribute("data-mode"); // Get the current mode from the button's data attribute
