@@ -9,23 +9,38 @@ const SWITCH_ALARM_PATH = "/api/request_alarm_switch";
 let isManualMode = false;
 
 async function fetchTemperatureData() {
-    const response = await fetch(`${SERVER_HOST}${TEMPERATURE_PATH}`);
-    const data = await response.json();
-    console.log("Temperature Data:", data);
+    try {
+        const response = await fetch(`${SERVER_HOST}${REPORTS_PATH}`);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        console.log("Temperature Data:", data);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function fetchConfigData() {
-    const response = await fetch(`${SERVER_HOST}${CONFIG_PATH}`);
-    const data = await response.json();
-    console.log("Config Data:", data);
+    try {
+        const response = await fetch(`${SERVER_HOST}${CONFIG_PATH}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Config Data:", data);
+        
+        // Update UI based on system state
+        const systemState = document.getElementById('systemState');
+        const windowLevel = document.getElementById('windowLevel');
+    
+    
+        systemState.textContent = data.systemState;
+        windowLevel.textContent = data.windowLevel;
+    } catch (error) {
+        console.error(error);
+    }
 
-    // Update UI based on system state
-    const systemState = document.getElementById('systemState');
-    const windowLevel = document.getElementById('windowLevel');
-
-
-    systemState.textContent = data.systemState;
-    windowLevel.textContent = data.windowLevel;
 }
 
 document.getElementById('manualModeToggle').addEventListener('click', async () => {
@@ -76,13 +91,14 @@ document.getElementById('resolveAlarm').addEventListener('click', async () => {
             },
             body: JSON.stringify(payload),
         });
-        const result = await response.json();
-        console.log("Alarm Switch Response:", result);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
     } catch (error) {
         console.error("Error sending alarm switch request:", error);
     }
 });
 
 // Initial data fetch
-fetchTemperatureData();
-fetchConfigData();
+setInterval(fetchTemperatureData, 500);
+setInterval(fetchConfigData, 500);
