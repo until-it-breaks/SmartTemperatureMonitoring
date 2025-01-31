@@ -12,10 +12,20 @@ async function fetchTemperatureData() {
     try {
         const response = await fetch(`${SERVER_HOST}${REPORTS_PATH}`);
         const data = await response.json();
+        const avgTemp = document.getElementById("avgTemp");
+        const maxTemp = document.getElementById("maxTemp");
+        const minTemp = document.getElementById("minTemp");
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         console.log("Temperature Data:", data);
+        const reports = [];
+        data.forEach(element => {
+            reports.push(element);
+        });
+        avgTemp.innerText = reports[0]["averageTemp"];
+        maxTemp.innerText = reports[0]["maximumTemp"];
+        minTemp.innerText = reports[0]["minimumTemp"];
     } catch (error) {
         console.error(error);
     }
@@ -100,5 +110,5 @@ document.getElementById('resolveAlarm').addEventListener('click', async () => {
 });
 
 // Initial data fetch
-setInterval(fetchTemperatureData, 500);
-setInterval(fetchConfigData, 500);
+setInterval(fetchTemperatureData, 1000);
+setInterval(fetchConfigData, 1000);
