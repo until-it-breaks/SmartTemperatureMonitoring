@@ -5,6 +5,7 @@ const REPORTS_PATH = "/api/reports";
 const CONFIG_PATH = "/api/config";
 const SWITCH_MODE_PATH = "/api/request_mode_switch";
 const SWITCH_ALARM_PATH = "/api/request_alarm_switch";
+const MODE = "/api/operating_mode"
 
 let isManualMode = false;
 
@@ -18,7 +19,6 @@ async function fetchTemperatureData() {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        console.log("Temperature Data:", data);
         const reports = [];
         data.forEach(element => {
             reports.push(element);
@@ -93,12 +93,15 @@ async function fetchConfigData() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Config Data:", data);
         
         // Update UI based on system state
         const systemState = document.getElementById('systemState');
         const windowLevel = document.getElementById('windowLevel');
-    
+        const modeElement = document.getElementById("manualModeToggle");
+        let currentMode = modeElement.getAttribute("data-mode");
+
+        modeElement.textContent = `Enter ${data.operatingMode === "auto" ? "Manual" : "Auto"} Mode`;
+        currentMode = data.operatingMode;
     
         systemState.textContent = data.systemState;
         windowLevel.textContent = data.windowLevel;
@@ -110,7 +113,7 @@ async function fetchConfigData() {
 
 document.getElementById('manualModeToggle').addEventListener('click', async () => {
     const modeElement = document.getElementById("manualModeToggle");
-    const currentMode = modeElement.getAttribute("data-mode"); // Get the current mode from the button's data attribute
+    const currentMode = modeElement.getAttribute("data-mode");
 
     const newMode = currentMode === "auto" ? "manual" : "auto";
     const modePayload = { requestedMode: newMode };
@@ -138,11 +141,6 @@ document.getElementById('manualModeToggle').addEventListener('click', async () =
     } catch (error) {
         console.error("Error toggling mode:", error);
     }
-
-    isManualMode = currentMode === "manual";
-    // Disable the range input if not in manual mode
-    const windowControl = document.getElementById('windowControl');
-    windowControl.disabled = !isManualMode;
 });
 
 document.getElementById('resolveAlarm').addEventListener('click', async () => {
