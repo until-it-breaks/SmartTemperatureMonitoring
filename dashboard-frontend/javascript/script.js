@@ -5,7 +5,6 @@ const REPORTS_PATH = "/api/reports";
 const CONFIG_PATH = "/api/config";
 const SWITCH_MODE_PATH = "/api/request_mode_switch";
 const SWITCH_ALARM_PATH = "/api/request_alarm_switch";
-const MODE = "/api/operating_mode"
 
 let isManualMode = false;
 
