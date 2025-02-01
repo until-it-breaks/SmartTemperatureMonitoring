@@ -31,6 +31,61 @@ async function fetchTemperatureData() {
     }
 }
 
+async function fetchSamples() {
+    try {
+        const response = await fetch(`${SERVER_HOST}${TEMPERATURE_PATH}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        data.forEach(sample => {
+            addTemperature(sample.temperature);
+        });
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+const N = 20; // Number of recent measurements to keep
+let temperatureData = []; // Stores the last N temperatures
+let labels = []; // X-axis labels (timestamps)
+
+// Initialize Chart.js
+const ctx = document.getElementById('temperatureGraph').getContext('2d');
+const tempChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Temperature (°C)',
+            data: temperatureData,
+            borderColor: 'red',
+            backgroundColor: 'rgba(255, 0, 0, 0.2)',
+            fill: true
+        }]
+    },
+    options: {
+        scales: {
+            x: { title: { display: true, text: 'Time' } },
+            y: { title: { display: true, text: 'Temperature (°C)' } }
+        }
+    }
+});
+
+function addTemperature(value) {
+    const now = new Date().toLocaleTimeString();
+    
+    if (temperatureData.length >= N) {
+        temperatureData.shift();
+        labels.shift();
+    }
+
+    temperatureData.push(value);
+    labels.push(now);
+
+    tempChart.update();
+}
+
 async function fetchConfigData() {
     try {
         const response = await fetch(`${SERVER_HOST}${CONFIG_PATH}`);
@@ -112,3 +167,4 @@ document.getElementById('resolveAlarm').addEventListener('click', async () => {
 // Initial data fetch
 setInterval(fetchTemperatureData, 1000);
 setInterval(fetchConfigData, 1000);
+setInterval(fetchSamples, 2000);
