@@ -103,10 +103,9 @@ async function fetchConfigData() {
         const systemState = document.getElementById('systemState');
         const windowLevel = document.getElementById('windowLevel');
         const modeElement = document.getElementById("manualModeToggle");
-        let currentMode = modeElement.getAttribute("data-mode");
 
         modeElement.textContent = `Enter ${data.operatingMode === "auto" ? "Manual" : "Auto"} Mode`;
-        currentMode = data.operatingMode;
+        modeElement.setAttribute("data-mode", data.operatingMode);
     
         systemState.textContent = data.systemState;
         windowLevel.textContent = data.windowLevel * 100;
