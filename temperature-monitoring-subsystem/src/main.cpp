@@ -9,8 +9,8 @@
 #include <ArduinoJson.h>
 
 // Wi-Fi credentials
-const char* ssid = "TIM-43496337";
-const char* password = "DSE5udhet7tk6KAd3QsZAHQh";
+const char* ssid = "OnePlus 11 5G";
+const char* password = "alfabeta";
 
 LedController* ledController;
 TemperatureController* tempController;
@@ -75,8 +75,12 @@ void setup() {
 }
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    isNetworkConnected = false;
+    setup_wifi();
+  }
   if (!client.connected()) {
-      connect_to_mqtt();
+    connect_to_mqtt();
   }
   client.loop();
   delay(5000);
@@ -90,6 +94,7 @@ void setup_wifi() {
         Serial.print(".");
     }
     Serial.println("Connected to Wi-Fi");
+    isNetworkConnected = true;
 }
 
 void connect_to_mqtt() {
@@ -98,7 +103,6 @@ void connect_to_mqtt() {
         if (client.connect("ESP32Client")) {
             Serial.println("Connected");
             client.subscribe(topic_frequency);
-            isNetworkConnected = true;
         } else {
             Serial.print("Failed. State: ");
             Serial.println(client.state());
