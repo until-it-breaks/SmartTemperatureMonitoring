@@ -7,7 +7,6 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
-#include "utils/Connection.h"
 
 // Wi-Fi credentials
 const char* ssid = "OnePlus 11 5G";
@@ -57,12 +56,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.println(frequency);
 }
 
+void setup_wifi();
+void connect_to_mqtt();
+
 void setup() {
   Serial.begin(115200); 
   ledController = new LedController(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
   tempController = new TemperatureController(new TemperatureSensor(TEMP_PIN));
 
-  connect_wifi((char*) ssid, (char*) password);
+  setup_wifi();
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
 
