@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Monitoring Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../javascript/script.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+    <div id="dashboard">
+        <header>
+            <h1>Temperature Monitoring System</h1>
+        </header>
+
+        <main> 
+            <section id="visualisation"> 
+                <h2>System State</h2>
+                <canvas id="temperatureGraph"></canvas>
+
+                <div id="stats">
+                    <p>Current Average: <span id="avgTemp">--</span>°C</p>
+                    <p>Max Temperature: <span id="maxTemp">--</span>°C</p>
+                    <p>Min Temperature: <span id="minTemp">--</span>°C</p>
+                </div>
+
+                <div id="state">
+                    <p>System State: <span id="systemState">NORMAL</span></p>
+                    <p>Window Opening Level: <span id="windowLevel">0</span>%</p>
+                </div>
+            </section>
+
+            <section id="manualControl">
+                <h2>Mode</h2>
+                <button id="manualModeToggle">Enter Manual Mode</button>
+            </section>
+
+            <section id="alarmManagement">
+                <h2>Alarm Management</h2>
+                <p>ALARM State Active</p>
+                <button id="resolveAlarm">Resolve Alarm</button>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

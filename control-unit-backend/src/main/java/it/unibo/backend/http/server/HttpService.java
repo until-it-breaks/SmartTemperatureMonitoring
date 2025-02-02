@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
@@ -14,6 +15,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import it.unibo.backend.Settings.Connectivity;
 import it.unibo.backend.Settings.FreqMultiplier;
 import it.unibo.backend.Settings.JsonUtility;
@@ -81,11 +83,16 @@ public class HttpService extends AbstractVerticle {
         this.switchOffAlarm = false;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void start() {
         logger.info("Starting Service on {}:{}", host, port);
         final Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
+
+        router.route().handler(CorsHandler.create("*")
+        .allowedMethod(HttpMethod.GET)
+        .allowedMethod(HttpMethod.POST));
 
         // Creating endpoints RESTful endpoints
         router.post(Connectivity.TEMPERATURE_PATH).handler(this::handleAddTemperatureSample);

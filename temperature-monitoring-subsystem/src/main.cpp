@@ -7,6 +7,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include "utils/Connection.h"
 
 // Wi-Fi credentials
 const char* ssid = "OnePlus 11 5G";
@@ -26,10 +27,6 @@ const char* topic_samples = "temperature";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
-
-void setup_wifi();
-
-void connect_to_mqtt();
 
 /* MQTT subscribing callback */
 
@@ -65,9 +62,8 @@ void setup() {
   ledController = new LedController(new Led(GREEN_LED_PIN), new Led(RED_LED_PIN));
   tempController = new TemperatureController(new TemperatureSensor(TEMP_PIN));
 
-  setup_wifi();
+  connect_wifi((char*) ssid, (char*) password);
   client.setServer(mqtt_server, mqtt_port);
-  connect_to_mqtt();
   client.setCallback(callback);
 
   xTaskCreatePinnedToCore(measuringTemperatureTask, "measureTemperatureTask", 10000, NULL, 1, &MeasuringTask, 0);
