@@ -38,7 +38,7 @@ async function fetchSamples() {
         }
         const data = await response.json();
         data.forEach(sample => {
-            addTemperature(sample.temperature);
+            addTemperature(sample.temperature, sample.sampleTime);
         });
     } catch (error) {
         console.error(error);
@@ -71,16 +71,22 @@ const tempChart = new Chart(ctx, {
     }
 });
 
-function addTemperature(value) {
-    const now = new Date().toLocaleTimeString();
+function millisToTime(millis) {
+    let date = new Date(millis);
+    let formattedTime = date.toISOString().replace("T", " ").replace("Z", "");  
+    return formattedTime; 
+}
+
+function addTemperature(value, sampleTime) {
+    const time = millisToTime(sampleTime);
     
     if (temperatureData.length >= N) {
         temperatureData.shift();
         labels.shift();
     }
-
+                                                                 
     temperatureData.push(value);
-    labels.push(now);
+    labels.push(time);
 
     tempChart.update();
 }
