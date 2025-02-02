@@ -22,9 +22,9 @@ async function fetchTemperatureData() {
         data.forEach(element => {
             reports.push(element);
         });
-        avgTemp.innerText = reports[0]["averageTemp"];
-        maxTemp.innerText = reports[0]["maximumTemp"];
-        minTemp.innerText = reports[0]["minimumTemp"];
+        avgTemp.innerText = reports[reports.length - 1]["averageTemp"];
+        maxTemp.innerText = reports[reports.length - 1]["maximumTemp"];
+        minTemp.innerText = reports[reports.length - 1]["minimumTemp"];
     } catch (error) {
         console.error(error);
     }
@@ -109,7 +109,7 @@ async function fetchConfigData() {
         currentMode = data.operatingMode;
     
         systemState.textContent = data.systemState;
-        windowLevel.textContent = data.windowLevel;
+        windowLevel.textContent = data.windowLevel * 100;
     } catch (error) {
         console.error(error);
     }
