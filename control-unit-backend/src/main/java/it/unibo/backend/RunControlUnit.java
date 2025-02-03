@@ -47,8 +47,8 @@ public class RunControlUnit {
 
             // #########################################################################################
             // For testing purposes, comment when an actual temperature sensor is providing data via MQTT
-            Thread testThread = new Thread(new TemperatureTest(controlUnit, 2000), "TemperatureTest");
-            testThread.start();
+            //Thread testThread = new Thread(new TemperatureTest(controlUnit, 2000), "TemperatureTest");
+            //testThread.start();
             // #########################################################################################
         } catch (final Exception e) {
             logger.error("Unexpected error: {}", e.getMessage(), e);
