@@ -8,7 +8,6 @@ extern TemperatureController* tempController;
 void measuringTemperatureTask(void* parameter) {
   for(;;){
     tempController->readTemp();
-    delay(MONITORING_PERIOD);
     Serial.println("current temperature: " + String(tempController->getTemp()));
     delay(MONITORING_PERIOD);
   } 
