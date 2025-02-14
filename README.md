@@ -39,5 +39,5 @@ The system is meant to monitor the temperature of the closed environment and - d
 
 - We recommend using the PlatformIO extension on vscode to compile the Arduino code (`window-controller`) and ESP code (`temperature-monitoring-subsystem`) and load them onto each board.
 - The HTTP service can be run via the `RunHttpService` class.
-- The Control Unit can be run via the `RunControlUnit` class (likely won't work since the MQTT server subscription has run out).
+- The Control Unit can be run via the `RunControlUnit` class (likely won't work properly since the MQTT server subscription will have run out by then).
 - The Dashboard can be launched by simply opening `index.html` in a browser.
