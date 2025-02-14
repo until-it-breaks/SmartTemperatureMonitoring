@@ -34,3 +34,10 @@ Microcontroller Arduino UNO board including:
 ## General Behaviour of the system
 
 The system is meant to monitor the temperature of the closed environment and - depending on the value - control the opening of the window. It can be in two different modes: AUTOMATIC or MANUAL. In AUTOMATIC mode, the system automatically decides how much the window must be opened, depending on the current temperature. In MANUAL mode, the opening is controlled manually by an operator. The starting mode when booting is AUTOMATIC.
+
+## How to run
+
+- We recommend using the PlatformIO extension on vscode to compile the Arduino code (`window-controller`) and ESP code (`temperature-monitoring-subsystem`) and load them onto each board.
+- The HTTP service can be run via the `RunHttpService` class.
+- The Control Unit can be run via the `RunControlUnit` class (likely won't work since the MQTT server subscription has run out).
+- The Dashboard can be launched by simply opening `index.html` in a browser.
